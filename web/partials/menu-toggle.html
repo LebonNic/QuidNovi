@@ -1,0 +1,17 @@
+<md-button ng-href="#{{section.url}}"
+           class="md-button-toggle"
+           ng-class="{'active': isSelected()}"
+           ng-click="toggle()" flex layout="row">
+    <i class="fa" ng-class="{'fa-folder': !isOpen(), 'fa-folder-open': isOpen()}"></i>
+    {{section.name}}
+    <span class="md-toggle-icon" ng-class="{'toggled' : isOpen()}"></span>
+</md-button>
+
+<ul ng-show="isOpen()" class="menu-toggle-list">
+    <li ng-repeat="category in section.categories">
+        <menu-toggle section="category"></menu-toggle>
+    </li>
+    <li ng-repeat="feed in section.feeds">
+        <menu-link section="feed"></menu-link>
+    </li>
+</ul>

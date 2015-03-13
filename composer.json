@@ -1,0 +1,19 @@
+{
+  "name": "Isima/QuidNovi",
+  "description": "Rss feed reader using PHP and Angular",
+  "minimum-stability": "dev",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Antoine COLMARD",
+      "email": "antoine.colmard@poste.isima.fr"
+    },
+    {
+      "name": "Nicolas PRUGNE",
+      "email": "nicolas.prugne@poste.isima.fr"
+    }
+  ],
+  "require": {
+    "slim/slim": "2.6.2"
+  }
+}

@@ -1,0 +1,35 @@
+<md-list>
+    <md-item ng-repeat="entry in entries" ng-controller="EntryController">
+        <md-item-content>
+            <div class="md-tile-left">
+                <md-button ng-href="#{{entry.feed.url}}">
+                    {{entry.feed.name}}
+                </md-button>
+            </div>
+            <div class="md-tile-content">
+                <span ng-class="{'unread': !entry.read}">
+                    {{entry.title}}
+                </span>
+                <em>
+                    {{entry.description}}
+                </em>
+            </div>
+            <div class="md-tile-right">
+                <md-button aria-label="Mark as read" ng-click="toggleRead(entry)">
+                    <i class="fa"
+                       ng-class="{'fa-eye': entry.read, 'fa-eye-slash': !entry.read}">
+                    </i>
+                </md-button>
+                <md-button aria-label="Mark as save" ng-click="toggleSaved(entry)">
+                    <i class="fa"
+                       ng-class="{'fa-bookmark': entry.saved, 'fa-bookmark-o': !entry.saved}">
+                    </i>
+                </md-button>
+                <md-button ng-href="{{entry.url}}" target="_blank">
+                    {{entry.publicationDate | date:short}}
+                </md-button>
+            </div>
+        </md-item-content>
+        <md-divider ng-if="!$last"></md-divider>
+    </md-item>
+</md-list>
