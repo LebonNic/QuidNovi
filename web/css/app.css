@@ -125,6 +125,12 @@ md-toolbar h1 {
 md-item-content {
     font-size: 0.8em;
     height: 32px;
+    transition: all 0.5s;
+}
+
+md-item-content.toggled {
+    height: auto;
+    transition: all 0.5s;
 }
 
 md-item-content i.fa {
@@ -146,11 +152,16 @@ md-item-content:hover i.fa {
 
 /* Entry title and description */
 .md-tile-content {
+    cursor: pointer;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
     margin-left: 2.5%;
     margin-right: 2.5%;
+}
+
+.toggled .md-tile-content {
+    cursor: auto;
 }
 
 /* Entry title */
@@ -173,6 +184,25 @@ md-item-content:hover i.fa {
     color: #4d4d4d;
     content: '\00B7';
     margin-right: 0.3em;
+}
+
+.toggled .md-tile-content {
+    padding-top: 0;
+}
+
+.toggled .md-tile-content h2 {
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.toggled .md-tile-content h2.unread {
+    font-weight: bold;
+}
+
+.toggled .md-tile-content p {
+    white-space: normal;
+    text-align: justify;
+    font-size: 1.0em;
 }
 
 /* Entry date */

@@ -325,7 +325,7 @@
             };
         })
 
-        .controller('EntriesController', function ($scope, $routeParams, Entry, Feed) {
+        .controller('EntriesController', function ($scope, $routeParams, $document, Entry, Feed) {
             $scope.entries = Entry.findAll({
                 offset: $routeParams.offset,
                 max: $routeParams.max,
@@ -334,11 +334,37 @@
                 feed: $routeParams.feed,
                 category: $routeParams.category
             });
+
             angular.forEach($scope.entries, function (entry) {
                 if (!entry.feed) {
                     entry.feed = Feed.find(entry.feedId);
                 }
             });
+
+            $scope.selectedEntry = undefined;
+            $scope.entryIndex = undefined;
+
+            $scope.expand = function (entry) {
+                $scope.selectedEntry = entry;
+                entry.read = true;
+
+                // Search corresponding index in loaded entries
+                for (var entryIndex = 0, entryCount = $scope.entries.length; entryIndex < entryCount; ++entryIndex) {
+                    if ($scope.entries[entryIndex] === entry) {
+                        $scope.entryIndex = entryIndex;
+                        return;
+                    }
+                }
+            };
+
+            $scope.collapse = function (entry, $event) {
+                $scope.selectedEntry = undefined;
+                $event.stopPropagation();
+            };
+
+            $scope.isExpanded = function (entry) {
+                return entry === $scope.selectedEntry;
+            };
         })
         .controller('EntryController', function ($scope) {
             $scope.toggleSaved = function (entry) {
@@ -348,30 +374,13 @@
             $scope.toggleRead = function (entry) {
                 entry.read = !entry.read;
             };
+
         })
         .controller('FeedController', function ($scope, $routeParams, Entry, Feed) {
-            $scope.feed = Feed.find($routeParams.id);
-
-            $scope.entries = Entry.findAll({
-                feed: $routeParams.id
-            });
-
-            angular.forEach($scope.entries, function (entry) {
-                entry.feed = $scope.feed;
-            });
+            $scope.feed = Feed.find($routeParams.feed);
         })
         .controller('CategoryController', function ($scope, $routeParams, $location, Entry, Feed, Category) {
-            $scope.category = Category.find($routeParams.id);
-
-            $scope.entries = Entry.findAll({
-                category: $routeParams.id
-            });
-
-            angular.forEach($scope.entries, function (entry) {
-                if (!entry.feed) {
-                    entry.feed = Feed.find(entry.feedId);
-                }
-            });
+            $scope.category = Category.find($routeParams.category);
         })
 
         .config(function ($routeProvider) {
@@ -400,7 +409,7 @@
                 // A button next to feed title allows feed edition.
                 // On click, a modal is revealed with current feed properties.
                 // User can edit feed title, feed description and can unsubscribe feed.
-                .when('/feeds/:id', {templateUrl: 'partials/feed-detail.html', controller: 'FeedController'})
+                .when('/feeds/:feed', {templateUrl: 'partials/feed-detail.html', controller: 'FeedController'})
 
                 // CATEGORY DETAIL
                 // Display category entries ordered by descending date.
@@ -409,7 +418,7 @@
                 // A button next to category title allows category edition.
                 // On click, a modal is revealed with current category properties.
                 // User can change category title, category description and can delete category.
-                .when('/categories/:id', {
+                .when('/categories/:category', {
                     templateUrl: 'partials/category-detail.html',
                     controller: 'CategoryController'
                 })

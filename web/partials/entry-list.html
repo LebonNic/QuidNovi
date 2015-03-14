@@ -1,18 +1,24 @@
-<md-list>
+<md-list ng-controller="EntriesController">
     <md-item ng-repeat="entry in entries" ng-controller="EntryController">
-        <md-item-content>
+        <md-item-content ng-class="{'toggled': isExpanded(entry)}">
             <div class="md-tile-left">
                 <md-button ng-href="#{{entry.feed.url}}">
                     {{entry.feed.name}}
                 </md-button>
             </div>
-            <div class="md-tile-content">
-                <span ng-class="{'unread': !entry.read}">
-                    {{entry.title}}
-                </span>
-                <em>
-                    {{entry.description}}
-                </em>
+            <div class="md-tile-content" ng-click="expand(entry)">
+                <div ng-hide="isExpanded(entry)">
+                    <span ng-class="{'unread': !entry.read}">
+                        {{entry.title}}
+                    </span>
+                    <em>
+                        {{entry.description}}
+                    </em>
+                </div>
+                <div ng-show="isExpanded(entry)">
+                    <h2 ng-class="{'unread': !entry.read}" ng-click="collapse(entry, $event)">{{entry.title}}</h2>
+                    <p>{{entry.description}}</p>
+                </div>
             </div>
             <div class="md-tile-right">
                 <md-button aria-label="Mark as read" ng-click="toggleRead(entry)">
