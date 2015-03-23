@@ -1,0 +1,17 @@
+<md-dialog aria-label="Feed edition" ng-controller="FeedController">
+    <md-content>
+        <md-input-container flex>
+            <label>Feed Name</label>
+            <input ng-model="feed.name" placeholder="Name">
+        </md-input-container>
+    </md-content>
+    <div class="md-actions" layout="row">
+        <md-button>
+            Unsubscribe feed
+        </md-button>
+        <span flex></span>
+        <md-button ng-click="answer('useful')" class="md-primary">
+            Close
+        </md-button>
+    </div>
+</md-dialog>

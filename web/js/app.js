@@ -128,7 +128,7 @@
                 }
             }
         })
-        .factory('Category', function () {
+        .factory('Category', function (Feed) {
             var categories = [{
                 id: 4,
                 name: 'Awesome Category',
@@ -146,25 +146,13 @@
                     }],
                     feeds: []
                 }],
-                feeds: [{
-                    id: 1,
-                    name: 'Awesome Feed',
-                    url: '/feeds/1'
-                }, {
-                    id: 2,
-                    name: '"IT" Website',
-                    url: '/feeds/2'
-                }]
+                feeds: [Feed.find(1), Feed.find(2)]
             }, {
                 id: 5,
                 name: 'Random Category',
                 url: '/categories/5',
                 categories: [],
-                feeds: [{
-                    id: 3,
-                    name: 'Random website',
-                    url: '/feeds/3'
-                }]
+                feeds: [Feed.find(3)]
             }, {
                 id: 6,
                 name: 'Empty Category',
@@ -376,14 +364,59 @@
             };
 
         })
-        .controller('FeedController', function ($scope, $routeParams, Entry, Feed) {
+        .controller('FeedController', function ($scope, $routeParams, $location, $mdDialog, Entry, Feed) {
             $scope.feed = Feed.find($routeParams.feed);
+
+            if ($scope.feed === undefined) {
+                $location.url('/error');
+            }
+
+            $scope.showEditDialog = function ($event) {
+                $mdDialog.show({
+                    controller: 'DialogController',
+                    templateUrl: 'partials/feed-dialog.html',
+                    targetEvent: $event
+                }).then(function (answer) {
+                    $scope.alert = 'You said the information was "' + answer + '".';
+                }, function () {
+                    $scope.alert = 'You cancelled the dialog.';
+                });
+            };
         })
-        .controller('CategoryController', function ($scope, $routeParams, $location, Entry, Feed, Category) {
+        .controller('CategoryController', function ($scope, $routeParams, $location, $mdDialog, Entry, Feed, Category) {
             $scope.category = Category.find($routeParams.category);
+
+            if ($scope.category === undefined) {
+                $location.url('/error');
+            }
+
+            $scope.showEditDialog = function ($event) {
+                $mdDialog.show({
+                    controller: 'DialogController',
+                    templateUrl: 'partials/category-dialog.html',
+                    targetEvent: $event
+                }).then(function (answer) {
+                    $scope.alert = 'You said the information was "' + answer + '".';
+                }, function () {
+                    $scope.alert = 'You cancelled the dialog.';
+                });
+            };
+        })
+
+        .controller('DialogController', function ($scope, $mdDialog) {
+            $scope.hide = function () {
+                $mdDialog.hide();
+            };
+            $scope.cancel = function () {
+                $mdDialog.cancel();
+            };
+            $scope.answer = function (answer) {
+                $mdDialog.hide(answer);
+            };
         })
 
         .config(function ($routeProvider) {
+            //$location.html5Mode(true);
             // Route configuration
             $routeProvider
                 .when('/entries', {templateUrl: 'partials/entry-list.html', controller: 'EntriesController'})
@@ -423,7 +456,11 @@
                     controller: 'CategoryController'
                 })
 
+                .when('/error', {
+                    templateUrl: 'partials/error.html'
+                })
+
                 // By default, go to list of last entries
-                .otherwise({redirectTo: '/entries'})
+                .otherwise({redirectTo: '/error'})
         })
 })();

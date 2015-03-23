@@ -9,8 +9,7 @@
          processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="false"
-         bootstrap="src/autoload.php"
-        >
+         bootstrap="vendor/autoload.php">
     <testsuites>
         <testsuite name="QuidNovi Test Suite">
             <directory>./tests/</directory>

@@ -4,7 +4,7 @@ use Slim\Slim;
 
 // Create the application
 $app = new Slim(array(
-    'templates.path' => __DIR__ . '/../web'
+    'templates.path' => __DIR__.'/../web',
 ));
 
 $app->config('debug', true);

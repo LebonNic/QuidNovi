@@ -1,0 +1,17 @@
+<md-dialog aria-label="Category edition" ng-controller="CategoryController">
+    <md-content>
+        <md-input-container flex>
+            <label>Category Name</label>
+            <input ng-model="category.name" placeholder="Name">
+        </md-input-container>
+    </md-content>
+    <div class="md-actions" layout="row">
+        <md-button>
+            Delete category
+        </md-button>
+        <span flex></span>
+        <md-button ng-click="answer('useful')" class="md-primary">
+            Close
+        </md-button>
+    </div>
+</md-dialog>
