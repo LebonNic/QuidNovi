@@ -23,9 +23,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-use QuidNovi\QuidNovi;
+namespace QuidNovi\Exception;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
-$app = new QuidNovi();
-$app->run();
+class UpdateFailure extends PersistenceFailure
+{
+}

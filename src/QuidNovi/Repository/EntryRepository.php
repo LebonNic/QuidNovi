@@ -23,9 +23,60 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-use QuidNovi\QuidNovi;
+namespace QuidNovi\Repository;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+use PDO;
+use QuidNovi\Model\Entry;
+use QuidNovi\Specification\EntrySpecification;
 
-$app = new QuidNovi();
-$app->run();
+class EntryRepository
+{
+    private $entries = array();
+    /**
+     * @var PDO
+     */
+    private $pdo;
+
+    function __construct($pdo)
+    {
+        $this->pdo = $pdo;
+    }
+
+
+    public function find($id)
+    {
+        return $this->entries[$id];
+    }
+
+    public function findAll()
+    {
+        return $this->entries;
+    }
+
+    public function findSatisfying(EntrySpecification $specification)
+    {
+        $satisfyingEntries = array();
+
+        foreach ($this->entries as $entry) {
+            if ($specification->isSatisfiedBy($entry)) {
+                array_push($satisfyingEntries, $entry);
+            }
+        }
+    }
+
+    public function add(Entry $entry)
+    {
+        if (null !== $entry) {
+            $id = $entry->id;
+            $this->entries[$id] = $entry;
+        }
+    }
+
+    public function remove(Entry $entry)
+    {
+        if (null !== $entry) {
+            $id = $entry->id;
+            unset($this->entries[$id]);
+        }
+    }
+}

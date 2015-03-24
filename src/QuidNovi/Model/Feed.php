@@ -23,9 +23,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-use QuidNovi\QuidNovi;
+namespace QuidNovi\Model;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+class Feed extends Component
+{
+    /**
+     * @var string
+     */
+    private $source;
+    /**
+     * @var \DateTime
+     */
+    private $lastUpdate;
+    /**
+     * @var array
+     */
+    private $entries;
 
-$app = new QuidNovi();
-$app->run();
+    public function __construct($name, $source, $lastUpdate, $entries = array())
+    {
+        $this->id = null;
+        $this->name = $name;
+        $this->source = $source;
+        $this->lastUpdate = $lastUpdate;
+        $this->entries = $entries;
+    }
+
+    public function addEntry($entry)
+    {
+        $entry->feed = $this;
+        array_push($this->entries, $entry);
+    }
+
+    public function getSource()
+    {
+        return $this->source;
+    }
+
+    public function getLastUpdate()
+    {
+        return $this->lastUpdate;
+    }
+
+    public function getEntries()
+    {
+        return $this->entries;
+    }
+}

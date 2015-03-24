@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: colmard
  * Date: 23/03/2015
- * Time: 14:27
+ * Time: 14:27.
  */
 
 namespace QuidNovi\Specification;

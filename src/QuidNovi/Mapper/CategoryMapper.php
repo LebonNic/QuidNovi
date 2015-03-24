@@ -23,34 +23,54 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace QuidNovi;
+namespace QuidNovi\Mapper;
 
-class Category extends Component
+use QuidNovi\Exception\DeletionFailure;
+use QuidNovi\Model\Category;
+
+class CategoryMapper
 {
-    private $components;
+    private $categories = array();
+    /**
+     * @var \PDO
+     */
+    private $pdo;
 
-    public function __construct($id, $name)
+    function __construct($pdo)
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->components = array();
+        $this->pdo = $pdo;
     }
 
-    public function addComponent(Component $component)
+    public function persist(Category $category)
     {
-        array_push($this->components, $component);
-    }
+        $componentMapper = new ComponentMapper($this->pdo);
+        $componentMapper->persist($category);
 
-    public function removeComponent(Component $component)
-    {
-        $key = array_search($component, $this->components, true);
-        if ($key !== false) {
-            unset($this->components[$key]);
+        if ($category->id) {
+            $this->update($category);
+        } else {
+            $this->insert($category);
         }
     }
 
-    public function getComponents()
+    private function insert(Category $category)
     {
-        return $this->components;
+        $insertQuery = <<<SQL
+INSERT INTO Category (id)
+VALUES (:id)
+SQL;
+        $statement =  $this->pdo->prepare($insertQuery);
+        $success = $statement->execute(['id' => $category->id]);
+
+        if (!$success) {
+            throw new DeletionFailure($category);
+        }
+
+        $this->categories[$category->id] = $category;
+    }
+
+    private function update(Category $category)
+    {
+
     }
 }

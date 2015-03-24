@@ -23,34 +23,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace QuidNovi;
+namespace QuidNovi\Model;
 
 class Entry
 {
-    private $id;
+    /**
+     * @var int
+     */
+    public $id;
+    /**
+     * @var string
+     */
     public $title;
+    /**
+     * @var string
+     */
     public $summary;
+    /**
+     * @var string
+     */
     private $location;
+    /**
+     * @var \DateTime
+     */
     private $publicationDate;
-    private $feed;
+    /**
+     * @var Feed
+     */
+    public $feed;
+    /**
+     * @var boolean
+     */
     private $read;
+    /**
+     * @var boolean
+     */
     private $saved;
 
-    public function __construct($id, $title, $summary, $location, $publicationDate, Feed $feed, $read, $saved)
+    public function __construct($title, $summary, $location, $publicationDate, $read = true, $saved = false)
     {
-        $this->id = $id;
+        $this->id = null;
         $this->title = $title;
         $this->summary = $summary;
         $this->location = $location;
-        $this->feed = $feed;
         $this->publicationDate = $publicationDate;
+        $this->feed = null;
         $this->read = $read;
         $this->saved = $saved;
-    }
-
-    public function getId()
-    {
-        return $this->id;
     }
 
     public function markAsSaved()
@@ -81,11 +100,6 @@ class Entry
     public function getPublicationDate()
     {
         return $this->publicationDate;
-    }
-
-    public function getFeed()
-    {
-        return $this->feed;
     }
 
     public function isRead()

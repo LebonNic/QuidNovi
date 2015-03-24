@@ -23,9 +23,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-use QuidNovi\QuidNovi;
+namespace QuidNovi\Model;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+abstract class Component
+{
+    /**
+     * @var int
+     */
+    public $id;
 
-$app = new QuidNovi();
-$app->run();
+    /**
+     * @var string
+     */
+    public $name;
+}

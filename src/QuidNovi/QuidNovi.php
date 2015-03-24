@@ -25,23 +25,66 @@
  */
 namespace QuidNovi;
 
-abstract class Component
+use Exception;
+use Slim\Slim;
+
+/**
+ * Application front controller and error handler.
+ * @package QuidNovi
+ */
+class QuidNovi extends Slim
 {
-    protected $id;
-    protected $name;
-
-    public function getId()
+    public function __construct()
     {
-        return $this->id;
+        parent::__construct();
+
+        $this->setupConfiguration();
+        $this->setupErrorHandling();
+        $this->setupRoutes();
     }
 
-    public function rename($name)
+    /**
+     * Setup application global configuration.
+     */
+    private function setupConfiguration()
     {
-        $this->name = $name;
+        $this->config('templates.path', __DIR__ . '/../../web');
+        $this->config('debug', true);
     }
 
-    public function getName()
+    /**
+     * Setup logging on error handling.
+     */
+    private function setupErrorHandling()
     {
-        return $this->name;
+        $this->error(function (Exception $ex) {
+            $this->getLog()->alert($ex);
+        });
+    }
+
+    /**
+     * Setup application routes.
+     */
+    private function setupRoutes()
+    {
+        // 404 redirection
+        $this->notFound(function () {
+            $this->render('404.html');
+        });
+
+        // Redirect root to index.html (angular application)
+        $this->get('/', function () {
+            $this->render('index.html');
+        });
+
+        $this->setupAPIRoutes();
+    }
+
+    /**
+     * Setup routes for application's API.
+     */
+    private function setupAPIRoutes()
+    {
+
     }
 }

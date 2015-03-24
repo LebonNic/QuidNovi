@@ -23,40 +23,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace QuidNovi;
+namespace QuidNovi\Exception;
 
-class Feed extends Component
+class InsertionFailure extends PersistenceFailure
 {
-    private $source;
-    private $lastUpdate;
-    private $entries;
-
-    public function __construct($id, $name, $source, $lastUpdate)
-    {
-        $this->id = $id;
-        $this->name = $name;
-        $this->source = $source;
-        $this->lastUpdate = $lastUpdate;
-        $this->entries = array();
-    }
-
-    public function addEntry($entry)
-    {
-        array_push($this->entries, $entry);
-    }
-
-    public function getSource()
-    {
-        return $this->source;
-    }
-
-    public function getLastUpdate()
-    {
-        return $this->lastUpdate;
-    }
-
-    public function getEntries()
-    {
-        return $this->entries;
-    }
 }

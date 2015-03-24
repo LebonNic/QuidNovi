@@ -23,9 +23,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-use QuidNovi\QuidNovi;
+namespace QuidNovi\Exception;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+use Exception;
 
-$app = new QuidNovi();
-$app->run();
+class PersistenceFailure extends Exception
+{
+    private $persistedObject;
+
+    function __construct($persistedObject)
+    {
+        $this->persistedObject = $persistedObject;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPersistedObject()
+    {
+        return $this->persistedObject;
+    }
+}

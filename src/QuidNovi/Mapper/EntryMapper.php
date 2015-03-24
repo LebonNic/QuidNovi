@@ -23,9 +23,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-use QuidNovi\QuidNovi;
+namespace QuidNovi\Mapper;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+class EntryMapper
+{
 
-$app = new QuidNovi();
-$app->run();
+}

@@ -23,9 +23,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-use QuidNovi\QuidNovi;
+namespace QuidNovi\Model;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+class Category extends Component
+{
+    /**
+     * @var array
+     */
+    private $components;
 
-$app = new QuidNovi();
-$app->run();
+    public function __construct($name, $components = array())
+    {
+        $this->id = null;
+        $this->name = $name;
+        $this->components = $components;
+    }
+
+    public function addComponent(Component $component)
+    {
+        array_push($this->components, $component);
+    }
+
+    public function removeComponent(Component $component)
+    {
+        $key = array_search($component, $this->components, true);
+        if ($key !== false) {
+            unset($this->components[$key]);
+        }
+    }
+
+    public function getComponents()
+    {
+        return $this->components;
+    }
+}

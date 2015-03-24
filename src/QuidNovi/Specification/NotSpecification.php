@@ -1,13 +1,13 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: colmard
  * Date: 23/03/2015
- * Time: 15:17
+ * Time: 15:17.
  */
 
 namespace QuidNovi\Specification;
-
 
 use QuidNovi\Entry;
 
