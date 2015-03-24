@@ -2,38 +2,13 @@
     <md-item ng-repeat="entry in entries" ng-controller="EntryController">
         <md-item-content ng-class="{'toggled': isExpanded(entry)}">
             <div class="md-tile-left">
-                <md-button ng-href="#{{entry.feed.url}}">
-                    {{entry.feed.name}}
-                </md-button>
+                <entry-feed></entry-feed>
             </div>
             <div class="md-tile-content" ng-click="expand(entry)">
-                <div ng-hide="isExpanded(entry)">
-                    <span ng-class="{'unread': !entry.read}">
-                        {{entry.title}}
-                    </span>
-                    <em>
-                        {{entry.description}}
-                    </em>
-                </div>
-                <div ng-show="isExpanded(entry)">
-                    <h2 ng-class="{'unread': !entry.read}" ng-click="collapse(entry, $event)">{{entry.title}}</h2>
-                    <p>{{entry.description}}</p>
-                </div>
+                <entry-content></entry-content>
             </div>
             <div class="md-tile-right">
-                <md-button aria-label="Mark as read" ng-click="toggleRead(entry)">
-                    <i class="fa"
-                       ng-class="{'fa-eye': entry.read, 'fa-eye-slash': !entry.read}">
-                    </i>
-                </md-button>
-                <md-button aria-label="Mark as save" ng-click="toggleSaved(entry)">
-                    <i class="fa"
-                       ng-class="{'fa-bookmark': entry.saved, 'fa-bookmark-o': !entry.saved}">
-                    </i>
-                </md-button>
-                <md-button ng-href="{{entry.url}}" target="_blank">
-                    {{entry.publicationDate | date:short}}
-                </md-button>
+                <entry-details></entry-details>
             </div>
         </md-item-content>
         <md-divider ng-if="!$last"></md-divider>
