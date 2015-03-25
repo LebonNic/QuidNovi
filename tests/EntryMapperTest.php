@@ -35,6 +35,12 @@ use QuidNovi\Model\Feed;
 
 class EntryMapperTest extends \PHPUnit_Framework_TestCase
 {
+    public static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+        date_default_timezone_set('Zulu');
+    }
+
     public function testComponentInsertion()
     {
         // Given

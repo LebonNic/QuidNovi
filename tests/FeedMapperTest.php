@@ -32,11 +32,17 @@ use QuidNovi\Model\Feed;
 
 class FeedMapperTest extends \PHPUnit_Framework_TestCase
 {
+    public static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+        date_default_timezone_set('Zulu');
+    }
+
     public function testComponentInsertion()
     {
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
+        $pdo = new PDO('sqlite:' . __DIR__ . '/../database.sqlite3');
         $mapper = new FeedMapper($pdo);
         $finder = new FeedFinder($pdo);
 
@@ -52,7 +58,7 @@ class FeedMapperTest extends \PHPUnit_Framework_TestCase
     {
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
+        $pdo = new PDO('sqlite:' . __DIR__ . '/../database.sqlite3');
         $mapper = new FeedMapper($pdo);
         $finder = new FeedFinder($pdo);
 
@@ -71,7 +77,7 @@ class FeedMapperTest extends \PHPUnit_Framework_TestCase
     {
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
+        $pdo = new PDO('sqlite:' . __DIR__ . '/../database.sqlite3');
         $mapper = new FeedMapper($pdo);
         $finder = new FeedFinder($pdo);
 
