@@ -23,15 +23,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace QuidNovi\Mapper;
+namespace QuidNovi\Finder;
 
-class EntryMapper
+class EntryFinder
 {
-    public function persist($entry)
+    public function find($id)
     {
+
     }
 
-    public function remove($entry)
+    public function findAll()
     {
+
     }
 }

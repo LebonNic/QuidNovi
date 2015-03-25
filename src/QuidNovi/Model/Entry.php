@@ -60,7 +60,7 @@ class Entry
      */
     private $saved;
 
-    public function __construct($title, $summary, $location, $publicationDate, $read = true, $saved = false)
+    public function __construct($title, $summary, $location, $publicationDate, $read = false, $saved = false)
     {
         $this->id = null;
         $this->title = $title;
