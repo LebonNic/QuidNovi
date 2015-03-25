@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The MIT License (MIT).
  *
@@ -23,6 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 namespace src\QuidNovi\Controller;
 
 use QuidNovi\Controller\AbstractController;
@@ -42,7 +44,7 @@ class FeedController extends AbstractController
                 $this->find($id);
             });
 
-            $app->post('/', function() {
+            $app->post('/', function () {
                 $this->subscribe();
             });
 

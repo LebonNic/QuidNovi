@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The MIT License (MIT).
  *
@@ -23,11 +24,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 namespace src\QuidNovi\Controller;
 
 use QuidNovi\Controller\AbstractController;
 use QuidNovi\Mapper\CategoryMapper;
-use QuidNovi\Model\Category;
 
 class CategoryController extends AbstractController
 {
@@ -63,12 +64,11 @@ class CategoryController extends AbstractController
         });
     }
 
-
     private function create()
     {
         $app = $this->app;
         $request = $app->request;
-        $connection = $app->getConnection();
+        $connection = $app->getDataSource();
         $mapper = new CategoryMapper($connection);
     }
 
@@ -82,7 +82,6 @@ class CategoryController extends AbstractController
 
     public function rename($id, $name)
     {
-
     }
 
     public function delete($id)

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The MIT License (MIT).
  *
@@ -23,17 +24,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 namespace QuidNovi\Finder;
 
 class FeedFinder
 {
     public function find($id)
     {
-
     }
 
     public function findAll()
     {
-
     }
 }

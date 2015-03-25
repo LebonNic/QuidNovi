@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The MIT License (MIT).
  *
@@ -25,7 +26,7 @@
  */
 use QuidNovi\QuidNovi;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 $app = new QuidNovi();
 $app->run();

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The MIT License (MIT).
  *
@@ -23,12 +24,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace QuidNovi\Controller;
 
+namespace QuidNovi\Controller;
 
 use QuidNovi\QuidNovi;
 
-abstract class AbstractController {
+abstract class AbstractController
+{
     /**
      * @var QuidNovi
      */
@@ -40,5 +42,5 @@ abstract class AbstractController {
         $this->createRoutes();
     }
 
-    public abstract function createRoutes();
+    abstract public function createRoutes();
 }

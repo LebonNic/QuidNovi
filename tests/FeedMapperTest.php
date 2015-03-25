@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The MIT License (MIT).
  *
@@ -23,6 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 namespace tests;
 
 use PDO;
@@ -42,7 +44,7 @@ class FeedMapperTest extends \PHPUnit_Framework_TestCase
     {
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
-        $pdo = new PDO('sqlite:' . __DIR__ . '/../database.sqlite3');
+        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
         $mapper = new FeedMapper($pdo);
         $finder = new FeedFinder($pdo);
 
@@ -58,7 +60,7 @@ class FeedMapperTest extends \PHPUnit_Framework_TestCase
     {
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
-        $pdo = new PDO('sqlite:' . __DIR__ . '/../database.sqlite3');
+        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
         $mapper = new FeedMapper($pdo);
         $finder = new FeedFinder($pdo);
 
@@ -77,7 +79,7 @@ class FeedMapperTest extends \PHPUnit_Framework_TestCase
     {
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
-        $pdo = new PDO('sqlite:' . __DIR__ . '/../database.sqlite3');
+        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
         $mapper = new FeedMapper($pdo);
         $finder = new FeedFinder($pdo);
 

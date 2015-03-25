@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The MIT License (MIT).
  *
@@ -23,6 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 namespace QuidNovi\Model;
 
 class Entry
@@ -52,11 +54,11 @@ class Entry
      */
     public $feed;
     /**
-     * @var boolean
+     * @var bool
      */
     private $read;
     /**
-     * @var boolean
+     * @var bool
      */
     private $saved;
 

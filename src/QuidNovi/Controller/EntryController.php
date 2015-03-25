@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The MIT License (MIT).
  *
@@ -23,6 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 namespace QuidNovi\Controller;
 
 use QuidNovi\Finder\EntryFinder;
@@ -34,7 +36,7 @@ class EntryController extends AbstractController
     {
         $app = $this->app;
 
-        $app->group('/entries', function() use ($app) {
+        $app->group('/entries', function () use ($app) {
             $app->get('/', function () {
                 $this->findAll();
             });
@@ -58,7 +60,7 @@ class EntryController extends AbstractController
 
     public function find($id)
     {
-        $connection = $this->app->getConnection();
+        $connection = $this->app->getDataSource();
         $finder = new EntryFinder($connection);
         $entry = $finder->find($id);
         $connection = null;
@@ -74,7 +76,7 @@ class EntryController extends AbstractController
 
     public function findAll()
     {
-        $connection = $this->app->getConnection();
+        $connection = $this->app->getDataSource();
         $finder = new EntryFinder($connection);
         $entries = $finder->findAll();
         $connection = null;
@@ -86,12 +88,12 @@ class EntryController extends AbstractController
 
     public function markAsRead($id, $read)
     {
-        $connection = $this->app->getConnection();
+        $connection = $this->app->getDataSource();
         $finder = new EntryFinder($connection);
         $entry = $finder->find($id);
         if ('true' === $read) {
             $this->markEntryAsRead($entry);
-        } else if ('false' === $read) {
+        } elseif ('false' === $read) {
             $this->markEntryAsUnread($entry);
         }
         $mapper = new EntryMapper($connection);
@@ -100,6 +102,5 @@ class EntryController extends AbstractController
 
     public function markAsSaved($id, $saved)
     {
-
     }
 }

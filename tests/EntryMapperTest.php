@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The MIT License (MIT).
  *
@@ -23,15 +24,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 namespace tests;
 
 use PDO;
 use QuidNovi\Finder\EntryFinder;
-use QuidNovi\Finder\FeedFinder;
 use QuidNovi\Mapper\EntryMapper;
-use QuidNovi\Mapper\FeedMapper;
 use QuidNovi\Model\Entry;
-use QuidNovi\Model\Feed;
 
 class EntryMapperTest extends \PHPUnit_Framework_TestCase
 {

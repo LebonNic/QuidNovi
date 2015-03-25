@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The MIT License (MIT).
  *
@@ -23,6 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 namespace QuidNovi;
 
 use Exception;
@@ -38,7 +40,6 @@ use Slim\Slim;
 
 /**
  * Application front controller and error handler.
- * @package QuidNovi
  */
 class QuidNovi extends Slim
 {
@@ -57,8 +58,8 @@ class QuidNovi extends Slim
     private function setupConfiguration()
     {
         date_default_timezone_set('Zulu');
-        $this->config('templates.path', __DIR__ . '\..\..\web');
-        $this->config('database.path', 'sqlite:' . __DIR__ . '\..\..\database.sqlite3');
+        $this->config('templates.path', __DIR__.'\..\..\web');
+        $this->config('database.path', 'sqlite:'.__DIR__.'\..\..\database.sqlite3');
         $this->config('debug', true);
     }
 
@@ -102,19 +103,14 @@ class QuidNovi extends Slim
         });
     }
 
-    public function getConnection()
-    {
-        return new PDO($this->config('database.path'));
-    }
-
+    /**
+     * Update subscribed feeds.
+     */
     public function update()
     {
-        $finder = new FeedFinder($this->getConnection());
+        $finder = new FeedFinder($this->getDataSource());
         $feeds = $finder->findAll();
-        $updaters = [
-            FeedType::$ATOM => new AtomFeedUpdater($this->getConnection()),
-            FeedType::$RSS => new RSSFeedUpdater($this->getConnection())
-        ];
+        $updaters = $this->getFeedUpdaters();
 
         foreach ($feeds as $feed) {
             $feedType = FeedTypeDetector::getFeedType($feed);
@@ -122,5 +118,28 @@ class QuidNovi extends Slim
             $updater = $updaters[$feedType];
             $updater->updateFeed($feed);
         }
+    }
+
+    /**
+     * Get Map of FeedUpdaters indexed by FeedType.
+     *
+     * @return array
+     */
+    private function getFeedUpdaters()
+    {
+        return [
+            FeedType::$ATOM => new AtomFeedUpdater($this->getDataSource()),
+            FeedType::$RSS => new RSSFeedUpdater($this->getDataSource()),
+        ];
+    }
+
+    /**
+     * Get DataSource.
+     *
+     * @return PDO
+     */
+    public function getDataSource()
+    {
+        return new PDO($this->config('database.path'));
     }
 }

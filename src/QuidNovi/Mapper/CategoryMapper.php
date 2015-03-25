@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The MIT License (MIT).
  *
@@ -23,6 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 namespace QuidNovi\Mapper;
 
 use QuidNovi\Exception\DeletionFailure;
@@ -36,7 +38,7 @@ class CategoryMapper
      */
     private $pdo;
 
-    function __construct($pdo)
+    public function __construct($pdo)
     {
         $this->pdo = $pdo;
     }
@@ -71,7 +73,6 @@ SQL;
 
     private function update(Category $category)
     {
-
     }
 
     public function remove(Category $category)

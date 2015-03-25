@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The MIT License (MIT).
  *
@@ -23,6 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 namespace QuidNovi\Finder;
 
 use QuidNovi\Model\Category;
@@ -32,7 +34,7 @@ class CategoryFinder
 {
     private $pdo;
 
-    function __construct($pdo)
+    public function __construct($pdo)
     {
         $this->pdo = $pdo;
     }
@@ -47,8 +49,8 @@ class CategoryFinder
         return $category;
     }
 
-    private function getCategoryRow($id){
-
+    private function getCategoryRow($id)
+    {
         $selectQuery = <<<SQL
 SELECT * FROM Category
 WHERE id=(:id)
@@ -56,7 +58,7 @@ SQL;
         $statement = $this->pdo->prepare($selectQuery);
         $success = $statement->execute(['id' => $id]);
 
-        if(!$success){
+        if (!$success) {
             //TODO throw an exception
         }
 
