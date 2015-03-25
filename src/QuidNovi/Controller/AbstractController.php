@@ -23,45 +23,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace QuidNovi\Model;
+namespace QuidNovi\Controller;
 
-class Feed extends Component
-{
+
+use QuidNovi\QuidNovi;
+
+abstract class AbstractController {
     /**
-     * @var string
+     * @var QuidNovi
      */
-    private $source;
-    /**
-     * @var \DateTime
-     */
-    public $lastUpdate;
-    /**
-     * @var array
-     */
-    private $entries;
+    protected $app;
 
-    public function __construct($name, $source, $lastUpdate, $entries = array())
+    public function __construct(QuidNovi $app)
     {
-        $this->id = null;
-        $this->name = $name;
-        $this->source = $source;
-        $this->lastUpdate = $lastUpdate;
-        $this->entries = $entries;
+        $this->app = $app;
+        $this->createRoutes();
     }
 
-    public function addEntry($entry)
-    {
-        $entry->feed = $this;
-        array_push($this->entries, $entry);
-    }
-
-    public function getSource()
-    {
-        return $this->source;
-    }
-
-    public function getEntries()
-    {
-        return $this->entries;
-    }
+    public abstract function createRoutes();
 }

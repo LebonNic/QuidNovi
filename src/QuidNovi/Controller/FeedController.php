@@ -23,45 +23,59 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace QuidNovi\Model;
+namespace src\QuidNovi\Controller;
 
-class Feed extends Component
+use QuidNovi\Controller\AbstractController;
+
+class FeedController extends AbstractController
 {
-    /**
-     * @var string
-     */
-    private $source;
-    /**
-     * @var \DateTime
-     */
-    public $lastUpdate;
-    /**
-     * @var array
-     */
-    private $entries;
-
-    public function __construct($name, $source, $lastUpdate, $entries = array())
+    public function createRoutes()
     {
-        $this->id = null;
-        $this->name = $name;
-        $this->source = $source;
-        $this->lastUpdate = $lastUpdate;
-        $this->entries = $entries;
+        $app = $this->app;
+
+        $app->group('/feeds', function () use ($app) {
+            $app->get('/', function () {
+                $this->findAll();
+            });
+
+            $app->get('/:id', function ($id) {
+                $this->find($id);
+            });
+
+            $app->post('/', function() {
+                $this->subscribe();
+            });
+
+            $app->patch('/:id', function ($id) use ($app) {
+                $name = $app->request->params('name');
+                if (null !== $name) {
+                    $this->rename($id, $name);
+                }
+            });
+
+            $app->delete('/:id', function ($id) use ($app) {
+                $this->unsubscribe($id);
+            });
+        });
     }
 
-    public function addEntry($entry)
+    public function findAll()
     {
-        $entry->feed = $this;
-        array_push($this->entries, $entry);
     }
 
-    public function getSource()
+    public function find($id)
     {
-        return $this->source;
     }
 
-    public function getEntries()
+    public function subscribe()
     {
-        return $this->entries;
+    }
+
+    public function unsubscribe($id)
+    {
+    }
+
+    private function rename($id, $name)
+    {
     }
 }

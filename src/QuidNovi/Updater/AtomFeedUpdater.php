@@ -23,45 +23,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace QuidNovi\Model;
+namespace QuidNovi\Loader;
 
-class Feed extends Component
+use PDO;
+use QuidNovi\Mapper\EntryMapper;
+use QuidNovi\Model\Entry;
+use QuidNovi\Model\Feed;
+use SimpleXMLElement;
+
+class AtomFeedUpdater implements FeedUpdater
 {
     /**
-     * @var string
+     * @var PDO
      */
-    private $source;
-    /**
-     * @var \DateTime
-     */
-    public $lastUpdate;
-    /**
-     * @var array
-     */
-    private $entries;
+    private $pdo;
 
-    public function __construct($name, $source, $lastUpdate, $entries = array())
+    function __construct($pdo)
     {
-        $this->id = null;
-        $this->name = $name;
-        $this->source = $source;
-        $this->lastUpdate = $lastUpdate;
-        $this->entries = $entries;
+        $this->pdo = $pdo;
     }
 
-    public function addEntry($entry)
+    public function updateFeed(Feed $feed)
     {
-        $entry->feed = $this;
-        array_push($this->entries, $entry);
+        $source = $feed->getSource();
+        $feedXML = new SimpleXmlElement(file_get_contents($source));
+        foreach ($feedXML->channel->item as $entryXML) {
+            $date = new \DateTime($entryXML->updated);
+            if ($date > $feed->lastUpdate) {
+                $this->insertEntryInFeed($entryXML, $feed);
+            }
+        }
+        $feed->lastUpdate = new \DateTime();
     }
 
-    public function getSource()
+    private function insertEntryInFeed(SimpleXMLElement $entryXML, Feed $feed)
     {
-        return $this->source;
-    }
-
-    public function getEntries()
-    {
-        return $this->entries;
+        $entry = new Entry($entryXML->title,
+            $entryXML->summary,
+            $entryXML->link,
+            new \DateTime($entryXML->updated));
+        $mapper = new EntryMapper($this->pdo);
+        $feed->addEntry($entry);
+        $mapper->persist($entry);
     }
 }

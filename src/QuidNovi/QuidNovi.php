@@ -28,6 +28,12 @@ namespace QuidNovi;
 use Exception;
 use PDO;
 use QuidNovi\Controller\EntryController;
+use QuidNovi\Finder\FeedFinder;
+use QuidNovi\Loader\AtomFeedUpdater;
+use QuidNovi\Loader\FeedUpdater;
+use QuidNovi\Loader\RSSFeedUpdater;
+use QuidNovi\Util\FeedType;
+use QuidNovi\Util\FeedTypeDetector;
 use Slim\Slim;
 
 /**
@@ -99,5 +105,22 @@ class QuidNovi extends Slim
     public function getConnection()
     {
         return new PDO($this->config('database.path'));
+    }
+
+    public function update()
+    {
+        $finder = new FeedFinder($this->getConnection());
+        $feeds = $finder->findAll();
+        $updaters = [
+            FeedType::$ATOM => new AtomFeedUpdater($this->getConnection()),
+            FeedType::$RSS => new RSSFeedUpdater($this->getConnection())
+        ];
+
+        foreach ($feeds as $feed) {
+            $feedType = FeedTypeDetector::getFeedType($feed);
+            /* @var $updater FeedUpdater */
+            $updater = $updaters[$feedType];
+            $updater->updateFeed($feed);
+        }
     }
 }

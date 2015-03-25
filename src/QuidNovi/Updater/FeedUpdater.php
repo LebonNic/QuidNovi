@@ -23,45 +23,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace QuidNovi\Model;
+namespace QuidNovi\Loader;
 
-class Feed extends Component
+use QuidNovi\Model\Feed;
+
+interface FeedUpdater
 {
-    /**
-     * @var string
-     */
-    private $source;
-    /**
-     * @var \DateTime
-     */
-    public $lastUpdate;
-    /**
-     * @var array
-     */
-    private $entries;
-
-    public function __construct($name, $source, $lastUpdate, $entries = array())
-    {
-        $this->id = null;
-        $this->name = $name;
-        $this->source = $source;
-        $this->lastUpdate = $lastUpdate;
-        $this->entries = $entries;
-    }
-
-    public function addEntry($entry)
-    {
-        $entry->feed = $this;
-        array_push($this->entries, $entry);
-    }
-
-    public function getSource()
-    {
-        return $this->source;
-    }
-
-    public function getEntries()
-    {
-        return $this->entries;
-    }
+    public function updateFeed(Feed $feed);
 }
