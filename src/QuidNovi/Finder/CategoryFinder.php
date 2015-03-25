@@ -23,58 +23,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace QuidNovi\Mapper;
+namespace QuidNovi\Finder;
 
-use QuidNovi\Exception\DeletionFailure;
-use QuidNovi\Model\Category;
-
-class CategoryMapper
+class CategoryFinder
 {
-    private $categories = array();
-    /**
-     * @var \PDO
-     */
-    private $pdo;
-
-    function __construct($pdo)
+    public function find($id)
     {
-        $this->pdo = $pdo;
     }
 
-    public function persist(Category $category)
-    {
-        $componentMapper = new ComponentMapper($this->pdo);
-        $componentMapper->persist($category);
-
-        if ($category->id) {
-            $this->update($category);
-        } else {
-            $this->insert($category);
-        }
-    }
-
-    private function insert(Category $category)
-    {
-        $insertQuery = <<<SQL
-INSERT INTO Category (id)
-VALUES (:id)
-SQL;
-        $statement =  $this->pdo->prepare($insertQuery);
-        $success = $statement->execute(['id' => $category->id]);
-
-        if (!$success) {
-            throw new DeletionFailure($category);
-        }
-
-        $this->categories[$category->id] = $category;
-    }
-
-    private function update(Category $category)
-    {
-
-    }
-
-    public function remove(Category $category)
+    public function findAll()
     {
     }
 }
