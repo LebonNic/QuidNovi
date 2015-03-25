@@ -27,10 +27,56 @@
 
 namespace QuidNovi\Finder;
 
+
+use QuidNovi\Model\Feed;
+use PDO;
+
 class FeedFinder
 {
+    private $pdo;
+
+    function __construct($pdo)
+    {
+        $this->pdo = $pdo;
+    }
+
+
     public function find($id)
     {
+        $feed = null;
+        $componentFinder = new ComponentFinder($this->pdo);
+        $componentRow = $componentFinder->getComponentRow($id);
+
+        if($componentRow)
+        {
+            $feedRow = $this->getFeedRow($id);
+            if($feedRow)
+            {
+                $lastUpdate = new \DateTime($feedRow['lastUpdate']);
+                $feed = new Feed($componentRow['name'], $feedRow['source'], $lastUpdate);
+                $feed->id = $componentRow['id'];
+            }
+        }
+
+        return $feed;
+    }
+
+    private function getFeedRow($id)
+    {
+        $selectQuery = <<<SQL
+SELECT * FROM Feed
+WHERE id=(:id)
+SQL;
+        $statement = $this->pdo->prepare($selectQuery);
+        $success = $statement->execute(['id' => $id]);
+
+        if(!$success){
+            //TODO throw an exception
+        }
+
+        $row = $statement->fetch(PDO::FETCH_ASSOC);
+
+        return $row;
     }
 
     public function findAll()
