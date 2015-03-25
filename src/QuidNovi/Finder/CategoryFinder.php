@@ -25,10 +25,44 @@
  */
 namespace QuidNovi\Finder;
 
+use QuidNovi\Model\Category;
+use PDO;
+
 class CategoryFinder
 {
+    private $pdo;
+
+    function __construct($pdo)
+    {
+        $this->pdo = $pdo;
+    }
+
     public function find($id)
     {
+        $componentFinder = new ComponentFinder($this->pdo);
+        $componentRow = $componentFinder->getComponentRow($id);
+        $category = new Category($componentRow['name']);
+        $category->id = $componentRow['id'];
+
+        return $category;
+    }
+
+    private function getCategoryRow($id){
+
+        $selectQuery = <<<SQL
+SELECT * FROM Category
+WHERE id=(:id)
+SQL;
+        $statement = $this->pdo->prepare($selectQuery);
+        $success = $statement->execute(['id' => $id]);
+
+        if(!$success){
+            //TODO throw an exception
+        }
+
+        $row = $statement->fetch(PDO::FETCH_ASSOC);
+
+        return $row;
     }
 
     public function findAll()
