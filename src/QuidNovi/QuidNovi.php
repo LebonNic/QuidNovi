@@ -26,6 +26,9 @@
 namespace QuidNovi;
 
 use Exception;
+use PDO;
+use QuidNovi\Controller\EntryController;
+use QuidNovi\Finder\EntryFinder;
 use Slim\Slim;
 
 /**
@@ -48,7 +51,8 @@ class QuidNovi extends Slim
      */
     private function setupConfiguration()
     {
-        $this->config('templates.path', __DIR__ . '/../../web');
+        $this->config('templates.path', __DIR__ . '\..\..\web');
+        $this->config('database.path', 'sqlite:' . __DIR__ . '\..\..\database.sqlite3');
         $this->config('debug', true);
     }
 
@@ -85,6 +89,15 @@ class QuidNovi extends Slim
      */
     private function setupAPIRoutes()
     {
+        new EntryController($this);
 
+        $this->get('/info', function () {
+            return phpinfo();
+        });
+    }
+
+    public function getConnection()
+    {
+        return new PDO($this->config('database.path'));
     }
 }
