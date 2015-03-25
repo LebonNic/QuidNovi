@@ -23,17 +23,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace QuidNovi\Mapper;
+namespace QuidNovi\Finder;
 
-use QuidNovi\Model\Feed;
-
-class FeedMapper
+class FeedFinder
 {
-    public function persist(Feed $feed)
+    public function find($id)
     {
+
     }
 
-    public function remove(Feed $feed)
+    public function findAll()
     {
+
     }
 }
