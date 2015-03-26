@@ -35,7 +35,7 @@ class FeedFinder
 {
     private $pdo;
 
-    function __construct($pdo)
+    function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
@@ -55,6 +55,7 @@ class FeedFinder
                 $lastUpdate = new \DateTime($feedRow['lastUpdate']);
                 $feed = new Feed($componentRow['name'], $feedRow['source'], $lastUpdate);
                 $feed->id = $componentRow['id'];
+                //TODO add a lazy initialisation system for the collection "$entries" in a Feed object
             }
         }
 

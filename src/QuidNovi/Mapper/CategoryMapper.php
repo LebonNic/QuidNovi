@@ -27,6 +27,7 @@
 
 namespace QuidNovi\Mapper;
 
+use PDO;
 use QuidNovi\Exception\DeletionFailure;
 use QuidNovi\Exception\InsertionFailure;
 use QuidNovi\Model\Category;
@@ -39,7 +40,7 @@ class CategoryMapper
      */
     private $pdo;
 
-    public function __construct($pdo)
+    public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
@@ -53,11 +54,10 @@ class CategoryMapper
         $componentMapper = new ComponentMapper($this->pdo);
         $componentMapper->persist($category);
 
-        if ($needUpdate) {
+        if ($needUpdate)
             $this->update($category);
-        } else {
+        else
             $this->insert($category);
-        }
     }
 
     private function insert(Category $category)
@@ -69,9 +69,8 @@ SQL;
         $statement =  $this->pdo->prepare($insertQuery);
         $success = $statement->execute(['id' => $category->id]);
 
-        if (!$success) {
+        if (!$success)
             throw new InsertionFailure($category);
-        }
 
         $this->categories[$category->id] = $category;
     }
@@ -89,13 +88,10 @@ SQL;
         $statement = $this->pdo->prepare($deleteQuery);
         $success = $statement->execute(['id' => $category->id]);
 
-        if (!$success) {
+        if (!$success)
             throw new DeletionFailure($category);
-        }
 
         $componentMapper = new ComponentMapper($this->pdo);
         $componentMapper->remove($category);
-        //delete the data stored in the category
-        $category->id = null;
     }
 }
