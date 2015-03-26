@@ -25,20 +25,43 @@
  * SOFTWARE.
  */
 
-namespace src\QuidNovi\Controller;
+namespace QuidNovi\Controller;
 
-use QuidNovi\Controller\AbstractController;
+use QuidNovi\Finder\CategoryFinder;
 use QuidNovi\Mapper\CategoryMapper;
+use QuidNovi\Model\Category;
+use QuidNovi\QuidNovi;
 
 class CategoryController extends AbstractController
 {
+    /**
+     * @var CategoryMapper
+     */
+    private $mapper;
+
+    /**
+     * @var CategoryFinder
+     */
+    private $finder;
+
+    function __construct(QuidNovi $app)
+    {
+        parent::__construct($app);
+        $dataSource = $this->app->getDataSource();
+        $this->mapper = new CategoryMapper($dataSource);
+        $this->finder = new CategoryFinder($dataSource);
+    }
+
+
     public function createRoutes()
     {
         $app = $this->app;
 
         $app->group('/categories', function () use ($app) {
             $app->post('/', function () {
-                $this->create();
+                $name = $this->request->params('name');
+                $containerId = $this->request->params('containerId');
+                $this->create($name, $containerId);
             });
 
             $app->get('/:id', function ($id) {
@@ -49,13 +72,9 @@ class CategoryController extends AbstractController
                 $this->findAll();
             });
 
-            $app->patch('/:id', function ($id) use ($app) {
-                $name = $app->request->params('name');
-                if (null !== $name) {
-                    $this->rename($id, $name);
-                } else {
-                    $app->response->setStatus(304);
-                }
+            $app->patch('/:id', function ($id) {
+                $name = $this->request->params('name');
+                $this->rename($id, $name);
             });
 
             $app->delete('/:id', function ($id) {
@@ -64,20 +83,45 @@ class CategoryController extends AbstractController
         });
     }
 
-    private function create()
+    public function create($name, $containerId)
     {
-        $app = $this->app;
-        $request = $app->request;
-        $connection = $app->getDataSource();
-        $mapper = new CategoryMapper($connection);
+        if (null === $name) {
+            $this->app->halt(400, 'Category name is required.');
+        }
+        $category = new Category($name);
+
+        // If a containing category is specified, the new category is added to this container
+        if (null !== $containerId) {
+            $container = $this->finder->find($containerId);
+            $this->addCategoryToContainer($category, $container);
+        }
+
+        $this->mapper->persist($category);
+        $responseBody = ['uri' => '/categories/'.$category->id];
+        $this->buildResponse(201, $responseBody);
+    }
+
+    private function addCategoryToContainer(Category $category, Category $container)
+    {
+        if (null === $container) {
+            $this->app->halt(404, 'Container category does not exist.');
+        }
+        $container->addComponent($category);
     }
 
     public function find($id)
     {
+        $category = $this->finder->find($id);
+        if (null === $category) {
+            $this->app->halt(404, 'Category does not exist.');
+        }
+        $this->buildResponse(200, $category);
     }
 
     public function findAll()
     {
+        $categories = $this->finder->findAll();
+        $this->buildResponse(200, $categories);
     }
 
     public function rename($id, $name)

@@ -29,9 +29,28 @@ namespace QuidNovi\Controller;
 
 use QuidNovi\Finder\EntryFinder;
 use QuidNovi\Mapper\EntryMapper;
+use QuidNovi\QuidNovi;
 
 class EntryController extends AbstractController
 {
+    /**
+     * @var EntryMapper
+     */
+    private $mapper;
+    /**
+     * @var EntryFinder
+     */
+    private $finder;
+
+    function __construct(QuidNovi $app)
+    {
+        parent::__construct($app);
+        $dataSource = $this->app->getDataSource();
+        $this->mapper = new EntryMapper($dataSource);
+        $this->finder = new EntryFinder($dataSource);
+    }
+
+
     public function createRoutes()
     {
         $app = $this->app;
@@ -60,47 +79,33 @@ class EntryController extends AbstractController
 
     public function find($id)
     {
-        $connection = $this->app->getDataSource();
-        $finder = new EntryFinder($connection);
-        $entry = $finder->find($id);
-        $connection = null;
-        $response = $this->app->response;
+        $entry = $this->finder->find($id);
 
-        if ($entry) {
-            $response->setStatus(200);
-            $response->setBody(json_encode($entry));
-        } else {
-            $response->setStatus(404);
+        if (null === $entry) {
+            $this->app->halt(404, 'Entry does not exist.');
         }
+        $this->buildResponse(200, $entry);
     }
 
     public function findAll()
     {
-        $connection = $this->app->getDataSource();
-        $finder = new EntryFinder($connection);
-        $entries = $finder->findAll();
-        $connection = null;
-        $response = $this->app->response;
-
-        $response->setStatus(200);
-        $response->setBody(json_encode($entries));
+        $entries = $this->finder->findAll();
+        $this->buildResponse(200, $entries);
     }
 
     public function markAsRead($id, $read)
     {
-        $connection = $this->app->getDataSource();
-        $finder = new EntryFinder($connection);
-        $entry = $finder->find($id);
-        if ('true' === $read) {
-            $this->markEntryAsRead($entry);
-        } elseif ('false' === $read) {
-            $this->markEntryAsUnread($entry);
-        }
-        $mapper = new EntryMapper($connection);
-        $mapper->persist($entry);
+        $entry = $this->finder->find($id);
+        // TODO: Mark entry as read/unread
+        $this->mapper->persist($entry);
+        $this->response->setStatus(204);
     }
 
     public function markAsSaved($id, $saved)
     {
+        $entry = $this->finder->find($id);
+        // TODO: Mark entry as saved/unsaved
+        $this->mapper->persist($entry);
+        $this->response->setStatus(204);
     }
 }

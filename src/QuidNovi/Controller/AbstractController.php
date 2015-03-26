@@ -27,6 +27,7 @@
 
 namespace QuidNovi\Controller;
 
+use Negotiation\FormatNegotiator;
 use QuidNovi\QuidNovi;
 
 abstract class AbstractController
@@ -36,11 +37,45 @@ abstract class AbstractController
      */
     protected $app;
 
+    /**
+     * @var \Slim\Http\Request
+     */
+    protected $request;
+
+    /**
+     * @var \Slim\Http\Response
+     */
+    protected $response;
+
     public function __construct(QuidNovi $app)
     {
         $this->app = $app;
+        $this->request = $app->request;
+        $this->response = $app->response;
         $this->createRoutes();
     }
 
     abstract public function createRoutes();
+
+    public function buildResponse($status, $responseBody) {
+        $this->response->setStatus($status);
+        $encoders = array(
+            'application/json' => 'json_encode'
+        );
+        $contentType = $this->getBestMatchingContentType();
+
+        $encoder = $encoders[$contentType];
+        if (null === $encoder) {
+            $this->app->halt(406);
+        }
+        $encodedBody = $encoder($responseBody);
+        $this->response->setBody($encodedBody);
+    }
+
+    public function getBestMatchingContentType() {
+        $negotiator = new FormatNegotiator();
+        $priorities = array('application/json');
+        $bestHeader = $negotiator->getBest($this->request->headers('HTTP_ACCEPT'), $priorities);
+        return $bestHeader->getValue();
+    }
 }

@@ -25,12 +25,25 @@
  * SOFTWARE.
  */
 
-namespace src\QuidNovi\Controller;
+namespace QuidNovi\Controller;
 
-use QuidNovi\Controller\AbstractController;
+use QuidNovi\Finder\FeedFinder;
+use QuidNovi\Mapper\FeedMapper;
+use QuidNovi\QuidNovi;
 
 class FeedController extends AbstractController
 {
+    private $mapper;
+    private $finder;
+
+    function __construct(QuidNovi $app)
+    {
+        parent::__construct($app);
+        $dataSource = $app->getDataSource();
+        $this->mapper = new FeedMapper($dataSource);
+        $this->finder = new FeedFinder($dataSource);
+    }
+
     public function createRoutes()
     {
         $app = $this->app;

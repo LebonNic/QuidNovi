@@ -29,7 +29,9 @@ namespace QuidNovi;
 
 use Exception;
 use PDO;
+use QuidNovi\Controller\CategoryController;
 use QuidNovi\Controller\EntryController;
+use QuidNovi\Controller\FeedController;
 use QuidNovi\Finder\FeedFinder;
 use QuidNovi\Loader\AtomFeedUpdater;
 use QuidNovi\Loader\FeedUpdater;
@@ -58,8 +60,8 @@ class QuidNovi extends Slim
     private function setupConfiguration()
     {
         date_default_timezone_set('Zulu');
-        $this->config('templates.path', __DIR__.'\..\..\web');
-        $this->config('database.path', 'sqlite:'.__DIR__.'\..\..\database.sqlite3');
+        $this->config('templates.path', __DIR__ . '\..\..\web');
+        $this->config('database.path', 'sqlite:' . __DIR__ . '\..\..\database.sqlite3');
         $this->config('debug', true);
     }
 
@@ -97,6 +99,8 @@ class QuidNovi extends Slim
     private function setupAPIRoutes()
     {
         new EntryController($this);
+        new CategoryController($this);
+        new FeedController($this);
 
         $this->get('/info', function () {
             return phpinfo();
