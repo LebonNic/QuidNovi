@@ -36,7 +36,7 @@ class FeedMapper
 {
     private $pdo;
 
-    function __construct($pdo)
+    function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
@@ -50,15 +50,15 @@ class FeedMapper
         $componentMapper = new ComponentMapper($this->pdo);
         $componentMapper->persist($feed);
 
-        if ($needUpdate) {
+        if ($needUpdate)
             $this->update($feed);
-        } else {
+        else
             $this->insert($feed);
-        }
     }
 
     public function remove(Feed $feed)
     {
+        $this->removeAssociatedEntries($feed);
         $deleteQuery = <<<SQL
 DELETE FROM Feed
 WHERE id = :id
@@ -66,14 +66,12 @@ SQL;
         $statement = $this->pdo->prepare($deleteQuery);
         $success = $statement->execute(['id' => $feed->id]);
 
-        if (!$success) {
+        if (!$success)
             throw new DeletionFailure($feed);
-        }
+
 
         $componentMapper = new ComponentMapper($this->pdo);
         $componentMapper->remove($feed);
-        //delete the data stored in the category
-        $feed->id = null;
     }
 
     private function update(Feed $feed)
@@ -88,9 +86,10 @@ SQL;
                                         'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s'),
                                         'id' => $feed->id]);
 
-        if (!$success) {
+        if (!$success)
             throw new UpdateFailure($feed);
-        }
+
+        $this->persistAssociatedEntries($feed);
     }
 
     private function insert(Feed $feed)
@@ -104,8 +103,23 @@ SQL;
                                         'source' => $feed->getSource(),
                                         'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s')]);
 
-        if (!$success) {
+        if (!$success)
             throw new InsertionFailure($feed);
-        }
+
+        $this->persistAssociatedEntries($feed);
+    }
+
+    private function persistAssociatedEntries(Feed $feed)
+    {
+        $entryMapper = new EntryMapper($this->pdo);
+        foreach($feed->getEntries() as $entry)
+            $entryMapper->persist($entry);
+    }
+
+    private function removeAssociatedEntries(Feed $feed)
+    {
+        $entryMapper = new EntryMapper($this->pdo);
+        foreach($feed->getEntries() as $entry)
+            $entryMapper->remove($entry);
     }
 }

@@ -30,7 +30,9 @@ namespace tests;
 use PDO;
 use QuidNovi\Finder\EntryFinder;
 use QuidNovi\Mapper\EntryMapper;
+use QuidNovi\Mapper\FeedMapper;
 use QuidNovi\Model\Entry;
+use QuidNovi\Model\Feed;
 
 class EntryMapperTest extends \PHPUnit_Framework_TestCase
 {
@@ -43,53 +45,61 @@ class EntryMapperTest extends \PHPUnit_Framework_TestCase
     public function testComponentInsertion()
     {
         // Given
+        $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
         $entry = new Entry('foo', 'bar', 'www.foo.bar/1234', new \DateTime());
         $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new EntryMapper($pdo);
+        $feed->addEntry($entry);
+        $mapper = new FeedMapper($pdo);
         $finder = new EntryFinder($pdo);
 
         // When
-        $mapper->persist($entry);
+        $mapper->persist($feed);
 
         // Then
-        $this->assertEquals($entry->id, $pdo->lastInsertId('Component'));
+        $this->assertEquals($entry->id, $pdo->lastInsertId('Entry'));
         $this->assertEquals($entry, $finder->find($entry->id));
     }
 
     public function testComponentUpdate()
     {
         // Given
+        $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
         $entry = new Entry('foo', 'bar', 'www.foo.bar/1234', new \DateTime());
         $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new EntryMapper($pdo);
+        $feed->addEntry($entry);
+        $entryMapper = new EntryMapper($pdo);
+        $feedMapper = new FeedMapper($pdo);
         $finder = new EntryFinder($pdo);
 
         // When
-        $mapper->persist($entry);
+        $feedMapper->persist($feed);
         $id = $entry->id;
         $entry->title = 'baz';
         $entry->summary = 'quux';
         $entry->markAsRead();
         $entry->markAsSaved();
-        $mapper->persist($entry);
+        $entryMapper->persist($entry);
 
         // Then
-        $this->assertEquals($id, $entry->id);
+        $this->assertEquals($id, $pdo->lastInsertId('Entry'));
         $this->assertEquals($entry, $finder->find($entry->id));
     }
 
     public function testComponentDeletion()
     {
         // Given
+        $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
         $entry = new Entry('foo', 'bar', 'www.foo.bar/1234', new \DateTime());
         $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new EntryMapper($pdo);
+        $feed->addEntry($entry);
+        $entryMapper = new EntryMapper($pdo);
+        $feedMapper = new FeedMapper($pdo);
         $finder = new EntryFinder($pdo);
 
         // When
-        $mapper->persist($entry);
+        $feedMapper->persist($feed);
         $id = $entry->id;
-        $mapper->remove($entry);
+        $entryMapper->remove($entry);
 
         // Then
         $this->assertEquals(null, $entry->id);

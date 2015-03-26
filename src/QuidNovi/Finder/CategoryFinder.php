@@ -35,7 +35,7 @@ class CategoryFinder
 {
     private $pdo;
 
-    public function __construct($pdo)
+    public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
@@ -48,8 +48,13 @@ class CategoryFinder
 
         if($componentRow)
         {
-            $category = new Category($componentRow['name']);
-            $category->id = $componentRow['id'];
+            $categoryRow = $this->getCategoryRow($id);
+            if($categoryRow)
+            {
+                $category = new Category($componentRow['name']);
+                $category->id = $componentRow['id'];
+                //TODO add a lazy initialisation system for the collection "$components" in a Category object
+            }
         }
 
         return $category;
