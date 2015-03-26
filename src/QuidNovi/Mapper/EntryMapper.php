@@ -27,9 +27,18 @@
 
 namespace QuidNovi\Mapper;
 
+use QuidNovi\Model\Entry;
+
 class EntryMapper
 {
-    public function persist($entry)
+    private $pdo;
+
+    function __construct($pdo)
+    {
+        $this->pdo = $pdo;
+    }
+
+    public function persist(Entry $entry)
     {
     }
 

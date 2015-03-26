@@ -27,9 +27,23 @@
 
 namespace QuidNovi\Finder;
 
+use PDO;
+use QuidNovi\Model\Feed;
+
 class EntryFinder
 {
+    private $pdo;
+
+    function __construct($pdo)
+    {
+        $this->pdo = $pdo;
+    }
+
     public function find($id)
+    {
+    }
+
+    private function getEntryRow($id)
     {
     }
 

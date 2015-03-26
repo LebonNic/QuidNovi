@@ -28,6 +28,7 @@
 namespace QuidNovi\Finder;
 
 use QuidNovi\Model\Category;
+
 use PDO;
 
 class CategoryFinder
@@ -41,10 +42,15 @@ class CategoryFinder
 
     public function find($id)
     {
+        $category = null;
         $componentFinder = new ComponentFinder($this->pdo);
         $componentRow = $componentFinder->getComponentRow($id);
-        $category = new Category($componentRow['name']);
-        $category->id = $componentRow['id'];
+
+        if($componentRow)
+        {
+            $category = new Category($componentRow['name']);
+            $category->id = $componentRow['id'];
+        }
 
         return $category;
     }
