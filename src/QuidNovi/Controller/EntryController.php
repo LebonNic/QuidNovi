@@ -29,6 +29,7 @@ namespace QuidNovi\Controller;
 
 use QuidNovi\Finder\EntryFinder;
 use QuidNovi\Mapper\EntryMapper;
+use QuidNovi\Model\Entry;
 use QuidNovi\QuidNovi;
 
 class EntryController extends AbstractController
@@ -79,11 +80,7 @@ class EntryController extends AbstractController
 
     public function find($id)
     {
-        $entry = $this->finder->find($id);
-
-        if (null === $entry) {
-            $this->app->halt(404, 'Entry does not exist.');
-        }
+        $entry = $this->getEntry($id);
         $this->buildResponse(200, $entry);
     }
 
@@ -95,17 +92,40 @@ class EntryController extends AbstractController
 
     public function markAsRead($id, $read)
     {
-        $entry = $this->finder->find($id);
-        // TODO: Mark entry as read/unread
+        $entry = $this->getEntry($id);
+        if ('true' === $read) {
+            $entry->markAsRead();
+        } else if ('false' === $read) {
+            $entry->markAsUnread();
+        }
         $this->mapper->persist($entry);
         $this->response->setStatus(204);
     }
 
     public function markAsSaved($id, $saved)
     {
-        $entry = $this->finder->find($id);
-        // TODO: Mark entry as saved/unsaved
+        $entry = $this->getEntry($id);
+        if ('true' === $saved) {
+            $entry->markAsSaved();
+        } else if ('false' === $saved) {
+            $entry->markAsUnsaved();
+        }
         $this->mapper->persist($entry);
         $this->response->setStatus(204);
+    }
+
+    /**
+     * Get entry with given id. If id does not match any entry, application halts
+     * and returns a 404 status code.
+     * @param $id int entry id.
+     * @return Entry entry with given id.
+     */
+    private function getEntry($id)
+    {
+        $entry = $this->finder->find($id);
+        if (null === $entry) {
+            $this->app->halt(404, 'Entry ' . $id . ' does not exist.');
+        }
+        return $entry;
     }
 }

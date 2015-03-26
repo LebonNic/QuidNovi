@@ -92,29 +92,18 @@ class CategoryController extends AbstractController
 
         // If a containing category is specified, the new category is added to this container
         if (null !== $containerId) {
-            $container = $this->finder->find($containerId);
-            $this->addCategoryToContainer($category, $container);
+            $container = $this->getCategory($containerId);
+            $container->addComponent($category);
         }
 
         $this->mapper->persist($category);
-        $responseBody = ['uri' => '/categories/'.$category->id];
+        $responseBody = ['uri' => '/categories/' . $category->id];
         $this->buildResponse(201, $responseBody);
-    }
-
-    private function addCategoryToContainer(Category $category, Category $container)
-    {
-        if (null === $container) {
-            $this->app->halt(404, 'Container category does not exist.');
-        }
-        $container->addComponent($category);
     }
 
     public function find($id)
     {
-        $category = $this->finder->find($id);
-        if (null === $category) {
-            $this->app->halt(404, 'Category does not exist.');
-        }
+        $category = $this->getCategory($id);
         $this->buildResponse(200, $category);
     }
 
@@ -126,9 +115,28 @@ class CategoryController extends AbstractController
 
     public function rename($id, $name)
     {
+        if (null === $name) {
+            $this->app->halt(400, 'Category name is required.');
+        }
+        $category = $this->getCategory($id);
+        $category->name = $name;
+        $this->mapper->persist($category);
+        $this->response->setStatus(406);
     }
 
     public function delete($id)
     {
+        $category = $this->getCategory($id);
+        $this->mapper->remove($category);
+        $this->response->setStatus(204);
+    }
+
+    private function getCategory($id)
+    {
+        $category = $this->finder->find($id);
+        if (null === $category) {
+            $this->app->halt('Category ' . $id . ' does not exist.');
+        }
+        return $category;
     }
 }
