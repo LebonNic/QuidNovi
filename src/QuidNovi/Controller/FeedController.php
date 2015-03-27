@@ -29,6 +29,7 @@ namespace QuidNovi\Controller;
 
 use QuidNovi\Finder\FeedFinder;
 use QuidNovi\Mapper\FeedMapper;
+use QuidNovi\Model\Feed;
 use QuidNovi\QuidNovi;
 
 class FeedController extends AbstractController
@@ -36,7 +37,7 @@ class FeedController extends AbstractController
     private $mapper;
     private $finder;
 
-    function __construct(QuidNovi $app)
+    public function __construct(QuidNovi $app)
     {
         parent::__construct($app);
         $dataSource = $app->getDataSource();
@@ -58,7 +59,8 @@ class FeedController extends AbstractController
             });
 
             $app->post('/', function () {
-                $this->subscribe();
+                $source = $this->request->params('source');
+                $this->subscribe($source);
             });
 
             $app->patch('/:id', function ($id) use ($app) {
@@ -76,21 +78,57 @@ class FeedController extends AbstractController
 
     public function findAll()
     {
+        $feeds = $this->finder->findAll();
+        $this->buildResponse(200, $feeds);
     }
 
     public function find($id)
     {
+        $feed = $this->getFeed($id);
+        $this->buildResponse(200, $feed);
     }
 
-    public function subscribe()
+    public function subscribe($source)
     {
+        if (null === $source) {
+            $this->app->halt(400, 'Feed source is required.');
+        }
+        // TODO: check that source does not already exist.
+        $source = filter_var($source, FILTER_SANITIZE_URL);
+        $yesterday = new \DateTime();
+        $yesterday->sub(new \DateInterval('P1D'));
+        $feed = new Feed($source, $source, $yesterday);
+        $this->mapper->persist($feed);
+        $this->buildResponse(201, [
+            'uri' => '/feeds/'.$feed->id,
+        ]);
     }
 
     public function unsubscribe($id)
     {
+        $feed = $this->getFeed($id);
+        $this->mapper->remove($feed);
+        $this->response->setStatus(204);
     }
 
-    private function rename($id, $name)
+    public function rename($id, $name)
     {
+        if (null === $name) {
+            $this->app->halt(400, 'Feed name is required.');
+        }
+        $feed = $this->getFeed($id);
+        $feed->name = $name;
+        $this->mapper->persist($feed);
+        $this->response->setStatus(204);
+    }
+
+    private function getFeed($id)
+    {
+        $feed = $this->finder->find($id);
+        if (null === $feed) {
+            $this->app->halt(404, 'Feed '.$id.' does not exist.');
+        }
+
+        return $feed;
     }
 }

@@ -43,14 +43,13 @@ class EntryController extends AbstractController
      */
     private $finder;
 
-    function __construct(QuidNovi $app)
+    public function __construct(QuidNovi $app)
     {
         parent::__construct($app);
         $dataSource = $this->app->getDataSource();
         $this->mapper = new EntryMapper($dataSource);
         $this->finder = new EntryFinder($dataSource);
     }
-
 
     public function createRoutes()
     {
@@ -95,7 +94,7 @@ class EntryController extends AbstractController
         $entry = $this->getEntry($id);
         if ('true' === $read) {
             $entry->markAsRead();
-        } else if ('false' === $read) {
+        } elseif ('false' === $read) {
             $entry->markAsUnread();
         }
         $this->mapper->persist($entry);
@@ -107,7 +106,7 @@ class EntryController extends AbstractController
         $entry = $this->getEntry($id);
         if ('true' === $saved) {
             $entry->markAsSaved();
-        } else if ('false' === $saved) {
+        } elseif ('false' === $saved) {
             $entry->markAsUnsaved();
         }
         $this->mapper->persist($entry);
@@ -117,15 +116,18 @@ class EntryController extends AbstractController
     /**
      * Get entry with given id. If id does not match any entry, application halts
      * and returns a 404 status code.
+     *
      * @param $id int entry id.
+     *
      * @return Entry entry with given id.
      */
     private function getEntry($id)
     {
         $entry = $this->finder->find($id);
         if (null === $entry) {
-            $this->app->halt(404, 'Entry ' . $id . ' does not exist.');
+            $this->app->halt(404, 'Entry '.$id.' does not exist.');
         }
+
         return $entry;
     }
 }

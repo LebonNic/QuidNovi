@@ -37,17 +37,18 @@ class EntryMapper
 {
     private $pdo;
 
-    function __construct(PDO $pdo)
+    public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
     public function persist(Entry $entry)
     {
-        if($entry->id)
+        if ($entry->id) {
             $this->update($entry);
-        else
+        } else {
             $this->insert($entry);
+        }
     }
 
     private function update(Entry $entry)
@@ -71,10 +72,11 @@ SQL;
                                         'publicationDate' => $entry->getPublicationDate()->format('Y-m-d H:i:s'),
                                         'read' => (($entry->isRead()) ? 1 : 0),
                                         'saved' => (($entry->isSaved()) ? 1 : 0),
-                                        'id' => $entry->id]);
+                                        'id' => $entry->id, ]);
 
-        if(!$success)
+        if (!$success) {
             throw new UpdateFailure($entry);
+        }
     }
 
     private function insert(Entry $entry)
@@ -90,10 +92,9 @@ SQL;
                                         'location' => $entry->getLocation(),
                                         'publicationDate' => $entry->getPublicationDate()->format('Y-m-d H:i:s'),
                                         'read' => ($entry->isRead()) ? 1 : 0,
-                                        'saved' => ($entry->isSaved()) ? 1 : 0]);
+                                        'saved' => ($entry->isSaved()) ? 1 : 0, ]);
 
-        if(!$success)
-        {
+        if (!$success) {
             //var_dump($entry);
             //printf($entry->getPublicationDate()->format('Y-m-d H:i:s') . "\n");
             print_r($this->pdo->errorInfo());
@@ -114,8 +115,9 @@ SQL;
         $statement = $this->pdo->prepare($deleteQuery);
         $success = $statement->execute(['id' => $entry->id]);
 
-        if (!$success)
+        if (!$success) {
             throw new DeletionFailure($entry);
+        }
 
         $entry->id = null;
     }

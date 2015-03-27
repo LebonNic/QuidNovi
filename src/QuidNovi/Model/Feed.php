@@ -44,8 +44,8 @@ class Feed extends Component
 
     public function __construct($name, $source, $lastUpdate, $entries = array())
     {
+        parent::__construct($name);
         $this->id = null;
-        $this->name = $name;
         $this->source = $source;
         $this->lastUpdate = $lastUpdate;
         $this->entries = $entries;

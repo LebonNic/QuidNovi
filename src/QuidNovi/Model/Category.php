@@ -36,13 +36,14 @@ class Category extends Component
 
     public function __construct($name, $components = array())
     {
+        parent::__construct($name);
         $this->id = null;
-        $this->name = $name;
         $this->components = $components;
     }
 
     public function addComponent(Component $component)
     {
+        $component->container = $this;
         array_push($this->components, $component);
     }
 

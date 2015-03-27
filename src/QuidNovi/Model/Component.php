@@ -38,4 +38,15 @@ abstract class Component
      * @var string
      */
     public $name;
+
+    /**
+     * @var Category
+     */
+    public $container;
+
+    public function __construct($name)
+    {
+        $this->name = $name;
+        $this->container = null;
+    }
 }

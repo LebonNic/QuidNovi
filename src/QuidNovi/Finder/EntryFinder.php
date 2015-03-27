@@ -34,7 +34,7 @@ class EntryFinder
 {
     private $pdo;
 
-    function __construct(PDO $pdo)
+    public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
@@ -43,18 +43,19 @@ class EntryFinder
     {
         $entry = null;
         $entryRow = $this->getEntryRow($id);
-        if($entryRow)
-        {
+        if ($entryRow) {
             $publicationDate = new \DateTime($entryRow['publicationDate']);
 
             $isRead = false;
             $isSaved = false;
-            if(1 == $entryRow['read'])
+            if (1 == $entryRow['read']) {
                 $isRead = true;
-            if(1 == $entryRow['saved'])
+            }
+            if (1 == $entryRow['saved']) {
                 $isSaved = true;
+            }
 
-            $entry = new Entry( $entryRow['title'],
+            $entry = new Entry($entryRow['title'],
                                 $entryRow['summary'],
                                 $entryRow['location'],
                                 $publicationDate,
@@ -65,6 +66,7 @@ class EntryFinder
             $feedFinder = new FeedFinder($this->pdo);
             $entry->feed = $feedFinder->find($entryRow['feedId']);
         }
+
         return $entry;
     }
 

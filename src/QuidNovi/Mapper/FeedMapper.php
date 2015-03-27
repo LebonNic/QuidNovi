@@ -36,7 +36,7 @@ class FeedMapper
 {
     private $pdo;
 
-    function __construct(PDO $pdo)
+    public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
@@ -44,16 +44,18 @@ class FeedMapper
     public function persist(Feed $feed)
     {
         $needUpdate = false;
-        if($feed->id)
+        if ($feed->id) {
             $needUpdate = true;
+        }
 
         $componentMapper = new ComponentMapper($this->pdo);
         $componentMapper->persist($feed);
 
-        if ($needUpdate)
+        if ($needUpdate) {
             $this->update($feed);
-        else
+        } else {
             $this->insert($feed);
+        }
     }
 
     public function remove(Feed $feed)
@@ -66,9 +68,9 @@ SQL;
         $statement = $this->pdo->prepare($deleteQuery);
         $success = $statement->execute(['id' => $feed->id]);
 
-        if (!$success)
+        if (!$success) {
             throw new DeletionFailure($feed);
-
+        }
 
         $componentMapper = new ComponentMapper($this->pdo);
         $componentMapper->remove($feed);
@@ -84,10 +86,11 @@ SQL;
         $statement = $this->pdo->prepare($updateQuery);
         $success = $statement->execute(['source' => $feed->getSource(),
                                         'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s'),
-                                        'id' => $feed->id]);
+                                        'id' => $feed->id, ]);
 
-        if (!$success)
+        if (!$success) {
             throw new UpdateFailure($feed);
+        }
 
         $this->persistAssociatedEntries($feed);
     }
@@ -101,10 +104,11 @@ SQL;
         $statement =  $this->pdo->prepare($insertQuery);
         $success = $statement->execute(['id' => $feed->id,
                                         'source' => $feed->getSource(),
-                                        'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s')]);
+                                        'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s'), ]);
 
-        if (!$success)
+        if (!$success) {
             throw new InsertionFailure($feed);
+        }
 
         $this->persistAssociatedEntries($feed);
     }
@@ -112,14 +116,16 @@ SQL;
     private function persistAssociatedEntries(Feed $feed)
     {
         $entryMapper = new EntryMapper($this->pdo);
-        foreach($feed->getEntries() as $entry)
+        foreach ($feed->getEntries() as $entry) {
             $entryMapper->persist($entry);
+        }
     }
 
     private function removeAssociatedEntries(Feed $feed)
     {
         $entryMapper = new EntryMapper($this->pdo);
-        foreach($feed->getEntries() as $entry)
+        foreach ($feed->getEntries() as $entry) {
             $entryMapper->remove($entry);
+        }
     }
 }

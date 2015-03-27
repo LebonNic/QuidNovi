@@ -47,10 +47,11 @@ class ComponentMapper
 
     public function persist(Component $component)
     {
-        if ($component->id)
+        if ($component->id) {
             $this->update($component);
-        else
+        } else {
             $this->insert($component);
+        }
     }
 
     private function insert(Component $component)
@@ -62,8 +63,9 @@ SQL;
         $statement = $this->pdo->prepare($insertQuery);
         $success = $statement->execute(['name' => $component->name]);
 
-        if (!$success)
+        if (!$success) {
             throw new InsertionFailure($component);
+        }
 
         $id = $this->pdo->lastInsertId('Component');
         $component->id = $id;
@@ -79,8 +81,9 @@ SQL;
         $statement = $this->pdo->prepare($updateQuery);
         $success = $statement->execute(['name' => $component->name, 'id' => $component->id]);
 
-        if (!$success)
+        if (!$success) {
             throw new UpdateFailure($component);
+        }
     }
 
     public function remove(Component $component)
@@ -92,8 +95,9 @@ SQL;
         $statement = $this->pdo->prepare($deleteQuery);
         $success = $statement->execute(['id' => $component->id]);
 
-        if (!$success)
+        if (!$success) {
             throw new DeletionFailure($component);
+        }
 
         $component->id = null;
 

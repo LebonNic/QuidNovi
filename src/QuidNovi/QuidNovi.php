@@ -60,8 +60,8 @@ class QuidNovi extends Slim
     private function setupConfiguration()
     {
         date_default_timezone_set('Zulu');
-        $this->config('templates.path', __DIR__ . '\..\..\web');
-        $this->config('database.path', 'sqlite:' . __DIR__ . '\..\..\database.sqlite3');
+        $this->config('templates.path', __DIR__.'\..\..\web');
+        $this->config('database.path', 'sqlite:'.__DIR__.'\..\..\database.sqlite3');
         $this->config('debug', true);
     }
 

@@ -28,7 +28,6 @@
 namespace QuidNovi\Finder;
 
 use QuidNovi\Model\Category;
-
 use PDO;
 
 class CategoryFinder
@@ -46,11 +45,9 @@ class CategoryFinder
         $componentFinder = new ComponentFinder($this->pdo);
         $componentRow = $componentFinder->getComponentRow($id);
 
-        if($componentRow)
-        {
+        if ($componentRow) {
             $categoryRow = $this->getCategoryRow($id);
-            if($categoryRow)
-            {
+            if ($categoryRow) {
                 $category = new Category($componentRow['name']);
                 $category->id = $componentRow['id'];
                 //TODO add a lazy initialisation system for the collection "$components" in a Category object

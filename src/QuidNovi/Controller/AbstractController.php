@@ -57,10 +57,11 @@ abstract class AbstractController
 
     abstract public function createRoutes();
 
-    public function buildResponse($status, $responseBody) {
+    public function buildResponse($status, $responseBody)
+    {
         $this->response->setStatus($status);
         $encoders = array(
-            'application/json' => 'json_encode'
+            'application/json' => 'json_encode',
         );
         $contentType = $this->getBestMatchingContentType();
 
@@ -72,10 +73,12 @@ abstract class AbstractController
         $this->response->setBody($encodedBody);
     }
 
-    public function getBestMatchingContentType() {
+    public function getBestMatchingContentType()
+    {
         $negotiator = new FormatNegotiator();
         $priorities = array('application/json');
         $bestHeader = $negotiator->getBest($this->request->headers('HTTP_ACCEPT'), $priorities);
+
         return $bestHeader->getValue();
     }
 }

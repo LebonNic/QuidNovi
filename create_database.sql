@@ -35,9 +35,9 @@ CREATE TABLE Entry
   FOREIGN KEY (feedId) REFERENCES Feed (id)
 );
 
-INSERT INTO Component (containerId, name) VALUES (0, 'Awesome Category');
-INSERT INTO Component (containerId, name) VALUES (0, 'Random Category');
-INSERT INTO Component (containerId, name) VALUES (0, 'Empty Category');
+INSERT INTO Component (containerId, name) VALUES (NULL, 'Awesome Category');
+INSERT INTO Component (containerId, name) VALUES (NULL, 'Random Category');
+INSERT INTO Component (containerId, name) VALUES (NULL, 'Empty Category');
 INSERT INTO Component (containerId, name) VALUES (1, 'Nested Category');
 INSERT INTO Component (containerId, name) VALUES (1, 'Inner Nested Category');
 INSERT INTO Component (containerId, name) VALUES (1, 'Awesome Feed');

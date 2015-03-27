@@ -27,7 +27,6 @@
 
 namespace QuidNovi\Finder;
 
-
 use QuidNovi\Model\Feed;
 use PDO;
 
@@ -35,11 +34,10 @@ class FeedFinder
 {
     private $pdo;
 
-    function __construct(PDO $pdo)
+    public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
-
 
     public function find($id)
     {
@@ -47,11 +45,9 @@ class FeedFinder
         $componentFinder = new ComponentFinder($this->pdo);
         $componentRow = $componentFinder->getComponentRow($id);
 
-        if($componentRow)
-        {
+        if ($componentRow) {
             $feedRow = $this->getFeedRow($id);
-            if($feedRow)
-            {
+            if ($feedRow) {
                 $lastUpdate = new \DateTime($feedRow['lastUpdate']);
                 $feed = new Feed($componentRow['name'], $feedRow['source'], $lastUpdate);
                 $feed->id = $componentRow['id'];
@@ -71,7 +67,7 @@ SQL;
         $statement = $this->pdo->prepare($selectQuery);
         $success = $statement->execute(['id' => $id]);
 
-        if(!$success){
+        if (!$success) {
             //TODO throw an exception
         }
 

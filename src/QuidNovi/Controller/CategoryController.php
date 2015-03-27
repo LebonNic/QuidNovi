@@ -44,14 +44,13 @@ class CategoryController extends AbstractController
      */
     private $finder;
 
-    function __construct(QuidNovi $app)
+    public function __construct(QuidNovi $app)
     {
         parent::__construct($app);
         $dataSource = $this->app->getDataSource();
         $this->mapper = new CategoryMapper($dataSource);
         $this->finder = new CategoryFinder($dataSource);
     }
-
 
     public function createRoutes()
     {
@@ -97,8 +96,9 @@ class CategoryController extends AbstractController
         }
 
         $this->mapper->persist($category);
-        $responseBody = ['uri' => '/categories/' . $category->id];
-        $this->buildResponse(201, $responseBody);
+        $this->buildResponse(201, [
+            'uri' => '/categories/'.$category->id,
+        ]);
     }
 
     public function find($id)
@@ -135,8 +135,9 @@ class CategoryController extends AbstractController
     {
         $category = $this->finder->find($id);
         if (null === $category) {
-            $this->app->halt('Category ' . $id . ' does not exist.');
+            $this->app->halt('Category '.$id.' does not exist.');
         }
+
         return $category;
     }
 }
