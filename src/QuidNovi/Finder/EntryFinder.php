@@ -28,6 +28,7 @@
 namespace QuidNovi\Finder;
 
 use PDO;
+use QuidNovi\Exception\ResearchFaillure;
 use QuidNovi\Model\Entry;
 
 class EntryFinder
@@ -43,28 +44,9 @@ class EntryFinder
     {
         $entry = null;
         $entryRow = $this->getEntryRow($id);
+
         if ($entryRow) {
-            $publicationDate = new \DateTime($entryRow['publicationDate']);
-
-            $isRead = false;
-            $isSaved = false;
-            if (1 == $entryRow['read']) {
-                $isRead = true;
-            }
-            if (1 == $entryRow['saved']) {
-                $isSaved = true;
-            }
-
-            $entry = new Entry($entryRow['title'],
-                                $entryRow['summary'],
-                                $entryRow['location'],
-                                $publicationDate,
-                                $isRead,
-                                $isSaved
-                                );
-            $entry->id = $entryRow['id'];
-            $feedFinder = new FeedFinder($this->pdo);
-            $entry->feed = $feedFinder->find($entryRow['feedId']);
+            $entry = $this->reconstructEntry($entryRow);
         }
 
         return $entry;
@@ -79,16 +61,89 @@ SQL;
         $statement = $this->pdo->prepare($selectQuery);
         $success = $statement->execute(['id' => $id]);
 
-        if (!$success) {
-            //TODO Throw an exception
-        }
+        if (!$success)
+            throw new ResearchFaillure("An error occurred during the entry research. More info: "
+                . print_r($this->pdo->errorInfo()));
 
         $row = $statement->fetch(PDO::FETCH_ASSOC);
 
         return $row;
     }
 
+    private function reconstructEntry($entryRow)
+    {
+        $entry = null;
+
+        $publicationDate = new \DateTime($entryRow['publicationDate']);
+
+        $isRead = false;
+        $isSaved = false;
+        if (1 == $entryRow['read']) {
+            $isRead = true;
+        }
+        if (1 == $entryRow['saved']) {
+            $isSaved = true;
+        }
+
+        $entry = new Entry($entryRow['title'],
+            $entryRow['summary'],
+            $entryRow['location'],
+            $publicationDate,
+            $isRead,
+            $isSaved
+        );
+
+        $entry->id = $entryRow['id'];
+        $feedFinder = new FeedFinder($this->pdo);
+        $entry->feed = $feedFinder->find($entryRow['feedId']);
+
+        return $entry;
+    }
+
+    private function getAllEntryRows()
+    {
+        $selectQuery = <<<SQL
+SELECT * FROM Entry
+SQL;
+        $statement = $this->pdo->prepare($selectQuery);
+        $success = $statement->execute();
+
+        if (!$success)
+            throw new ResearchFaillure("An error occurred during the entries research. More info: "
+                . print_r($this->pdo->errorInfo()));
+
+        return $statement->fetchAll();
+    }
+
     public function findAll()
     {
+        $entryRows = $this->getAllEntryRows();
+        $entries = array();
+
+        foreach($entryRows as $entryRow)
+        {
+            $entry = $this->reconstructEntry($entryRow);
+            array_push($entries, $entry);
+        }
+
+        return $entries;
+    }
+
+    public function countEntries()
+    {
+        $selectQuery = <<<SQL
+SELECT COUNT(id) FROM Entry
+SQL;
+        $statement = $this->pdo->prepare($selectQuery);
+        $success = $statement->execute();
+
+        if (!$success)
+            throw new ResearchFaillure("An error occurred during the entries' count. More info: "
+                . print_r($this->pdo->errorInfo()));
+
+        $row = $statement->fetch(PDO::FETCH_ASSOC);
+        $count = $row['COUNT(id)'];
+
+        return $count;
     }
 }

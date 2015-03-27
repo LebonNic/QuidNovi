@@ -27,6 +27,7 @@
 
 namespace QuidNovi\Finder;
 
+use QuidNovi\Exception\ResearchFaillure;
 use QuidNovi\Model\Feed;
 use PDO;
 
@@ -48,10 +49,7 @@ class FeedFinder
         if ($componentRow) {
             $feedRow = $this->getFeedRow($id);
             if ($feedRow) {
-                $lastUpdate = new \DateTime($feedRow['lastUpdate']);
-                $feed = new Feed($componentRow['name'], $feedRow['source'], $lastUpdate);
-                $feed->id = $componentRow['id'];
-                //TODO add a lazy initialisation system for the collection "$entries" in a Feed object
+                $feed = $this->reconstructFeed($componentRow, $feedRow);
             }
         }
 
@@ -67,16 +65,59 @@ SQL;
         $statement = $this->pdo->prepare($selectQuery);
         $success = $statement->execute(['id' => $id]);
 
-        if (!$success) {
-            //TODO throw an exception
-        }
+        if (!$success)
+            throw new ResearchFaillure("An error occurred during the feed research. More info: "
+        . print_r($this->pdo->errorInfo()));
 
         $row = $statement->fetch(PDO::FETCH_ASSOC);
 
         return $row;
     }
 
+    private function reconstructFeed($componentRow, $feedRow)
+    {
+        $lastUpdate = new \DateTime($feedRow['lastUpdate']);
+        $feed = new Feed($componentRow['name'], $feedRow['source'], $lastUpdate);
+        $feed->id = $componentRow['id'];
+        //TODO add a lazy initialisation system for the collection "$entries" in a Feed object
+
+        return $feed;
+    }
+
     public function findAll()
     {
+        $componentFinder = new ComponentFinder($this->pdo);
+        $componentRows = $componentFinder->getAllComponentRows();
+        $feeds = array();
+
+        foreach($componentRows as $componentRow)
+        {
+            $feedRow = $this->getFeedRow($componentRow['id']);
+            if($feedRow)
+            {
+                $feed = $this->reconstructFeed($componentRow, $feedRow);
+                array_push($feeds, $feed);
+            }
+        }
+
+        return $feeds;
+    }
+
+    public function countFeeds()
+    {
+        $selectQuery = <<<SQL
+SELECT COUNT(id) FROM Feed
+SQL;
+        $statement = $this->pdo->prepare($selectQuery);
+        $success = $statement->execute();
+
+        if (!$success)
+            throw new ResearchFaillure("An error occurred during the feeds' count. More info: "
+                . print_r($this->pdo->errorInfo()));
+
+        $row = $statement->fetch(PDO::FETCH_ASSOC);
+        $count = $row['COUNT(id)'];
+
+        return $count;
     }
 }

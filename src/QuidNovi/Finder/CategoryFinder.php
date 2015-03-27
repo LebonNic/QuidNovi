@@ -27,6 +27,7 @@
 
 namespace QuidNovi\Finder;
 
+use QuidNovi\Exception\ResearchFaillure;
 use QuidNovi\Model\Category;
 use PDO;
 
@@ -48,9 +49,7 @@ class CategoryFinder
         if ($componentRow) {
             $categoryRow = $this->getCategoryRow($id);
             if ($categoryRow) {
-                $category = new Category($componentRow['name']);
-                $category->id = $componentRow['id'];
-                //TODO add a lazy initialisation system for the collection "$components" in a Category object
+                $category = $this->reconstructCategory($componentRow, $categoryRow);
             }
         }
 
@@ -66,16 +65,57 @@ SQL;
         $statement = $this->pdo->prepare($selectQuery);
         $success = $statement->execute(['id' => $id]);
 
-        if (!$success) {
-            //TODO throw an exception
-        }
+        if (!$success)
+            throw new ResearchFaillure("An error occurred during the category research. More info: "
+                . print_r($this->pdo->errorInfo()));
 
         $row = $statement->fetch(PDO::FETCH_ASSOC);
 
         return $row;
     }
 
+    private function reconstructCategory($componentRow, $categoryRow)
+    {
+        $category = new Category($componentRow['name']);
+        $category->id = $componentRow['id'];
+        //TODO add a lazy initialisation system for the collection "$components" in a Category object
+        return $category;
+    }
+
     public function findAll()
     {
+        $componentFinder = new ComponentFinder($this->pdo);
+        $componentRows = $componentFinder->getAllComponentRows();
+        $categories = array();
+
+        foreach($componentRows as $componentRow)
+        {
+            $categoryRow = $this->getCategoryRow($componentRow['id']);
+            if($categoryRow)
+            {
+                $category = $this->reconstructCategory($componentRow, $categoryRow);
+                array_push($categories, $category);
+            }
+        }
+
+        return $categories;
+    }
+
+    public function countCategories()
+    {
+        $selectQuery = <<<SQL
+SELECT COUNT(id) FROM Category
+SQL;
+        $statement = $this->pdo->prepare($selectQuery);
+        $success = $statement->execute();
+
+        if (!$success)
+            throw new ResearchFaillure("An error occurred during the categories' count. More info: "
+                . print_r($this->pdo->errorInfo()));
+
+        $row = $statement->fetch(PDO::FETCH_ASSOC);
+        $count = $row['COUNT(id)'];
+
+        return $count;
     }
 }

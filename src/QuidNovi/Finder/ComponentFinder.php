@@ -10,6 +10,7 @@
 namespace QuidNovi\Finder;
 
 use PDO;
+use QuidNovi\Exception\ResearchFaillure;
 
 class ComponentFinder
 {
@@ -33,13 +34,29 @@ SQL;
         $statement = $this->pdo->prepare($selectQuery);
         $success = $statement->execute(['id' => $id]);
 
-        if (!$success) {
-            //TODO Throw an exception
-        }
+        if (!$success)
+            throw new ResearchFaillure("An error occurred during the component research. More info: "
+            . print_r($this->pdo->errorInfo()));
 
         $row = $statement->fetch(PDO::FETCH_ASSOC);
 
         return $row;
+    }
+
+    public function getAllComponentRows()
+    {
+        $selectQuery = <<<SQL
+SELECT * FROM Component
+SQL;
+
+        $statement = $this->pdo->prepare($selectQuery);
+        $success = $statement->execute();
+
+        if (!$success)
+            throw new ResearchFaillure("An error occurred during the components research. More info: "
+                . print_r($this->pdo->errorInfo()));
+
+        return $statement->fetchAll();
     }
 
     public function findAll()
