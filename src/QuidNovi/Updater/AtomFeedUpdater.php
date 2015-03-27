@@ -25,7 +25,7 @@
  * SOFTWARE.
  */
 
-namespace QuidNovi\Loader;
+namespace QuidNovi\Updater;
 
 use PDO;
 use QuidNovi\Mapper\EntryMapper;
@@ -49,20 +49,19 @@ class AtomFeedUpdater implements FeedUpdater
     {
         $source = $feed->getSource();
         $feedXML = new SimpleXmlElement(file_get_contents($source));
-        foreach ($feedXML->channel->item as $entryXML) {
+        foreach ($feedXML->entry as $entryXML) {
             $date = new \DateTime($entryXML->updated);
             if ($date > $feed->lastUpdate) {
                 $this->insertEntryInFeed($entryXML, $feed);
             }
         }
-        $feed->lastUpdate = new \DateTime();
     }
 
     private function insertEntryInFeed(SimpleXMLElement $entryXML, Feed $feed)
     {
         $entry = new Entry($entryXML->title,
-            $entryXML->summary,
-            $entryXML->link,
+            $entryXML->content,
+            $entryXML->link->attributes()['href'],
             new \DateTime($entryXML->updated));
         $mapper = new EntryMapper($this->pdo);
         $feed->addEntry($entry);

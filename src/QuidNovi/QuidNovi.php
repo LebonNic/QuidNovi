@@ -28,17 +28,10 @@
 namespace QuidNovi;
 
 use Exception;
-use PDO;
 use QuidNovi\Controller\CategoryController;
 use QuidNovi\Controller\EntryController;
 use QuidNovi\Controller\FeedController;
 use QuidNovi\DataSource\DataSource;
-use QuidNovi\Finder\FeedFinder;
-use QuidNovi\Loader\AtomFeedUpdater;
-use QuidNovi\Loader\FeedUpdater;
-use QuidNovi\Loader\RSSFeedUpdater;
-use QuidNovi\Util\FeedType;
-use QuidNovi\Util\FeedTypeDetector;
 use Slim\Slim;
 
 /**
@@ -102,40 +95,6 @@ class QuidNovi extends Slim
         new EntryController($this);
         new CategoryController($this);
         new FeedController($this);
-
-        $this->get('/info', function () {
-            return phpinfo();
-        });
-    }
-
-    /**
-     * Update subscribed feeds.
-     */
-    public function update()
-    {
-        $finder = new FeedFinder($this->getDataSource());
-        $feeds = $finder->findAll();
-        $updaters = $this->getFeedUpdaters();
-
-        foreach ($feeds as $feed) {
-            $feedType = FeedTypeDetector::getFeedType($feed);
-            /* @var $updater FeedUpdater */
-            $updater = $updaters[$feedType];
-            $updater->updateFeed($feed);
-        }
-    }
-
-    /**
-     * Get Map of FeedUpdaters indexed by FeedType.
-     *
-     * @return array
-     */
-    private function getFeedUpdaters()
-    {
-        return [
-            FeedType::$ATOM => new AtomFeedUpdater($this->getDataSource()),
-            FeedType::$RSS => new RSSFeedUpdater($this->getDataSource()),
-        ];
     }
 
     /**
@@ -149,6 +108,4 @@ class QuidNovi extends Slim
         $dataSource = new DataSource('sqlite:' . $databasePath);
         return $dataSource;
     }
-
-
 }

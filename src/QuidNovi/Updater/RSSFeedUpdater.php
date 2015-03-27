@@ -25,10 +25,11 @@
  * SOFTWARE.
  */
 
-namespace QuidNovi\Loader;
+namespace QuidNovi\Updater;
 
 use PDO;
 use QuidNovi\Mapper\EntryMapper;
+use QuidNovi\Mapper\FeedMapper;
 use QuidNovi\Model\Entry;
 use QuidNovi\Model\Feed;
 use SimpleXMLElement;
@@ -55,7 +56,6 @@ class RSSFeedUpdater implements FeedUpdater
                 $this->insertEntryInFeed($entryXML, $feed);
             }
         }
-        $feed->lastUpdate = new \DateTime();
     }
 
     private function insertEntryInFeed(SimpleXMLElement $entryXML, Feed $feed)

@@ -25,7 +25,7 @@
  * SOFTWARE.
  */
 
-namespace QuidNovi\Loader;
+namespace QuidNovi\Updater;
 
 use QuidNovi\Model\Feed;
 

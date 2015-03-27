@@ -11,6 +11,7 @@ namespace QuidNovi\Util;
 
 class FeedType
 {
-    public static $RSS = 1;
-    public static $ATOM = 2;
+    const UNKNOWN = 0;
+    const RSS = 1;
+    const ATOM = 2;
 }
