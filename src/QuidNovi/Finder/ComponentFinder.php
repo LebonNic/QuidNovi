@@ -10,15 +10,17 @@
 namespace QuidNovi\Finder;
 
 use PDO;
+use QuidNovi\DataSource\DataSource;
+use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\ResearchFaillure;
 
 class ComponentFinder
 {
-    private $pdo;
+    private $DataSource;
 
-    public function __construct(PDO $pdo)
+    public function __construct(DataSource $DataSource)
     {
-        $this->pdo = $pdo;
+        $this->DataSource = $DataSource;
     }
 
     public function find($id)
@@ -31,15 +33,17 @@ class ComponentFinder
 SELECT * FROM Component
 WHERE id=(:id)
 SQL;
-        $statement = $this->pdo->prepare($selectQuery);
-        $success = $statement->execute(['id' => $id]);
-
-        if (!$success)
+        try
+        {
+            $result = $this->DataSource->executeQuery($selectQuery, ['id' => $id]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new ResearchFaillure("An error occurred during the component research. More info: "
-            . print_r($this->pdo->errorInfo()));
+                . print_r($this->DataSource->errorInfo()));
+        }
 
-        $row = $statement->fetch(PDO::FETCH_ASSOC);
-
+        $row = $result->fetch(PDO::FETCH_ASSOC);
         return $row;
     }
 
@@ -49,14 +53,17 @@ SQL;
 SELECT * FROM Component
 SQL;
 
-        $statement = $this->pdo->prepare($selectQuery);
-        $success = $statement->execute();
-
-        if (!$success)
+        try
+        {
+            $result = $this->DataSource->executeQuery($selectQuery);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new ResearchFaillure("An error occurred during the components research. More info: "
-                . print_r($this->pdo->errorInfo()));
+                . print_r($this->DataSource->errorInfo()));
+        }
 
-        return $statement->fetchAll();
+        return $result->fetchAll();
     }
 
     public function findAll()

@@ -28,8 +28,10 @@
 namespace QuidNovi\Mapper;
 
 use PDO;
+use QuidNovi\DataSource\DataSource;
 use QuidNovi\Exception\InsertionFailure;
 use QuidNovi\Exception\DeletionFailure;
+use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\UpdateFailure;
 use QuidNovi\Model\Component;
 
@@ -38,20 +40,19 @@ class ComponentMapper
     /**
      * @var PDO
      */
-    private $pdo;
+    private $DataSource;
 
-    public function __construct(PDO $pdo)
+    public function __construct(DataSource $DataSource)
     {
-        $this->pdo = $pdo;
+        $this->DataSource = $DataSource;
     }
 
     public function persist(Component $component)
     {
-        if ($component->id) {
+        if ($component->id)
             $this->update($component);
-        } else {
+        else
             $this->insert($component);
-        }
     }
 
     private function insert(Component $component)
@@ -60,14 +61,16 @@ class ComponentMapper
 INSERT INTO Component (name)
 VALUES (:name)
 SQL;
-        $statement = $this->pdo->prepare($insertQuery);
-        $success = $statement->execute(['name' => $component->name]);
-
-        if (!$success) {
+        try
+        {
+            $this->DataSource->executeQuery($insertQuery, ['name' => $component->name]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new InsertionFailure($component);
         }
 
-        $id = $this->pdo->lastInsertId('Component');
+        $id = $this->DataSource->lastInsertId('Component');
         $component->id = $id;
     }
 
@@ -78,10 +81,12 @@ UPDATE Component
 SET name = :name
 WHERE id = :id
 SQL;
-        $statement = $this->pdo->prepare($updateQuery);
-        $success = $statement->execute(['name' => $component->name, 'id' => $component->id]);
-
-        if (!$success) {
+        try
+        {
+            $this->DataSource->executeQuery($updateQuery, ['name' => $component->name, 'id' => $component->id]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new UpdateFailure($component);
         }
     }
@@ -92,13 +97,14 @@ SQL;
 DELETE FROM Component
 WHERE id = :id
 SQL;
-        $statement = $this->pdo->prepare($deleteQuery);
-        $success = $statement->execute(['id' => $component->id]);
-
-        if (!$success) {
+        try
+        {
+            $this->DataSource->executeQuery($deleteQuery, ['id' => $component->id]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new DeletionFailure($component);
         }
-
         $component->id = null;
 
         //TODO recursive deletion

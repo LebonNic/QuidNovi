@@ -1,4 +1,5 @@
 <?php
+use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\EntryFinder;
 
 /**
@@ -19,8 +20,8 @@ class EntryFinderTest extends \PHPUnit_Framework_TestCase{
     public function testFindAllMethod()
     {
         // Given
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
-        $finder = new EntryFinder($pdo);
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $finder = new EntryFinder($DataSource);
 
         // When
         $entries = $finder->findAll();

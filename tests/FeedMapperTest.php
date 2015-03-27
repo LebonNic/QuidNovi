@@ -27,7 +27,7 @@
 
 namespace tests;
 
-use PDO;
+use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\FeedFinder;
 use QuidNovi\Mapper\FeedMapper;
 use QuidNovi\Model\Feed;
@@ -44,15 +44,15 @@ class FeedMapperTest extends \PHPUnit_Framework_TestCase
     {
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new FeedMapper($pdo);
-        $finder = new FeedFinder($pdo);
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new FeedMapper($DataSource);
+        $finder = new FeedFinder($DataSource);
 
         // When
         $mapper->persist($feed);
 
         // Then
-        $this->assertEquals($feed->id, $pdo->lastInsertId('Component'));
+        $this->assertEquals($feed->id, $DataSource->lastInsertId('Component'));
         $this->assertEquals($feed, $finder->find($feed->id));
     }
 
@@ -60,9 +60,9 @@ class FeedMapperTest extends \PHPUnit_Framework_TestCase
     {
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new FeedMapper($pdo);
-        $finder = new FeedFinder($pdo);
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new FeedMapper($DataSource);
+        $finder = new FeedFinder($DataSource);
 
         // When
         $mapper->persist($feed);
@@ -79,9 +79,9 @@ class FeedMapperTest extends \PHPUnit_Framework_TestCase
     {
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new FeedMapper($pdo);
-        $finder = new FeedFinder($pdo);
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new FeedMapper($DataSource);
+        $finder = new FeedFinder($DataSource);
 
         // When
         $mapper->persist($feed);

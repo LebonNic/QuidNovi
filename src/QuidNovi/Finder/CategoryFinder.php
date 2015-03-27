@@ -27,30 +27,32 @@
 
 namespace QuidNovi\Finder;
 
+use QuidNovi\DataSource\DataSource;
+use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\ResearchFaillure;
 use QuidNovi\Model\Category;
 use PDO;
 
 class CategoryFinder
 {
-    private $pdo;
+    private $DataSource;
 
-    public function __construct(PDO $pdo)
+    public function __construct(DataSource $DataSource)
     {
-        $this->pdo = $pdo;
+        $this->DataSource = $DataSource;
     }
 
     public function find($id)
     {
         $category = null;
-        $componentFinder = new ComponentFinder($this->pdo);
+        $componentFinder = new ComponentFinder($this->DataSource);
         $componentRow = $componentFinder->getComponentRow($id);
 
-        if ($componentRow) {
+        if ($componentRow)
+        {
             $categoryRow = $this->getCategoryRow($id);
-            if ($categoryRow) {
+            if ($categoryRow)
                 $category = $this->reconstructCategory($componentRow, $categoryRow);
-            }
         }
 
         return $category;
@@ -62,15 +64,17 @@ class CategoryFinder
 SELECT * FROM Category
 WHERE id=(:id)
 SQL;
-        $statement = $this->pdo->prepare($selectQuery);
-        $success = $statement->execute(['id' => $id]);
-
-        if (!$success)
+        try
+        {
+            $result = $this->DataSource->executeQuery($selectQuery, ['id' => $id]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new ResearchFaillure("An error occurred during the category research. More info: "
-                . print_r($this->pdo->errorInfo()));
+                . print_r($this->DataSource->errorInfo()));
+        }
 
-        $row = $statement->fetch(PDO::FETCH_ASSOC);
-
+        $row = $result->fetch(PDO::FETCH_ASSOC);
         return $row;
     }
 
@@ -84,7 +88,7 @@ SQL;
 
     public function findAll()
     {
-        $componentFinder = new ComponentFinder($this->pdo);
+        $componentFinder = new ComponentFinder($this->DataSource);
         $componentRows = $componentFinder->getAllComponentRows();
         $categories = array();
 
@@ -106,15 +110,18 @@ SQL;
         $selectQuery = <<<SQL
 SELECT COUNT(id) FROM Category
 SQL;
-        $statement = $this->pdo->prepare($selectQuery);
-        $success = $statement->execute();
-
-        if (!$success)
+        try
+        {
+            $result = $this->DataSource->executeQuery($selectQuery);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new ResearchFaillure("An error occurred during the categories' count. More info: "
-                . print_r($this->pdo->errorInfo()));
+                . print_r($this->DataSource->errorInfo()));
+        }
 
-        $row = $statement->fetch(PDO::FETCH_ASSOC);
-        $count = $row['COUNT(id)'];
+        $row = $result->fetch(PDO::FETCH_ASSOC);
+        $count = array_shift($row);
 
         return $count;
     }

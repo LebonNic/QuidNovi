@@ -28,6 +28,7 @@
 namespace QuidNovi\DataSource;
 
 use PDO;
+use QuidNovi\Exception\QueryExecutionFailure;
 
 class DataSource extends PDO
 {
@@ -102,5 +103,20 @@ CREATE TABLE IF NOT EXISTS Entry
 )
 SQL;
         $this->prepare($createEntryTableQuery)->execute();
+    }
+
+    public function executeQuery($query, array $parameters = [])
+    {
+        $stmt = $this->prepare($query);
+        foreach($parameters as $name => $value)
+        {
+            $stmt->bindValue(':' . $name, $value);
+        }
+        $success = $stmt->execute();
+
+        if(!$success)
+            throw new QueryExecutionFailure();
+
+        return $stmt;
     }
 }

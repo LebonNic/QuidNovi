@@ -28,8 +28,10 @@
 namespace QuidNovi\Mapper;
 
 use PDO;
+use QuidNovi\DataSource\DataSource;
 use QuidNovi\Exception\DeletionFailure;
 use QuidNovi\Exception\InsertionFailure;
+use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Model\Category;
 
 class CategoryMapper
@@ -38,28 +40,26 @@ class CategoryMapper
     /**
      * @var \PDO
      */
-    private $pdo;
+    private $DataSource;
 
-    public function __construct(PDO $pdo)
+    public function __construct(DataSource $DataSource)
     {
-        $this->pdo = $pdo;
+        $this->DataSource = $DataSource;
     }
 
     public function persist(Category $category)
     {
         $needUpdate = false;
-        if ($category->id) {
+        if ($category->id)
             $needUpdate = true;
-        }
 
-        $componentMapper = new ComponentMapper($this->pdo);
+        $componentMapper = new ComponentMapper($this->DataSource);
         $componentMapper->persist($category);
 
-        if ($needUpdate) {
+        if ($needUpdate)
             $this->update($category);
-        } else {
+        else
             $this->insert($category);
-        }
     }
 
     private function insert(Category $category)
@@ -68,13 +68,14 @@ class CategoryMapper
 INSERT INTO Category (id)
 VALUES (:id)
 SQL;
-        $statement =  $this->pdo->prepare($insertQuery);
-        $success = $statement->execute(['id' => $category->id]);
-
-        if (!$success) {
+        try
+        {
+            $this->DataSource->executeQuery($insertQuery, ['id' => $category->id]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new InsertionFailure($category);
         }
-
         $this->categories[$category->id] = $category;
     }
 
@@ -88,14 +89,15 @@ SQL;
 DELETE FROM Category
 WHERE id = :id
 SQL;
-        $statement = $this->pdo->prepare($deleteQuery);
-        $success = $statement->execute(['id' => $category->id]);
-
-        if (!$success) {
+        try
+        {
+            $this->DataSource->executeQuery($deleteQuery, ['id' => $category->id]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new DeletionFailure($category);
         }
-
-        $componentMapper = new ComponentMapper($this->pdo);
+        $componentMapper = new ComponentMapper($this->DataSource);
         $componentMapper->remove($category);
     }
 }

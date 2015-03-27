@@ -28,16 +28,18 @@
 namespace QuidNovi\Finder;
 
 use PDO;
+use QuidNovi\DataSource\DataSource;
+use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\ResearchFaillure;
 use QuidNovi\Model\Entry;
 
 class EntryFinder
 {
-    private $pdo;
+    private $DataSource;
 
-    public function __construct(PDO $pdo)
+    public function __construct(DataSource $DataSource)
     {
-        $this->pdo = $pdo;
+        $this->DataSource = $DataSource;
     }
 
     public function find($id)
@@ -45,9 +47,8 @@ class EntryFinder
         $entry = null;
         $entryRow = $this->getEntryRow($id);
 
-        if ($entryRow) {
+        if ($entryRow)
             $entry = $this->reconstructEntry($entryRow);
-        }
 
         return $entry;
     }
@@ -58,15 +59,17 @@ class EntryFinder
 SELECT * FROM Entry
 WHERE id=(:id)
 SQL;
-        $statement = $this->pdo->prepare($selectQuery);
-        $success = $statement->execute(['id' => $id]);
-
-        if (!$success)
+        try
+        {
+            $result = $this->DataSource->executeQuery($selectQuery, ['id' => $id]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new ResearchFaillure("An error occurred during the entry research. More info: "
-                . print_r($this->pdo->errorInfo()));
+                . print_r($this->DataSource->errorInfo()));
+        }
 
-        $row = $statement->fetch(PDO::FETCH_ASSOC);
-
+        $row = $result->fetch(PDO::FETCH_ASSOC);
         return $row;
     }
 
@@ -78,12 +81,12 @@ SQL;
 
         $isRead = false;
         $isSaved = false;
-        if (1 == $entryRow['read']) {
+
+        if (1 == $entryRow['read'])
             $isRead = true;
-        }
-        if (1 == $entryRow['saved']) {
+
+        if (1 == $entryRow['saved'])
             $isSaved = true;
-        }
 
         $entry = new Entry($entryRow['title'],
             $entryRow['summary'],
@@ -94,7 +97,7 @@ SQL;
         );
 
         $entry->id = $entryRow['id'];
-        $feedFinder = new FeedFinder($this->pdo);
+        $feedFinder = new FeedFinder($this->DataSource);
         $entry->feed = $feedFinder->find($entryRow['feedId']);
 
         return $entry;
@@ -105,14 +108,17 @@ SQL;
         $selectQuery = <<<SQL
 SELECT * FROM Entry
 SQL;
-        $statement = $this->pdo->prepare($selectQuery);
-        $success = $statement->execute();
-
-        if (!$success)
+        try
+        {
+            $result = $this->DataSource->executeQuery($selectQuery);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new ResearchFaillure("An error occurred during the entries research. More info: "
-                . print_r($this->pdo->errorInfo()));
+                . print_r($this->DataSource->errorInfo()));
+        }
 
-        return $statement->fetchAll();
+        return $result->fetchAll();
     }
 
     public function findAll()
@@ -134,15 +140,18 @@ SQL;
         $selectQuery = <<<SQL
 SELECT COUNT(id) FROM Entry
 SQL;
-        $statement = $this->pdo->prepare($selectQuery);
-        $success = $statement->execute();
-
-        if (!$success)
+        try
+        {
+            $result = $this->DataSource->executeQuery($selectQuery);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new ResearchFaillure("An error occurred during the entries' count. More info: "
-                . print_r($this->pdo->errorInfo()));
+                . print_r($this->DataSource->errorInfo()));
+        }
 
-        $row = $statement->fetch(PDO::FETCH_ASSOC);
-        $count = $row['COUNT(id)'];
+        $row = $result->fetch(PDO::FETCH_ASSOC);
+        $count = array_shift($row);
 
         return $count;
     }

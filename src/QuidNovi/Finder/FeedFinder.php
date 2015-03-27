@@ -27,30 +27,32 @@
 
 namespace QuidNovi\Finder;
 
+use QuidNovi\DataSource\DataSource;
+use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\ResearchFaillure;
 use QuidNovi\Model\Feed;
 use PDO;
 
 class FeedFinder
 {
-    private $pdo;
+    private $DataSource;
 
-    public function __construct(PDO $pdo)
+    public function __construct(DataSource $DataSource)
     {
-        $this->pdo = $pdo;
+        $this->DataSource = $DataSource;
     }
 
     public function find($id)
     {
         $feed = null;
-        $componentFinder = new ComponentFinder($this->pdo);
+        $componentFinder = new ComponentFinder($this->DataSource);
         $componentRow = $componentFinder->getComponentRow($id);
 
-        if ($componentRow) {
+        if ($componentRow)
+        {
             $feedRow = $this->getFeedRow($id);
-            if ($feedRow) {
+            if ($feedRow)
                 $feed = $this->reconstructFeed($componentRow, $feedRow);
-            }
         }
 
         return $feed;
@@ -62,15 +64,17 @@ class FeedFinder
 SELECT * FROM Feed
 WHERE id=(:id)
 SQL;
-        $statement = $this->pdo->prepare($selectQuery);
-        $success = $statement->execute(['id' => $id]);
-
-        if (!$success)
+        try
+        {
+            $result = $this->DataSource->executeQuery($selectQuery, ['id' => $id]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new ResearchFaillure("An error occurred during the feed research. More info: "
-        . print_r($this->pdo->errorInfo()));
+                . print_r($this->DataSource->errorInfo()));
+        }
 
-        $row = $statement->fetch(PDO::FETCH_ASSOC);
-
+        $row = $result->fetch(PDO::FETCH_ASSOC);
         return $row;
     }
 
@@ -86,7 +90,7 @@ SQL;
 
     public function findAll()
     {
-        $componentFinder = new ComponentFinder($this->pdo);
+        $componentFinder = new ComponentFinder($this->DataSource);
         $componentRows = $componentFinder->getAllComponentRows();
         $feeds = array();
 
@@ -108,16 +112,18 @@ SQL;
         $selectQuery = <<<SQL
 SELECT COUNT(id) FROM Feed
 SQL;
-        $statement = $this->pdo->prepare($selectQuery);
-        $success = $statement->execute();
-
-        if (!$success)
+        try
+        {
+            $result = $this->DataSource->executeQuery($selectQuery);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new ResearchFaillure("An error occurred during the feeds' count. More info: "
-                . print_r($this->pdo->errorInfo()));
+                . print_r($this->DataSource->errorInfo()));
+        }
 
-        $row = $statement->fetch(PDO::FETCH_ASSOC);
-        $count = $row['COUNT(id)'];
-
+        $row = $result->fetch(PDO::FETCH_ASSOC);
+        $count = array_shift($row);
         return $count;
     }
 }

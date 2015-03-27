@@ -13,8 +13,8 @@ class CategoryFinderTest extends \PHPUnit_Framework_TestCase{
     public function testFindAllMethod()
     {
         // Given
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
-        $finder = new CategoryFinder($pdo);
+        $DataSource = new \QuidNovi\DataSource\DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $finder = new CategoryFinder($DataSource);
 
         // When
         $categories = $finder->findAll();

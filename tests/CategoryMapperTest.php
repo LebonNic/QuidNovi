@@ -27,7 +27,7 @@
 
 namespace tests;
 
-use PDO;
+use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\CategoryFinder;
 use QuidNovi\Mapper\CategoryMapper;
 use QuidNovi\Model\Category;
@@ -38,15 +38,15 @@ class CategoryMapperTest extends \PHPUnit_Framework_TestCase
     {
         // Given
         $category = new Category('Foo');
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new CategoryMapper($pdo);
-        $finder = new CategoryFinder($pdo);
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new CategoryMapper($DataSource);
+        $finder = new CategoryFinder($DataSource);
 
         // When
         $mapper->persist($category);
 
         // Then
-        $this->assertEquals($category->id, $pdo->lastInsertId('Component'));
+        $this->assertEquals($category->id, $DataSource->lastInsertId('Component'));
         $this->assertEquals($category, $finder->find($category->id));
     }
 
@@ -54,9 +54,9 @@ class CategoryMapperTest extends \PHPUnit_Framework_TestCase
     {
         // Given
         $category = new Category('Foo');
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new CategoryMapper($pdo);
-        $finder = new CategoryFinder($pdo);
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new CategoryMapper($DataSource);
+        $finder = new CategoryFinder($DataSource);
 
         // When
         $mapper->persist($category);
@@ -73,9 +73,9 @@ class CategoryMapperTest extends \PHPUnit_Framework_TestCase
     {
         // Given
         $category = new Category('Foo');
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new CategoryMapper($pdo);
-        $finder = new CategoryFinder($pdo);
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new CategoryMapper($DataSource);
+        $finder = new CategoryFinder($DataSource);
 
         // When
         $mapper->persist($category);

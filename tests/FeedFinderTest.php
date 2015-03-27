@@ -1,4 +1,5 @@
 <?php
+use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\FeedFinder;
 
 /**
@@ -19,8 +20,8 @@ class FeedFinderTest extends \PHPUnit_Framework_TestCase{
     public function testFindAllMethod()
     {
         // Given
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
-        $finder = new FeedFinder($pdo);
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $finder = new FeedFinder($DataSource);
 
         // When
         $entries = $finder->findAll();

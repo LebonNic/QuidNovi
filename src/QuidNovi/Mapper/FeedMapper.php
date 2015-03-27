@@ -27,35 +27,34 @@
 
 namespace QuidNovi\Mapper;
 
+use QuidNovi\DataSource\DataSource;
 use QuidNovi\Exception\InsertionFailure;
+use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\UpdateFailure;
 use QuidNovi\Model\Feed;
-use PDO;
 
 class FeedMapper
 {
-    private $pdo;
+    private $DataSource;
 
-    public function __construct(PDO $pdo)
+    public function __construct(DataSource $DataSource)
     {
-        $this->pdo = $pdo;
+        $this->DataSource = $DataSource;
     }
 
     public function persist(Feed $feed)
     {
         $needUpdate = false;
-        if ($feed->id) {
+        if ($feed->id)
             $needUpdate = true;
-        }
 
-        $componentMapper = new ComponentMapper($this->pdo);
+        $componentMapper = new ComponentMapper($this->DataSource);
         $componentMapper->persist($feed);
 
-        if ($needUpdate) {
+        if ($needUpdate)
             $this->update($feed);
-        } else {
+        else
             $this->insert($feed);
-        }
     }
 
     public function remove(Feed $feed)
@@ -65,14 +64,15 @@ class FeedMapper
 DELETE FROM Feed
 WHERE id = :id
 SQL;
-        $statement = $this->pdo->prepare($deleteQuery);
-        $success = $statement->execute(['id' => $feed->id]);
-
-        if (!$success) {
+        try
+        {
+            $this->DataSource->executeQuery($deleteQuery, ['id' => $feed->id]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new DeletionFailure($feed);
         }
-
-        $componentMapper = new ComponentMapper($this->pdo);
+        $componentMapper = new ComponentMapper($this->DataSource);
         $componentMapper->remove($feed);
     }
 
@@ -83,12 +83,15 @@ UPDATE Feed
 SET source = :source, lastUpdate = :lastUpdate
 WHERE id = :id
 SQL;
-        $statement = $this->pdo->prepare($updateQuery);
-        $success = $statement->execute(['source' => $feed->getSource(),
-                                        'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s'),
-                                        'id' => $feed->id, ]);
-
-        if (!$success) {
+        try
+        {
+            $this->DataSource->executeQuery($updateQuery,
+                                            ['source' => $feed->getSource(),
+                                            'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s'),
+                                            'id' => $feed->id, ]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new UpdateFailure($feed);
         }
 
@@ -101,12 +104,15 @@ SQL;
 INSERT INTO Feed (id, source, lastUpdate)
 VALUES (:id, :source, :lastUpdate)
 SQL;
-        $statement =  $this->pdo->prepare($insertQuery);
-        $success = $statement->execute(['id' => $feed->id,
-                                        'source' => $feed->getSource(),
-                                        'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s'), ]);
-
-        if (!$success) {
+        try
+        {
+            $this->DataSource->executeQuery($insertQuery,
+                                            ['id' => $feed->id,
+                                            'source' => $feed->getSource(),
+                                            'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s')]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new InsertionFailure($feed);
         }
 
@@ -115,17 +121,15 @@ SQL;
 
     private function persistAssociatedEntries(Feed $feed)
     {
-        $entryMapper = new EntryMapper($this->pdo);
-        foreach ($feed->getEntries() as $entry) {
+        $entryMapper = new EntryMapper($this->DataSource);
+        foreach ($feed->getEntries() as $entry)
             $entryMapper->persist($entry);
-        }
     }
 
     private function removeAssociatedEntries(Feed $feed)
     {
-        $entryMapper = new EntryMapper($this->pdo);
-        foreach ($feed->getEntries() as $entry) {
+        $entryMapper = new EntryMapper($this->DataSource);
+        foreach ($feed->getEntries() as $entry)
             $entryMapper->remove($entry);
-        }
     }
 }
