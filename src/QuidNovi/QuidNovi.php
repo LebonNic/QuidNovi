@@ -32,6 +32,7 @@ use PDO;
 use QuidNovi\Controller\CategoryController;
 use QuidNovi\Controller\EntryController;
 use QuidNovi\Controller\FeedController;
+use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\FeedFinder;
 use QuidNovi\Loader\AtomFeedUpdater;
 use QuidNovi\Loader\FeedUpdater;
@@ -60,8 +61,8 @@ class QuidNovi extends Slim
     private function setupConfiguration()
     {
         date_default_timezone_set('Zulu');
-        $this->config('templates.path', __DIR__.'\..\..\web');
-        $this->config('database.path', 'sqlite:'.__DIR__.'\..\..\database.sqlite3');
+        $this->config('templates.path', __DIR__ . '\..\..\web');
+        $this->config('database.path', __DIR__ . '\..\..\database.sqlite3');
         $this->config('debug', true);
     }
 
@@ -140,10 +141,14 @@ class QuidNovi extends Slim
     /**
      * Get DataSource.
      *
-     * @return PDO
+     * @return DataSource
      */
     public function getDataSource()
     {
-        return new PDO($this->config('database.path'));
+        $databasePath = $this->config('database.path');
+        $dataSource = new DataSource('sqlite:' . $databasePath);
+        return $dataSource;
     }
+
+
 }
