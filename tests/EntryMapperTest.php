@@ -27,7 +27,7 @@
 
 namespace tests;
 
-use PDO;
+use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\EntryFinder;
 use QuidNovi\Mapper\EntryMapper;
 use QuidNovi\Mapper\FeedMapper;
@@ -47,16 +47,16 @@ class EntryMapperTest extends \PHPUnit_Framework_TestCase
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
         $entry = new Entry('foo', 'bar', 'www.foo.bar/1234', new \DateTime());
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
         $feed->addEntry($entry);
-        $mapper = new FeedMapper($pdo);
-        $finder = new EntryFinder($pdo);
+        $mapper = new FeedMapper($DataSource);
+        $finder = new EntryFinder($DataSource);
 
         // When
         $mapper->persist($feed);
 
         // Then
-        $this->assertEquals($entry->id, $pdo->lastInsertId('Entry'));
+        $this->assertEquals($entry->id, $DataSource->lastInsertId('Entry'));
         $this->assertEquals($entry, $finder->find($entry->id));
     }
 
@@ -65,11 +65,11 @@ class EntryMapperTest extends \PHPUnit_Framework_TestCase
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
         $entry = new Entry('foo', 'bar', 'www.foo.bar/1234', new \DateTime());
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
         $feed->addEntry($entry);
-        $entryMapper = new EntryMapper($pdo);
-        $feedMapper = new FeedMapper($pdo);
-        $finder = new EntryFinder($pdo);
+        $entryMapper = new EntryMapper($DataSource);
+        $feedMapper = new FeedMapper($DataSource);
+        $finder = new EntryFinder($DataSource);
 
         // When
         $feedMapper->persist($feed);
@@ -81,7 +81,7 @@ class EntryMapperTest extends \PHPUnit_Framework_TestCase
         $entryMapper->persist($entry);
 
         // Then
-        $this->assertEquals($id, $pdo->lastInsertId('Entry'));
+        $this->assertEquals($id, $DataSource->lastInsertId('Entry'));
         $this->assertEquals($entry, $finder->find($entry->id));
     }
 
@@ -90,11 +90,11 @@ class EntryMapperTest extends \PHPUnit_Framework_TestCase
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
         $entry = new Entry('foo', 'bar', 'www.foo.bar/1234', new \DateTime());
-        $pdo = new PDO('sqlite:'.__DIR__.'/../database.sqlite3');
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
         $feed->addEntry($entry);
-        $entryMapper = new EntryMapper($pdo);
-        $feedMapper = new FeedMapper($pdo);
-        $finder = new EntryFinder($pdo);
+        $entryMapper = new EntryMapper($DataSource);
+        $feedMapper = new FeedMapper($DataSource);
+        $finder = new EntryFinder($DataSource);
 
         // When
         $feedMapper->persist($feed);

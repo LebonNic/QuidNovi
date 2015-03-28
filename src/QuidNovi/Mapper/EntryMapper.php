@@ -27,28 +27,28 @@
 
 namespace QuidNovi\Mapper;
 
-use PDO;
+use QuidNovi\DataSource\DataSource;
 use QuidNovi\Exception\DeletionFailure;
 use QuidNovi\Exception\InsertionFailure;
+use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\UpdateFailure;
 use QuidNovi\Model\Entry;
 
 class EntryMapper
 {
-    private $pdo;
+    private $DataSource;
 
-    public function __construct(PDO $pdo)
+    public function __construct(DataSource $DataSource)
     {
-        $this->pdo = $pdo;
+        $this->DataSource = $DataSource;
     }
 
     public function persist(Entry $entry)
     {
-        if ($entry->id) {
+        if ($entry->id)
             $this->update($entry);
-        } else {
+        else
             $this->insert($entry);
-        }
     }
 
     private function update(Entry $entry)
@@ -64,17 +64,20 @@ SET feedId = :feedId,
     saved = :saved
 WHERE id = :id
 SQL;
-        $statement = $this->pdo->prepare($updateQuery);
-        $success = $statement->execute(['feedId' => $entry->feed->id,
-                                        'title' => $entry->title,
-                                        'summary' => $entry->summary,
-                                        'location' => $entry->getLocation(),
-                                        'publicationDate' => $entry->getPublicationDate()->format('Y-m-d H:i:s'),
-                                        'read' => (($entry->isRead()) ? 1 : 0),
-                                        'saved' => (($entry->isSaved()) ? 1 : 0),
-                                        'id' => $entry->id, ]);
-
-        if (!$success) {
+        try
+        {
+            $this->DataSource->executeQuery($updateQuery,
+                                            ['feedId' => $entry->feed->id,
+                                            'title' => $entry->title,
+                                            'summary' => $entry->summary,
+                                            'location' => $entry->getLocation(),
+                                            'publicationDate' => $entry->getPublicationDate()->format('Y-m-d H:i:s'),
+                                            'read' => (($entry->isRead()) ? 1 : 0),
+                                            'saved' => (($entry->isSaved()) ? 1 : 0),
+                                            'id' => $entry->id, ]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new UpdateFailure($entry);
         }
     }
@@ -85,23 +88,23 @@ SQL;
 INSERT INTO Entry (feedId, title, summary, location, publicationDate, read, saved)
 VALUES            (:feedId, :title, :summary, :location, :publicationDate, :read, :saved)
 SQL;
-        $statement = $this->pdo->prepare($insertQuery);
-        $success = $statement->execute(['feedId' => $entry->feed->id,
-                                        'title' => $entry->title,
-                                        'summary' => $entry->summary,
-                                        'location' => $entry->getLocation(),
-                                        'publicationDate' => $entry->getPublicationDate()->format('Y-m-d H:i:s'),
-                                        'read' => ($entry->isRead()) ? 1 : 0,
-                                        'saved' => ($entry->isSaved()) ? 1 : 0, ]);
-
-        if (!$success) {
-            //var_dump($entry);
-            //printf($entry->getPublicationDate()->format('Y-m-d H:i:s') . "\n");
-            print_r($this->pdo->errorInfo());
+        try
+        {
+            $this->DataSource->executeQuery($insertQuery,
+                                            ['feedId' => $entry->feed->id,
+                                            'title' => $entry->title,
+                                            'summary' => $entry->summary,
+                                            'location' => $entry->getLocation(),
+                                            'publicationDate' => $entry->getPublicationDate()->format('Y-m-d H:i:s'),
+                                            'read' => ($entry->isRead()) ? 1 : 0,
+                                            'saved' => ($entry->isSaved()) ? 1 : 0, ]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new InsertionFailure($entry);
         }
 
-        $id = $this->pdo->lastInsertId('Entry');
+        $id = $this->DataSource->lastInsertId('Entry');
         $entry->id = $id;
     }
 
@@ -111,11 +114,12 @@ SQL;
 DELETE FROM Entry
 WHERE id = :id
 SQL;
-
-        $statement = $this->pdo->prepare($deleteQuery);
-        $success = $statement->execute(['id' => $entry->id]);
-
-        if (!$success) {
+        try
+        {
+            $this->DataSource->executeQuery($deleteQuery, ['id' => $entry->id]);
+        }
+        catch(QueryExecutionFailure $e)
+        {
             throw new DeletionFailure($entry);
         }
 

@@ -30,9 +30,6 @@ namespace QuidNovi\Exception;
 
 use Exception;
 
-class ResearchFaillure extends Exception{
-    public function __construct($message)
-    {
-        parent::__construct($message);
-    }
+class QueryExecutionFailure extends Exception{
+
 }
