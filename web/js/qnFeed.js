@@ -12,6 +12,10 @@
                 controller: 'FeedEditionDialogController',
                 templateUrl: 'partials/feed-dialog.html',
                 targetEvent: $event
+            }).then(function() {
+                Feed.rename($scope.feed);
+            }, function() {
+                Feed.rename($scope.feed);
             });
         };
     });
@@ -99,6 +103,11 @@
             unsubscribe: function(feed) {
                 if (undefined !== feed.id) {
                     $http.delete('/feeds/' + feed.id);
+                }
+            },
+            rename: function(feed) {
+                if (undefined !== feed.id) {
+                    $http.patch('/feeds/' + feed.id, {name: feed.name});
                 }
             }
         };

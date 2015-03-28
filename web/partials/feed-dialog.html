@@ -1,8 +1,12 @@
 <md-dialog aria-label="Feed edition" ng-controller="FeedController">
     <md-content>
-        <md-input-container flex>
+        <md-input-container>
             <label>Feed Name</label>
             <input ng-model="feed.name" placeholder="Name">
+        </md-input-container>
+        <md-input-container>
+            <label>Feed Url</label>
+            <input ng-model="feed.source" placeholder="Url" disabled>
         </md-input-container>
     </md-content>
     <div class="md-actions" layout="row">

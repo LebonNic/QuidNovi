@@ -66,14 +66,15 @@ class FeedController extends AbstractController
                 $this->subscribe($name, $source);
             });
 
-            $app->patch('/:id', function ($id) use ($app) {
-                $name = $app->request->params('name');
+            $app->patch('/:id', function ($id) {
+                $json = json_decode($this->request->getBody(), true);
+                $name = isset($json['name']) ? $json['name'] : null;
                 if (null !== $name) {
                     $this->rename($id, $name);
                 }
             });
 
-            $app->delete('/:id', function ($id) use ($app) {
+            $app->delete('/:id', function ($id) {
                 $this->unsubscribe($id);
             });
         });

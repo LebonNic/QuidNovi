@@ -43,7 +43,7 @@
             $scope.selectedEntry = entry;
             if (!entry.read) {
                 entry.read = true;
-                Entry.markAsRead(entry.id, entry.read);
+                Entry.markAsRead(entry);
             }
 
             // Search corresponding index in loaded entries
@@ -66,16 +66,15 @@
     });
 
     qnEntry.controller('EntryController', function ($scope, Entry) {
-        $scope.toggleSaved = function (entry) {
-            entry.saved = !entry.saved;
-            Entry.markAsSaved(entry.id, entry.saved);
-        };
-
         $scope.toggleRead = function (entry) {
             entry.read = !entry.read;
-            Entry.markAsRead(entry.id, entry.read);
+            Entry.markAsRead(entry);
         };
 
+        $scope.toggleSaved = function (entry) {
+            entry.saved = !entry.saved;
+            Entry.markAsSaved(entry);
+        };
     });
 
     qnEntry.factory('Entry', function ($http, Feed) {
@@ -94,14 +93,14 @@
                     callback(entries);
                 });
             },
-            markAsRead: function(id, read) {
-                $http.patch('/entries/' + id, {
-                    read: read
+            markAsRead: function(entry) {
+                $http.patch('/entries/' + entry.id, {
+                    read: entry.read
                 });
             },
-            markAsSaved: function(id, saved) {
-                $http.patch('/entries/' + id, {
-                    saved: saved
+            markAsSaved: function(entry) {
+                $http.patch('/entries/' + entry.id, {
+                    saved: entry.saved
                 });
             }
         }
