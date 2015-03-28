@@ -59,8 +59,9 @@ class CategoryController extends AbstractController
 
         $app->group('/categories', function () use ($app) {
             $app->post('/', function () {
-                $name = $this->request->params('name');
-                $containerId = $this->request->params('containerId');
+                $json = json_decode($this->request->getBody(), true);
+                $name = isset($json['name']) ? $json['name'] : null;
+                $containerId = isset($json['containerId']) ? $json['containerId'] : null;
                 $this->create($name, $containerId);
             });
 
@@ -73,7 +74,8 @@ class CategoryController extends AbstractController
             });
 
             $app->patch('/:id', function ($id) {
-                $name = $this->request->params('name');
+                $json = json_decode($this->request->getBody(), true);
+                $name = isset($json['name']) ? $json['name'] : null;
                 $this->rename($id, $name);
             });
 
@@ -126,7 +128,7 @@ class CategoryController extends AbstractController
         $category = $this->getCategory($id);
         $category->name = $name;
         $this->mapper->persist($category);
-        $this->response->setStatus(406);
+        $this->response->setStatus(204);
     }
 
     public function delete($id)

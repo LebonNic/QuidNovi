@@ -1,0 +1,19 @@
+<md-dialog aria-label="Category creation">
+    <form validate name="addCategoryForm">
+        <md-content>
+            <md-input-container>
+                <label>Category Name</label>
+                <input name="name" ng-model="category.name" placeholder="Name" required>
+            </md-input-container>
+        </md-content>
+        <div class="md-actions" layout="row">
+            <md-button ng-click="cancel()">
+                Cancel
+            </md-button>
+            <span flex></span>
+            <md-button ng-click="confirm()" class="md-primary">
+                Add Category
+            </md-button>
+        </div>
+    </form>
+</md-dialog>

@@ -1,9 +1,12 @@
 (function () {
     var qnFeed = angular.module('qnFeed', []);
 
-    qnFeed.controller('FeedController', function ($scope, $routeParams, $mdDialog, Feed) {
+    qnFeed.controller('FeedController', function ($scope, $location, $routeParams, $mdDialog, Feed) {
         $scope.feed = undefined;
         Feed.get($routeParams.feed, function (data) {
+            if (undefined === data) {
+                $location.url('/error');
+            }
             $scope.feed = data;
         });
 
@@ -12,8 +15,12 @@
                 controller: 'FeedEditionDialogController',
                 templateUrl: 'partials/feed-dialog.html',
                 targetEvent: $event
-            }).then(function() {
-                Feed.rename($scope.feed);
+            }).then(function(save) {
+                if (true === save) {
+                    Feed.rename($scope.feed);
+                } else {
+                    Feed.unsubscribe($scope.feed);
+                }
             }, function() {
                 Feed.rename($scope.feed);
             });
@@ -21,11 +28,11 @@
     });
 
     qnFeed.controller('FeedEditionDialogController', function ($scope, $mdDialog, Feed) {
-        $scope.unsubscribe = function(feed) {
-            Feed.unsubscribe(feed);
+        $scope.unsubscribe = function() {
+            $mdDialog.hide(false);
         };
         $scope.close = function () {
-            $mdDialog.hide();
+            $mdDialog.hide(true);
         };
     });
 
@@ -91,6 +98,8 @@
                     feeds.push(data);
                     data.url = '/feeds/' + data.id;
                     callback(data);
+                }).error(function() {
+                    callback(undefined);
                 });
             },
             subscribe: function (feed) {

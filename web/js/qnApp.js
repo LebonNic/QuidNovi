@@ -56,10 +56,15 @@
                 controller: 'SubscribeFeedDialogController',
                 templateUrl: 'partials/feed-subscribe-dialog.html',
                 targetEvent: $event
-            }).then(function (answer) {
+            });
+        };
 
-            }, function () {
-                console.log('Canceled feed subscription.');
+        $scope.showCategoryAddDialog = function($event) {
+            $mdBottomSheet.hide();
+            $mdDialog.show({
+                controller: 'AddCategoryDialogController',
+                templateUrl: 'partials/category-add-dialog.html',
+                targetEvent: $event
             });
         };
     });
@@ -69,15 +74,27 @@
             name: '',
             source: ''
         };
-        $scope.hide = function () {
-            $mdDialog.hide();
-        };
         $scope.cancel = function () {
             $mdDialog.cancel();
         };
         $scope.confirm = function() {
             if ($scope.feed.name && $scope.feed.source) {
                 Feed.subscribe($scope.feed);
+                $mdDialog.hide();
+            }
+        }
+    });
+
+    qnApp.controller('AddCategoryDialogController', function ($scope, $mdDialog, Category) {
+        $scope.category = {
+            name: ''
+        };
+        $scope.cancel = function () {
+            $mdDialog.cancel();
+        };
+        $scope.confirm = function() {
+            if ($scope.category.name) {
+                Category.create($scope.category);
                 $mdDialog.hide();
             }
         }
