@@ -31,6 +31,7 @@ use QuidNovi\Finder\FeedFinder;
 use QuidNovi\Mapper\FeedMapper;
 use QuidNovi\Model\Feed;
 use QuidNovi\QuidNovi;
+use QuidNovi\DTO\FeedDTO;
 
 class FeedController extends AbstractController
 {
@@ -59,8 +60,9 @@ class FeedController extends AbstractController
             });
 
             $app->post('/', function () {
+                $name = $this->request->params('name');
                 $source = $this->request->params('source');
-                $this->subscribe($source);
+                $this->subscribe($name, $source);
             });
 
             $app->patch('/:id', function ($id) use ($app) {
@@ -79,22 +81,35 @@ class FeedController extends AbstractController
     public function findAll()
     {
         $feeds = $this->finder->findAll();
-        $this->buildResponse(200, $feeds);
+        $feedsDTO = [];
+        foreach($feeds as $feed) {
+            array_push($feedsDTO, new FeedDTO($feed));
+        }
+        $this->buildResponse(200, $feedsDTO);
     }
 
     public function find($id)
     {
         $feed = $this->getFeed($id);
-        $this->buildResponse(200, $feed);
+        $this->buildResponse(200, new FeedDTO($feed));
     }
 
-    public function subscribe($source)
+    public function subscribe($name, $source)
     {
+        if (null === $name) {
+            $this->app->halt(400, 'Feed name is required.');
+        }
         if (null === $source) {
             $this->app->halt(400, 'Feed source is required.');
         }
         // TODO: check that source does not already exist.
         $source = filter_var($source, FILTER_SANITIZE_URL);
+        if (!filter_var($source, FILTER_VALIDATE_URL) === true) {
+            $this->app->halt(400, 'Feed source is not a valid url.');
+        }
+
+        $this->app->getLog()->info('Subscribing to feed '.$source);
+
         $yesterday = new \DateTime();
         $yesterday->sub(new \DateInterval('P1D'));
         $feed = new Feed($source, $source, $yesterday);

@@ -2,15 +2,14 @@
     var qnCategory = angular.module('qnCategory', []);
 
     qnCategory.controller('CategoryController', function ($scope, $routeParams, $location, $mdDialog, Entry, Feed, Category) {
-        $scope.category = Category.find($routeParams.category);
-
-        if ($scope.category === undefined) {
-            $location.url('/error');
-        }
+        $scope.category = undefined;
+        Category.get($routeParams.category, function (data) {
+            $scope.category = data;
+        });
 
         $scope.showEditDialog = function ($event) {
             $mdDialog.show({
-                controller: 'DialogController',
+                controller: 'CategoryEditionDialogController',
                 templateUrl: 'partials/category-dialog.html',
                 targetEvent: $event
             }).then(function (answer) {
@@ -21,90 +20,52 @@
         };
     });
 
-    qnCategory.factory('Category', function (Feed) {
-        var categories = [{
-            id: 4,
-            name: 'Awesome Category',
-            url: '/categories/4',
-            categories: [{
-                id: 7,
-                name: 'Nested Category',
-                url: '/categories/7',
-                categories: [{
-                    id: 8,
-                    name: 'Inner Nested Category',
-                    url: '/categories/8',
-                    categories: [],
-                    feeds: []
-                }],
-                feeds: []
-            }],
-            feeds: [Feed.find(1), Feed.find(2)]
-        }, {
-            id: 5,
-            name: 'Random Category',
-            url: '/categories/5',
-            categories: [],
-            feeds: [Feed.find(3)]
-        }, {
-            id: 6,
-            name: 'Empty Category',
-            url: '/categories/6',
-            categories: [],
-            feeds: []
-        }];
+    qnCategory.controller('CategoryEditionDialogController', function ($scope, $mdDialog) {
+        $scope.close = function () {
+            $mdDialog.hide();
+        };
+    });
 
-        function searchCategoryWithId(searchCategories, id) {
-            for (var i = 0, length = searchCategories.length; i < length; ++i) {
-                var category = searchCategories[i];
-                if (id === category.id) {
-                    return category;
-                }
-                var depthSearch = searchCategoryWithId(category.categories, id);
-                if (depthSearch !== undefined) {
-                    return depthSearch;
-                }
-            }
-            return undefined;
-        }
+    qnCategory.factory('Category', function ($http) {
+        var categories;
+        var pendingQuery;
 
-        function searchFeedInCategory(category, id) {
-            for (var i = 0, length = category.feeds.length; i < length; ++i) {
-                if (category.feeds[i].id === id) {
-                    return category.feeds[i];
+        function findCategory(id) {
+            for (var i = 0, length = categories.length; i < length; ++i) {
+                if (id === categories[i].id) {
+                    return categories[i];
                 }
             }
-            return undefined;
-        }
-
-        function searchRecursivelyFeedInCategory(category, id) {
-            if (searchFeedInCategory(category, id) !== undefined) {
-                return true;
-            }
-            for (var i = 0, length = category.categories.length; i < length; ++i) {
-                var innerCategory = category.categories[i];
-                if (searchFeedInCategory(innerCategory, id) !== undefined) {
-                    return true;
-                }
-                if (searchRecursivelyFeedInCategory(innerCategory, id)) {
-                    return true;
-                }
-            }
-            return false;
         }
 
         return {
-            findAll: function () {
-                return categories;
+            query: function(callback) {
+                if (undefined !== categories) {
+                    return callback(categories);
+                }
+                // Get all query or subscribe to pending query
+                if (undefined === pendingQuery) {
+                    console.log('Querying /categories');
+                    pendingQuery = $http.get('/categories');
+                    pendingQuery.success(function (data) {
+                        categories = data;
+                        angular.forEach(data, function (category) {
+                            category.url = '/categories/' + category.id;
+                        });
+                        pendingQuery = undefined;
+                        callback(categories);
+                    });
+                } else {
+                    pendingQuery.then(function() {
+                        callback(categories);
+                    });
+                }
             },
-            find: function (id) {
-                id = parseInt(id);
-                return searchCategoryWithId(categories, id);
-            },
-            contains: function (categoryId, id) {
-                var category = searchCategoryWithId(categories, categoryId);
-                return searchRecursivelyFeedInCategory(category, id);
+            get: function(id, callback) {
+                // All categories are loaded on application startup. We don't make any other network calls.
+                var category = findCategory(id);
+                callback(category);
             }
-        }
+        };
     });
 })();

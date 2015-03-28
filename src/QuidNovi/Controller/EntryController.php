@@ -27,6 +27,7 @@
 
 namespace QuidNovi\Controller;
 
+use QuidNovi\DTO\EntryDTO;
 use QuidNovi\Finder\EntryFinder;
 use QuidNovi\Mapper\EntryMapper;
 use QuidNovi\Model\Entry;
@@ -57,7 +58,9 @@ class EntryController extends AbstractController
 
         $app->group('/entries', function () use ($app) {
             $app->get('/', function () {
-                $this->findAll();
+                $read = $this->request->params('read');
+                $saved = $this->request->params('saved');
+                $this->findAll($read, $saved);
             });
 
             $app->get('/:id', function ($id) {
@@ -80,13 +83,23 @@ class EntryController extends AbstractController
     public function find($id)
     {
         $entry = $this->getEntry($id);
-        $this->buildResponse(200, $entry);
+        $this->buildResponse(200, new EntryDTO($entry));
     }
 
-    public function findAll()
+    public function findAll($read, $saved)
     {
         $entries = $this->finder->findAll();
-        $this->buildResponse(200, $entries);
+        $entriesDTO = [];
+        foreach($entries as $entry) {
+            array_push($entriesDTO, new EntryDTO($entry));
+        }
+        if (null !== $read) {
+
+        }
+        if (null !== $saved) {
+
+        }
+        $this->buildResponse(200, $entriesDTO);
     }
 
     public function markAsRead($id, $read)

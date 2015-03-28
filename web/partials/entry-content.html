@@ -1,8 +1,8 @@
 <div ng-hide="isExpanded(entry)">
     <span ng-class="{'unread': !entry.read}">{{entry.title}}</span>
-    <em>{{entry.description}}</em>
+    <em>{{entry.summary}}</em>
 </div>
 <div ng-show="isExpanded(entry)">
     <h2 ng-class="{'unread': !entry.read}" ng-click="collapse(entry, $event)">{{entry.title}}</h2>
-    <p>{{entry.description}}</p>
+    <p>{{entry.summary}}</p>
 </div>

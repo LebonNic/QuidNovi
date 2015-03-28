@@ -47,7 +47,7 @@ md-toolbar h1 {
     margin: 0;
 }
 
-.menu .md-button {
+md-sidenav .md-button {
     font-size: 0.9em;
     border-radius: 0;
     color: inherit;
@@ -64,7 +64,7 @@ md-toolbar h1 {
     width: 100%;
 }
 
-.menu .md-button {
+md-sidenav .md-button {
     display: flex;
 }
 
@@ -100,7 +100,7 @@ md-toolbar h1 {
     display: flex;
 }
 
-.menu .md-button-toggle i {
+md-sidenav .md-button i {
     height: 24px;
     width: 24px;
     line-height: 32px;

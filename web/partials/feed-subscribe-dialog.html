@@ -1,0 +1,23 @@
+<md-dialog aria-label="Feed edition">
+    <form validate name="subscribeFeedForm">
+        <md-content>
+            <md-input-container flex>
+                <label>Feed Name</label>
+                <input name="name" placeholder="Name" required ng-model="feed.name">
+            </md-input-container>
+            <md-input-container flex>
+                <label>Feed Url</label>
+                <input name="source" type="url" placeholder="Url" required ng-model="feed.source">
+            </md-input-container>
+        </md-content>
+        <div class="md-actions" layout="row">
+            <md-button ng-click="cancel()">
+                Cancel
+            </md-button>
+            <span flex></span>
+            <md-button ng-click="confirm()" class="md-primary">
+                Subscribe feed
+            </md-button>
+        </div>
+    </form>
+</md-dialog>

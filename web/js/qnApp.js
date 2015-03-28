@@ -1,9 +1,8 @@
-// Definition of QuidNovi module.
 (function () {
     var qnApp = angular.module('QuidNovi', ['ngRoute', 'ngMaterial',
         'qnEntry', 'qnFeed', 'qnCategory']);
 
-    qnApp.controller('AppController', function ($scope, $location, $mdSidenav, Category) {
+    qnApp.controller('AppController', function ($scope, $location, $mdSidenav, $mdBottomSheet, Category) {
         $scope.sections = [{
             name: 'All',
             url: '/entries'
@@ -15,7 +14,10 @@
             url: '/entries?saved=true'
         }];
 
-        $scope.categories = Category.findAll();
+        $scope.categories = [];
+        Category.query(function (data) {
+            $scope.categories = data;
+        });
         $scope.selectedSection = undefined;
 
         $scope.toggleSidenav = function (menuId) {
@@ -36,59 +38,68 @@
 
         $scope.isOpen = function () {
             return $scope.selectedSection === $scope.section;
-        }
+        };
+
+        $scope.showListBottomSheet = function ($event) {
+            $mdBottomSheet.show({
+                templateUrl: 'partials/add-bottom-sheet.html',
+                controller: 'ListBottomSheetController',
+                targetEvent: $event
+            });
+        };
     });
 
-    qnApp.controller('DialogController', function ($scope, $mdDialog) {
+    qnApp.controller('ListBottomSheetController', function ($scope, $mdBottomSheet, $mdDialog) {
+        $scope.showFeedSubscribeDialog = function($event) {
+            $mdBottomSheet.hide();
+            $mdDialog.show({
+                controller: 'SubscribeFeedDialogController',
+                templateUrl: 'partials/feed-subscribe-dialog.html',
+                targetEvent: $event
+            }).then(function (answer) {
+
+            }, function () {
+                console.log('Canceled feed subscription.');
+            });
+        };
+    });
+
+    qnApp.controller('SubscribeFeedDialogController', function ($scope, $mdDialog, Feed) {
+        $scope.feed = {
+            name: '',
+            source: ''
+        };
         $scope.hide = function () {
             $mdDialog.hide();
         };
         $scope.cancel = function () {
             $mdDialog.cancel();
         };
-        $scope.answer = function (answer) {
-            $mdDialog.hide(answer);
-        };
+        $scope.confirm = function() {
+            if ($scope.feed.name && $scope.feed.source) {
+                Feed.subscribe($scope.feed);
+                $mdDialog.hide();
+            }
+        }
     });
 
-    qnApp.config(function ($routeProvider) {
-        //$location.html5Mode(true);
+    qnApp.config(function ($routeProvider, $httpProvider) {
+        $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
+
         // Route configuration
         $routeProvider
             // By default, go to list of last entries
             .when('/', {redirectTo: '/entries'})
-            .when('/entries', {templateUrl: 'partials/entry-list.html', controller: 'EntriesController'})
-            // ENTRY LIST
-            // Display a list of most recent entries sorted by descending date.
-            // Each line of the list contains entry's source feed, entry title, followed by the beginning of entry summary and entry publish date.
-            // Unread entries are displayed in bold font. Read entries are in normal font.
-            // A button allows to mark all items as read.
-            // User can use 'j' (next item) and 'k' (previous item) keys to browse entries faster.
-            // On scroll, more entries can be loaded. An indicator is then displayed to notify user about it.
+            .when('/entries', {
+                templateUrl: 'partials/entry-list.html',
+                controller: 'EntriesController'
+            })
 
-            // ENTRY DETAIL
-            // When an entry title is clicked, entry line expands and entry's details are shown.
-            // The entry is mark as read. User can click on "Mark as unread" button to switch it back to unread. The button toggles to "Mark as read" and allows to mark entry as read.
-            // When another entry title is clicked, previous entry collapses and clicked entry expands.
-            // When the feed of the entry is clicked, redirect to /feeds/:id
-            // When entry publish date is clicked, redirect to entry url
+            .when('/feeds/:feed', {
+                templateUrl: 'partials/feed-detail.html',
+                controller: 'FeedController'
+            })
 
-            // FEED DETAIL
-            // Display feed entries ordered by descending date.
-            // The options available on entry list are available here.
-            // The feed title and description are displayed above the entry list.
-            // A button next to feed title allows feed edition.
-            // On click, a modal is revealed with current feed properties.
-            // User can edit feed title, feed description and can unsubscribe feed.
-            .when('/feeds/:feed', {templateUrl: 'partials/feed-detail.html', controller: 'FeedController'})
-
-            // CATEGORY DETAIL
-            // Display category entries ordered by descending date.
-            // The options available on entry list are available here.
-            // The category title and description are displayed above the entry list.
-            // A button next to category title allows category edition.
-            // On click, a modal is revealed with current category properties.
-            // User can change category title, category description and can delete category.
             .when('/categories/:category', {
                 templateUrl: 'partials/category-detail.html',
                 controller: 'CategoryController'

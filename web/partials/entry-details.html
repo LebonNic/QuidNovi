@@ -8,6 +8,6 @@
        ng-class="{'fa-bookmark': entry.saved, 'fa-bookmark-o': !entry.saved}">
     </i>
 </md-button>
-<md-button ng-href="{{entry.url}}" target="_blank">
+<md-button ng-href="{{entry.location}}" target="_blank">
     {{entry.publicationDate | date:short}}
 </md-button>

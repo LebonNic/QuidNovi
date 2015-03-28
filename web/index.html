@@ -27,6 +27,7 @@
 </md-toolbar>
 <div layout="row" flex>
     <md-sidenav layout="column"
+                layout-align="space-between"
                 class="md-sidenav-left md-whiteframe-z1"
                 md-component-id="left"
                 md-is-locked-open="$media('gt-sm')">
@@ -39,6 +40,12 @@
                 <menu-toggle section="category"></menu-toggle>
             </li>
         </ul>
+        <div class="actions">
+            <md-divider></md-divider>
+            <md-button aria-label="Add item" ng-click="showListBottomSheet($event)">
+                <i class="fa fa-plus"></i> Add
+            </md-button>
+        </div>
     </md-sidenav>
 
     <div layout="column" flex id="content">
@@ -47,7 +54,6 @@
         </md-content>
     </div>
 </div>
-
 <!-- End of Main layout -->
 
 <!-- JavaScript dependencies -->

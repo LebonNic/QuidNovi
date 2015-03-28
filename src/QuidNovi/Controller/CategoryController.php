@@ -27,6 +27,7 @@
 
 namespace QuidNovi\Controller;
 
+use QuidNovi\DTO\CategoryDTO;
 use QuidNovi\Finder\CategoryFinder;
 use QuidNovi\Mapper\CategoryMapper;
 use QuidNovi\Model\Category;
@@ -104,13 +105,17 @@ class CategoryController extends AbstractController
     public function find($id)
     {
         $category = $this->getCategory($id);
-        $this->buildResponse(200, $category);
+        $this->buildResponse(200, new CategoryDTO($category));
     }
 
     public function findAll()
     {
         $categories = $this->finder->findAll();
-        $this->buildResponse(200, $categories);
+        $categoriesDTO = [];
+        foreach($categories as $category) {
+            array_push($categoriesDTO, new CategoryDTO($category));
+        }
+        $this->buildResponse(200, $categoriesDTO);
     }
 
     public function rename($id, $name)
@@ -135,7 +140,7 @@ class CategoryController extends AbstractController
     {
         $category = $this->finder->find($id);
         if (null === $category) {
-            $this->app->halt('Category '.$id.' does not exist.');
+            $this->app->halt(404, 'Category '.$id.' does not exist.');
         }
 
         return $category;
