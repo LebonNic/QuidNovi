@@ -1,11 +1,9 @@
 <md-button aria-label="Mark as read" ng-click="toggleRead(entry)">
-    <i class="fa"
-       ng-class="{'fa-eye': entry.read, 'fa-eye-slash': !entry.read}">
+    <i class="fa" ng-class="{'fa-eye': entry.read, 'fa-eye-slash': !entry.read}">
     </i>
 </md-button>
 <md-button aria-label="Mark as save" ng-click="toggleSaved(entry)">
-    <i class="fa"
-       ng-class="{'fa-bookmark': entry.saved, 'fa-bookmark-o': !entry.saved}">
+    <i class="fa" ng-class="{'fa-bookmark': entry.saved, 'fa-bookmark-o': !entry.saved}">
     </i>
 </md-button>
 <md-button ng-href="{{entry.location}}" target="_blank">

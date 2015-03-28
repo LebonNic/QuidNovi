@@ -137,6 +137,9 @@ md-item-content i.fa {
     color: transparent;
     transition: all 0.25s;
 }
+md-item-content i.fa.fa-bookmark {
+    color: #a7a7a7;
+}
 
 md-item-content:hover i.fa {
     color: #a7a7a7;

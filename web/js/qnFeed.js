@@ -46,16 +46,6 @@
             }
         }
 
-        function urlEncode(obj) {
-            var str = [];
-            for(var p in obj) {
-                if (obj.hasOwnProperty(p)) {
-                    str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-                }
-            }
-            return str.join("&");
-        }
-
         return {
             query: function (callback) {
                 if (pendingQuery === undefined) {
@@ -101,7 +91,7 @@
             },
             subscribe: function (feed) {
                 if (undefined === feed.id) {
-                    $http.post('/feeds', urlEncode(feed)).success(function (data) {
+                    $http.post('/feeds', feed).success(function (data) {
                         console.log(data);
                     });
                 }

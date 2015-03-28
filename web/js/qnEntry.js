@@ -41,7 +41,10 @@
 
         $scope.expand = function (entry) {
             $scope.selectedEntry = entry;
-            entry.read = true;
+            if (!entry.read) {
+                entry.read = true;
+                Entry.markAsRead(entry.id, entry.read);
+            }
 
             // Search corresponding index in loaded entries
             for (var entryIndex = 0, entryCount = $scope.entries.length; entryIndex < entryCount; ++entryIndex) {
@@ -62,13 +65,15 @@
         };
     });
 
-    qnEntry.controller('EntryController', function ($scope) {
+    qnEntry.controller('EntryController', function ($scope, Entry) {
         $scope.toggleSaved = function (entry) {
             entry.saved = !entry.saved;
+            Entry.markAsSaved(entry.id, entry.saved);
         };
 
         $scope.toggleRead = function (entry) {
             entry.read = !entry.read;
+            Entry.markAsRead(entry.id, entry.read);
         };
 
     });
@@ -87,6 +92,16 @@
                         });
                     });
                     callback(entries);
+                });
+            },
+            markAsRead: function(id, read) {
+                $http.patch('/entries/' + id, {
+                    read: read
+                });
+            },
+            markAsSaved: function(id, saved) {
+                $http.patch('/entries/' + id, {
+                    saved: saved
                 });
             }
         }

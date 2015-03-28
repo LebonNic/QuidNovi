@@ -60,8 +60,9 @@ class FeedController extends AbstractController
             });
 
             $app->post('/', function () {
-                $name = $this->request->params('name');
-                $source = $this->request->params('source');
+                $json = json_decode($this->request->getBody(), true);
+                $name = isset($json['name']) ? $json['name'] : null;
+                $source = isset($json['source']) ? $json['source'] : null;
                 $this->subscribe($name, $source);
             });
 
@@ -82,7 +83,7 @@ class FeedController extends AbstractController
     {
         $feeds = $this->finder->findAll();
         $feedsDTO = [];
-        foreach($feeds as $feed) {
+        foreach ($feeds as $feed) {
             array_push($feedsDTO, new FeedDTO($feed));
         }
         $this->buildResponse(200, $feedsDTO);
@@ -108,14 +109,14 @@ class FeedController extends AbstractController
             $this->app->halt(400, 'Feed source is not a valid url.');
         }
 
-        $this->app->getLog()->info('Subscribing to feed '.$source);
+        $this->app->getLog()->info('Subscribing to feed ' . $source);
 
         $yesterday = new \DateTime();
         $yesterday->sub(new \DateInterval('P1D'));
         $feed = new Feed($source, $source, $yesterday);
         $this->mapper->persist($feed);
         $this->buildResponse(201, [
-            'uri' => '/feeds/'.$feed->id,
+            'uri' => '/feeds/' . $feed->id,
         ]);
     }
 
@@ -141,7 +142,7 @@ class FeedController extends AbstractController
     {
         $feed = $this->finder->find($id);
         if (null === $feed) {
-            $this->app->halt(404, 'Feed '.$id.' does not exist.');
+            $this->app->halt(404, 'Feed ' . $id . ' does not exist.');
         }
 
         return $feed;

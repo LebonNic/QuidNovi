@@ -67,9 +67,11 @@ class EntryController extends AbstractController
                 $this->find($id);
             });
 
-            $app->patch('/:id', function ($id) use ($app) {
-                $read = $app->request->params('read');
-                $saved = $app->request->params('saved');
+            $app->patch('/:id', function ($id) {
+                $json = json_decode($this->request->getBody(), true);
+                $read = isset($json['read'])?$json['read']:null;
+                $saved = isset($json['saved'])?$json['saved']:null;
+
                 if (null !== $read) {
                     $this->markAsRead($id, $read);
                 }
@@ -105,9 +107,9 @@ class EntryController extends AbstractController
     public function markAsRead($id, $read)
     {
         $entry = $this->getEntry($id);
-        if ('true' === $read) {
+        if (true === $read) {
             $entry->markAsRead();
-        } elseif ('false' === $read) {
+        } elseif (false === $read) {
             $entry->markAsUnread();
         }
         $this->mapper->persist($entry);
@@ -117,9 +119,9 @@ class EntryController extends AbstractController
     public function markAsSaved($id, $saved)
     {
         $entry = $this->getEntry($id);
-        if ('true' === $saved) {
+        if (true === $saved) {
             $entry->markAsSaved();
-        } elseif ('false' === $saved) {
+        } elseif (false === $saved) {
             $entry->markAsUnsaved();
         }
         $this->mapper->persist($entry);
