@@ -73,7 +73,7 @@ SQL;
         }
 
         $id = $this->DataSource->lastInsertId('Component');
-        $component->id = $id;
+        $component->id = (int) $id;
     }
 
     private function update(Component $component)

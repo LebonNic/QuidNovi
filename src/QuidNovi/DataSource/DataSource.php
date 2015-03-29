@@ -29,6 +29,7 @@ namespace QuidNovi\DataSource;
 
 use PDO;
 use QuidNovi\Exception\QueryExecutionFailure;
+use QuidNovi\Model\Category;
 
 class DataSource extends PDO
 {
@@ -58,6 +59,12 @@ CREATE TABLE IF NOT EXISTS Component
 )
 SQL;
         $this->prepare($createComponentTableQuery)->execute();
+
+        $createRootComponentQuery = <<<SQL
+INSERT OR REPLACE INTO Component (id, name)
+VALUES (1, 'Root')
+SQL;
+        $this->prepare($createRootComponentQuery)->execute();
     }
 
     private function initializeCategoryTable()
@@ -70,6 +77,14 @@ CREATE TABLE IF NOT EXISTS Category
 )
 SQL;
         $this->prepare($createCategoryTableQuery)->execute();
+
+        $createRootCategoryQuery = <<<SQL
+INSERT OR REPLACE INTO Category (id)
+VALUES (1)
+SQL;
+        $this->prepare($createRootCategoryQuery)->execute();
+        Category::$rootCategory = new Category('Root');
+        Category::$rootCategory->id = 1;
     }
 
     private function initializeFeedTable()

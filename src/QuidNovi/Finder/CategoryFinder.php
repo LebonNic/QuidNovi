@@ -80,7 +80,7 @@ SQL;
     private function reconstructCategory($componentRow, $categoryRow)
     {
         $category = new Category($componentRow['name']);
-        $category->id = $componentRow['id'];
+        $category->id = (int)$componentRow['id'];
         $containerId = $componentRow['containerId'];
         $categoryFinder = $this;
         $category->setContainerClosure(function () use ($categoryFinder, $containerId) {
@@ -110,7 +110,6 @@ SQL;
 
             return $components;
         });
-        //TODO add a lazy initialisation system for the collection "$components" in a Category object
         return $category;
     }
 

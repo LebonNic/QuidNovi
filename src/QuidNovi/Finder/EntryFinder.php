@@ -133,6 +133,29 @@ SQL;
         return $entries;
     }
 
+    public function findEntriesAssociatedToFeed($feedId){
+        $selectQuery = <<<SQL
+SELECT * FROM Entry
+WHERE feedId = :feedId
+SQL;
+        try{
+            $result = $this->DataSource->executeQuery($selectQuery, ['feedId' => $feedId]);
+        }
+        catch(QueryExecutionFailure $e){
+            throw new ResearchFaillure('An error occurred during the entries research. More info: '
+                .print_r($this->DataSource->errorInfo()));
+        }
+
+        $entryRows = $result->fetchAll();
+        $entries = array();
+        foreach($entryRows as $entryRow){
+            $entry = $this->reconstructEntry($entryRow);
+            array_push($entries, $entry);
+        }
+
+        return $entries;
+    }
+
     public function findSatisfying(Specification $specification)
     {
         $entries = $this->findAll();

@@ -57,7 +57,10 @@ class EntryMapperTest extends \PHPUnit_Framework_TestCase
 
         // Then
         $this->assertEquals($entry->id, $DataSource->lastInsertId('Entry'));
-        $this->assertEquals($entry, $finder->find($entry->id));
+        $retrievedEntry = $finder->find($entry->id);
+        //$retrievedEntry->feed->getContainer();
+        //$retrievedEntry->feed->getEntries();
+        $this->assertEquals($entry, $retrievedEntry);
     }
 
     public function testComponentUpdate()

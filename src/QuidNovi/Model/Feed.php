@@ -27,6 +27,8 @@
 
 namespace QuidNovi\Model;
 
+use Closure;
+
 class Feed extends Component
 {
     /**
@@ -41,20 +43,22 @@ class Feed extends Component
      * @var array
      */
     private $entries;
+    private $entriesLazyLoadingClosure;
 
-    public function __construct($name, $source, $lastUpdate, $entries = array())
+    public function __construct($name, $source, $lastUpdate, $entries = null)
     {
         parent::__construct($name);
         $this->id = null;
         $this->source = $source;
         $this->lastUpdate = $lastUpdate;
         $this->entries = $entries;
+        $this->entriesLazyLoadingClosure = null;
     }
 
     public function addEntry($entry)
     {
         $entry->feed = $this;
-        array_push($this->entries, $entry);
+        array_push($this->getEntries(), $entry);
     }
 
     public function getSource()
@@ -62,8 +66,26 @@ class Feed extends Component
         return $this->source;
     }
 
-    public function getEntries()
+    public function setEntriesLazyLoadingClosure(Closure $entriesLazyLoadingClosure)
     {
+        $this->entriesLazyLoadingClosure = $entriesLazyLoadingClosure;
+    }
+
+    public function &getEntries()
+    {
+        if(!isset($this->entries))
+        {
+            $closure = $this->entriesLazyLoadingClosure;
+            if(is_callable($closure))
+            {
+                $this->entries = $closure();
+            }
+
+            if(!isset($this->entries))
+            {
+                $this->entries = array();
+            }
+        }
         return $this->entries;
     }
 }
