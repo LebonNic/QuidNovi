@@ -106,7 +106,5 @@ SQL;
             throw new DeletionFailure($component);
         }
         $component->id = null;
-
-        //TODO recursive deletion
     }
 }

@@ -80,7 +80,7 @@ SQL;
     {
         $lastUpdate = new \DateTime($feedRow['lastUpdate']);
         $feed = new Feed($componentRow['name'], $feedRow['source'], $lastUpdate);
-        $feedId = $componentRow['id'];
+        $feedId = (int)$componentRow['id'];
         $feed->id = $feedId;
         $containerId = $componentRow['containerId'];
 

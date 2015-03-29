@@ -152,7 +152,6 @@ SQL;
             $entry = $this->reconstructEntry($entryRow);
             array_push($entries, $entry);
         }
-
         return $entries;
     }
 

@@ -95,12 +95,31 @@ SQL;
         }
     }
 
+    private function removeContainedComponents(Category $category)
+    {
+        $feedMapper = new FeedMapper($this->DataSource);
+        foreach($category->getComponents() as $component)
+        {
+            if($component instanceof Category)
+            {
+                $this->remove($component);
+            }
+            else if($component instanceof Feed)
+            {
+                $feedMapper->remove($component);
+            }
+        }
+    }
+
     private function update(Category $category)
     {
     }
 
     public function remove(Category $category)
     {
+        // Recursive deletion
+        $this->removeContainedComponents($category);
+
         $deleteQuery = <<<SQL
 DELETE FROM Category
 WHERE id = :id
