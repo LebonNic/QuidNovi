@@ -53,19 +53,19 @@ Le chargement des entrées de chaque catégorie est fait en une seule fois, une 
 * POST   /categories     : crée une nouvelle catégorie {name: <name>, containerId: <containerId>}.
 * GET    /categories     : obtient une représentation hiérarchique des catégories.
 * GET    /categories/:id : obtient la catégorie spécifiée.
-* PATCH  /categories/:id : renomme {name: <name>} ou déplace {containerId: <containerId>} la catégorie spécifiée.
+* PATCH  /categories/:id : renomme {name: `name`} ou déplace {containerId: `containerId`} la catégorie spécifiée.
 * DELETE /categories/:id : supprime la catégorie, ses sous-catégories et les flux contenus.
 
 ### Entries
-* GET    /entries?read=<true/false>&saved=<true/false>&feed=<feedId>&category=<categoryId> : récupère les entrées avec les filtres spécifiés.
+* GET    /entries?read=`true/false`&saved=`true/false`&feed=`feedId`&category=`categoryId` : récupère les entrées avec les filtres spécifiés.
 * GET    /entries/:id    : récupère l'entrée spécifiée.
-* PATCH  /entries/:id    : marque une entrée comme lue ou non lue {read: <true/false>}, sauvegardée ou non sauvegardée {saved: <true/false>}.
+* PATCH  /entries/:id    : marque une entrée comme lue ou non lue {read: `true/false`}, sauvegardée ou non sauvegardée {saved: `true/false`}.
 
 ### Feeds
-* POST   /feeds          : abonne au flux spécifié. {name: <name>, containerId: <containerId>, source: <source>}.
+* POST   /feeds          : abonne au flux spécifié. {name: `name`, containerId: `containerId`, source: `source`}.
 * GET    /feeds          : récupère tous les flux.
 * GET    /feeds/:id      : récupère le flux spécifié.
-* PATCH  /feeds/:id      : renomme {name: <name>} ou déplace {containerId: <containerId>} le flux spécifié.
+* PATCH  /feeds/:id      : renomme {name: `name`} ou déplace {containerId: `containerId`} le flux spécifié.
 * DELETE /feeds/:id      : désabonne le flux spécifié.
 
 ##Serveur
