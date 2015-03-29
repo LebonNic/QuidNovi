@@ -29,7 +29,6 @@ namespace tests;
 
 use PDO;
 use QuidNovi\DataSource\DataSource;
-use QuidNovi\Finder\FeedFinder;
 use QuidNovi\Mapper\FeedMapper;
 use QuidNovi\Model\Feed;
 
