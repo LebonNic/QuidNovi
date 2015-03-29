@@ -1,4 +1,5 @@
 <?php
+
 use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\FeedFinder;
 use QuidNovi\Mapper\FeedMapper;
@@ -28,9 +29,8 @@ use QuidNovi\Model\Feed;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-class FeedFinderTest extends \PHPUnit_Framework_TestCase{
-
+class FeedFinderTest extends \PHPUnit_Framework_TestCase
+{
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
@@ -74,5 +74,4 @@ class FeedFinderTest extends \PHPUnit_Framework_TestCase{
         $this->assertEquals($feed->getEntries(), $retrievedFeed->getEntries());
         //$this->assertEquals($feed->getContainer(), $retrievedFeed->getContainer());
     }
-
 }

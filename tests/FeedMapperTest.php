@@ -47,6 +47,7 @@ SELECT * FROM Component
 WHERE id = :id
 SQL;
         $componentRow = $dataSource->executeQuery($selectComponentQuery, ['id' => $id]);
+
         return $componentRow->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -57,6 +58,7 @@ SELECT * FROM Feed
 WHERE id = :id
 SQL;
         $componentRow = $dataSource->executeQuery($selectComponentQuery, ['id' => $id]);
+
         return $componentRow->fetch(PDO::FETCH_ASSOC);
     }
 

@@ -48,6 +48,7 @@ SELECT * FROM Component
 WHERE containerId = :containerId
 SQL;
         $componentRow = $dataSource->executeQuery($selectComponentQuery, ['containerId' => $containerId]);
+
         return $componentRow->fetchAll();
     }
 
@@ -58,6 +59,7 @@ SELECT * FROM Feed
 WHERE id = :id
 SQL;
         $componentRow = $dataSource->executeQuery($selectComponentQuery, ['id' => $id]);
+
         return $componentRow->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -68,6 +70,7 @@ SELECT * FROM Component
 WHERE id = :id
 SQL;
         $componentRow = $dataSource->executeQuery($selectComponentQuery, ['id' => $id]);
+
         return $componentRow->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -78,6 +81,7 @@ SELECT * FROM Category
 WHERE id = :id
 SQL;
         $componentRow = $dataSource->executeQuery($selectComponentQuery, ['id' => $id]);
+
         return $componentRow->fetch(PDO::FETCH_ASSOC);
     }
 

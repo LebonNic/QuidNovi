@@ -51,6 +51,7 @@ WHERE id = :id
 SQL;
 
         $entryRow = $dataSource->executeQuery($selectQuery, ['id' => $id]);
+
         return $entryRow->fetch(PDO::FETCH_ASSOC);
     }
 

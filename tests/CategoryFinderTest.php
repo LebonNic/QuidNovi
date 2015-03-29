@@ -1,4 +1,5 @@
 <?php
+
 use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\CategoryFinder;
 use QuidNovi\Mapper\CategoryMapper;
@@ -28,9 +29,8 @@ use QuidNovi\Model\Category;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-class CategoryFinderTest extends \PHPUnit_Framework_TestCase{
-
+class CategoryFinderTest extends \PHPUnit_Framework_TestCase
+{
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
@@ -72,5 +72,4 @@ class CategoryFinderTest extends \PHPUnit_Framework_TestCase{
         $this->assertEquals($category->name, $retrievedCategory->name);
         $this->assertEquals($category->getContainer(), $category->getContainer());
     }
-
 }

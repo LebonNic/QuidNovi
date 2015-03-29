@@ -1,4 +1,5 @@
 <?php
+
 use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\EntryFinder;
 use QuidNovi\Mapper\FeedMapper;
@@ -29,9 +30,8 @@ use QuidNovi\Model\Feed;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-class EntryFinderTest extends \PHPUnit_Framework_TestCase{
-
+class EntryFinderTest extends \PHPUnit_Framework_TestCase
+{
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
@@ -84,5 +84,4 @@ class EntryFinderTest extends \PHPUnit_Framework_TestCase{
         $this->assertEquals($entry->isRead(), $retrievedEntry->isRead());
         $this->assertEquals($entry->isSaved(), $retrievedEntry->isSaved());
     }
-
 }
