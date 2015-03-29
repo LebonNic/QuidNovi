@@ -36,8 +36,11 @@
                 <menu-link section="section"></menu-link>
             </li>
             <md-divider></md-divider>
-            <li ng-repeat="category in categories">
+            <li ng-repeat="category in root.categories">
                 <menu-toggle section="category"></menu-toggle>
+            </li>
+            <li ng-repeat="feed in root.feeds">
+                <menu-link section="feed"></menu-link>
             </li>
         </ul>
         <div class="actions">

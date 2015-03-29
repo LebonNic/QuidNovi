@@ -95,6 +95,7 @@ class CategoryController extends AbstractController
         // If a containing category is specified, the new category is added to this container
         if (null !== $containerId) {
             $container = $this->getCategory($containerId);
+            $category->setContainer($container);
             $container->addComponent($category);
         }
 
@@ -112,12 +113,8 @@ class CategoryController extends AbstractController
 
     public function findAll()
     {
-        $categories = $this->finder->findAll();
-        $categoriesDTO = [];
-        foreach($categories as $category) {
-            array_push($categoriesDTO, new CategoryDTO($category));
-        }
-        $this->buildResponse(200, $categoriesDTO);
+        $category = $this->finder->find(1);
+        $this->buildResponse(200, new CategoryDTO($category));
     }
 
     public function rename($id, $name)

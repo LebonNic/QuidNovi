@@ -16,7 +16,6 @@ class FeedDTO {
     public $name;
     public $source;
     public $lastUpdate;
-    public $entriesId;
 
     function __construct(Feed $feed)
     {
@@ -24,9 +23,5 @@ class FeedDTO {
         $this->name = $feed->name;
         $this->source = $feed->getSource();
         $this->lastUpdate = $feed->lastUpdate->format('Y-m-dTH:m:s');
-        $this->entriesId = [];
-        foreach ($feed->getEntries() as $entry) {
-            array_push($this->entriesId, $entry->id);
-        }
     }
 }

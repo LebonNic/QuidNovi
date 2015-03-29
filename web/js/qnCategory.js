@@ -28,7 +28,7 @@
         };
     });
 
-    qnCategory.controller('CategoryEditionDialogController', function ($scope, $mdDialog, Category) {
+    qnCategory.controller('CategoryEditionDialogController', function ($scope, $mdDialog) {
         $scope.remove = function () {
             $mdDialog.hide(false);
         };
@@ -38,37 +38,74 @@
     });
 
     qnCategory.factory('Category', function ($http) {
-        var categories;
         var pendingQuery;
+        var root;
 
         function findCategory(id) {
+            return findCategoryInContainer(root, id);
+        }
+
+        function findCategoryInContainer(container, id) {
+            if (container.id === id) {
+                return container;
+            }
+            var categories = container.categories;
             for (var i = 0, length = categories.length; i < length; ++i) {
-                if (id === categories[i].id) {
-                    return categories[i];
+                var result = findCategoryInContainer(categories[i], id);
+                if (undefined !== result) {
+                    return result;
                 }
             }
+            return undefined;
+        }
+
+        function removeCategory(id) {
+            removeCategoryInContainer(root, id);
+        }
+
+        function removeCategoryInContainer(container, id) {
+            var categories = container.categories;
+            for (var i = 0, length = categories.length; i < length; ++i) {
+                if (categories[i].id === id) {
+                    console.log(categories[i]);
+                    categories.splice(i, 1);
+                    return true;
+                }
+                if (removeCategoryInContainer(categories[i], id)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function assignUrl(container) {
+            container.url = '/categories/' + container.id;
+            angular.forEach(container.categories, function (category) {
+                assignUrl(category);
+            });
+            angular.forEach(container.feeds, function (feed) {
+                feed.url = '/feeds/' + feed.id;
+            });
         }
 
         return {
             query: function (callback) {
-                if (undefined !== categories) {
-                    return callback(categories);
+                if (undefined !== root) {
+                    return callback(root);
                 }
                 // Get all query or subscribe to pending query
                 if (undefined === pendingQuery) {
                     console.log('Querying /categories');
                     pendingQuery = $http.get('/categories');
                     pendingQuery.success(function (data) {
-                        categories = data;
-                        angular.forEach(data, function (category) {
-                            category.url = '/categories/' + category.id;
-                        });
+                        root = data;
+                        assignUrl(root);
                         pendingQuery = undefined;
-                        callback(categories);
+                        callback(data);
                     });
                 } else {
                     pendingQuery.then(function () {
-                        callback(categories);
+                        callback(root);
                     });
                 }
             },
@@ -79,11 +116,14 @@
             },
             create: function (category) {
                 if (undefined === category.id) {
+                    if (category.containerId === undefined) {
+                        category.containerId = root.id;
+                    }
                     $http.post('/categories', category).success(function (data) {
                         console.log('Category ' + data.uri + ' created.');
-                        $http.get(data.uri).success(function(category) {
+                        $http.get(data.uri).success(function (category) {
                             category.url = '/categories/' + category.id;
-                            categories.push(category);
+                            root.categories.push(category);
                         });
                     });
                 }
@@ -95,12 +135,8 @@
             },
             remove: function (category) {
                 if (undefined !== category.id) {
-                    $http.delete('/categories/' + category.id).success(function() {
-                        for (var i = 0, length = categories.length; i < length; ++i) {
-                            if (categories[i].id ===  category.id) {
-                                return categories.splice(i, 1);
-                            }
-                        }
+                    $http.delete('/categories/' + category.id).success(function () {
+                        removeCategory(category.id);
                     });
                 }
             }

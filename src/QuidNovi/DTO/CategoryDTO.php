@@ -10,12 +10,13 @@ namespace QuidNovi\DTO;
 
 
 use QuidNovi\Model\Category;
+use QuidNovi\Model\Feed;
 
 class CategoryDTO {
     public $id;
     public $name;
-    public $categories;
     public $feeds;
+    public $categories;
 
     function __construct(Category $category)
     {
@@ -23,11 +24,14 @@ class CategoryDTO {
         $this->name = $category->name;
         $this->feeds = [];
         $this->categories = [];
-        foreach($category->getComponents() as $component) {
-            if (get_class($component) === 'QuidNovi\\Model\\Feed') {
-                array_push($this->feeds, new FeedDTO($component));
-            } else {
-                array_push($this->categories, new FeedDTO($component));
+        $components = $category->getComponents();
+        if ($components !== null) {
+            foreach ($components as $component) {
+                if ($component instanceof Category) {
+                    array_push($this->categories, new CategoryDTO($component));
+                } else if ($component instanceof Feed) {
+                    array_push($this->feeds, new FeedDTO($component));
+                }
             }
         }
     }

@@ -14,9 +14,9 @@
             url: '/entries?saved=true'
         }];
 
-        $scope.categories = [];
+        $scope.root = undefined;
         Category.query(function (data) {
-            $scope.categories = data;
+            $scope.root = data;
         });
         $scope.selectedSection = undefined;
 

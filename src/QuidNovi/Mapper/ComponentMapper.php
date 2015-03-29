@@ -58,12 +58,15 @@ class ComponentMapper
     private function insert(Component $component)
     {
         $insertQuery = <<<SQL
-INSERT INTO Component (name)
-VALUES (:name)
+INSERT INTO Component (name, containerId)
+VALUES (:name, :containerId)
 SQL;
         try
         {
-            $this->DataSource->executeQuery($insertQuery, ['name' => $component->name]);
+            $this->DataSource->executeQuery($insertQuery, [
+                'name' => $component->name,
+                'containerId' => $component->getContainer()->id
+            ]);
         }
         catch(QueryExecutionFailure $e)
         {
@@ -78,12 +81,15 @@ SQL;
     {
         $updateQuery = <<<SQL
 UPDATE Component
-SET name = :name
+SET name = :name, containerId = :containerId
 WHERE id = :id
 SQL;
         try
         {
-            $this->DataSource->executeQuery($updateQuery, ['name' => $component->name, 'id' => $component->id]);
+            $this->DataSource->executeQuery($updateQuery, [
+                'name' => $component->name,
+                'id' => $component->id,
+                'containerId' => $component->getContainer()->id]);
         }
         catch(QueryExecutionFailure $e)
         {

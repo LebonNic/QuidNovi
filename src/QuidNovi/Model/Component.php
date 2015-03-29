@@ -42,11 +42,31 @@ abstract class Component
     /**
      * @var Category
      */
-    public $container;
+    private $container;
+    private $containerClosure;
 
     public function __construct($name)
     {
         $this->name = $name;
         $this->container = null;
+    }
+
+    public function setContainer($container)
+    {
+        $this->container = $container;
+    }
+
+    public function getContainer()
+    {
+        if (!isset($this->container)) {
+            $closure = $this->containerClosure;
+            $this->container = $closure();
+        }
+        return $this->container;
+    }
+
+    public function setContainerClosure($containerClosure)
+    {
+        $this->containerClosure = $containerClosure;
     }
 }

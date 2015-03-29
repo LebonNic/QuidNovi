@@ -34,29 +34,40 @@ class Category extends Component
      */
     private $components;
 
-    public function __construct($name, $components = array())
+    private $componentsClosure;
+
+    public function __construct($name)
     {
         parent::__construct($name);
         $this->id = null;
-        $this->components = $components;
     }
 
     public function addComponent(Component $component)
     {
-        $component->container = $this;
-        array_push($this->components, $component);
+        $components = $this->getComponents();
+        array_push($components, $component);
     }
 
     public function removeComponent(Component $component)
     {
-        $key = array_search($component, $this->components, true);
+        $components = $this->getComponents();
+        $key = array_search($component, $components, true);
         if ($key !== false) {
-            unset($this->components[$key]);
+            unset($components[$key]);
         }
+    }
+
+    public function setComponentsClosure($componentsClosure)
+    {
+        $this->componentsClosure = $componentsClosure;
     }
 
     public function getComponents()
     {
+        if (!isset($this->components)) {
+            $closure = $this->componentsClosure;
+            $this->components = $closure();
+        }
         return $this->components;
     }
 }

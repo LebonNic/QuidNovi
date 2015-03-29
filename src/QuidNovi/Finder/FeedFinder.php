@@ -28,8 +28,10 @@
 namespace QuidNovi\Finder;
 
 use QuidNovi\DataSource\DataSource;
+use QuidNovi\DTO\CategoryDTO;
 use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\ResearchFaillure;
+use QuidNovi\Model\Category;
 use QuidNovi\Model\Feed;
 use PDO;
 
@@ -83,7 +85,11 @@ SQL;
         $lastUpdate = new \DateTime($feedRow['lastUpdate']);
         $feed = new Feed($componentRow['name'], $feedRow['source'], $lastUpdate);
         $feed->id = $componentRow['id'];
-        //TODO add a lazy initialisation system for the collection "$entries" in a Feed object
+        $containerId = $componentRow['containerId'];
+        $finder = new CategoryFinder($this->DataSource);
+        $feed->setContainerClosure(function() use($finder, $containerId) {
+            return $finder->find($containerId);
+        });
 
         return $feed;
     }

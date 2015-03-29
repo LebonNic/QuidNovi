@@ -15,20 +15,20 @@
                 controller: 'FeedEditionDialogController',
                 templateUrl: 'partials/feed-dialog.html',
                 targetEvent: $event
-            }).then(function(save) {
+            }).then(function (save) {
                 if (true === save) {
                     Feed.rename($scope.feed);
                 } else {
                     Feed.unsubscribe($scope.feed);
                 }
-            }, function() {
+            }, function () {
                 Feed.rename($scope.feed);
             });
         };
     });
 
     qnFeed.controller('FeedEditionDialogController', function ($scope, $mdDialog, Feed) {
-        $scope.unsubscribe = function() {
+        $scope.unsubscribe = function () {
             $mdDialog.hide(false);
         };
         $scope.close = function () {
@@ -36,71 +36,46 @@
         };
     });
 
-    qnFeed.factory('Feed', function ($http) {
-        var feeds = [];
-        var feedRequests = [];
-        var pendingQuery;
+    qnFeed.factory('Feed', function ($http, Category) {
+        var root;
 
-        function findFeed(id) {
+        function findFeedInContainer(container, id) {
+            var feeds = container.feeds;
+            var categories = container.categories;
             for (var i = 0, length = feeds.length; i < length; ++i) {
                 if (feeds[i].id === id) {
                     return feeds[i];
                 }
             }
-        }
-
-        function findRequestForFeed(id) {
-            for (var i = 0, length = feedRequests.length; i < length; ++i) {
-                if (feedRequests[i].id === id) {
-                    return feedRequests[i].request;
+            for (var i = 0, length = categories.length; i < length; ++i) {
+                var feed = findFeedInContainer(categories[i], id);
+                if (undefined !== feed) {
+                    return feed;
                 }
             }
+            return undefined;
+        }
+
+        function findFeed(id) {
+            return findFeedInContainer(root, id);
         }
 
         return {
             query: function (callback) {
-                if (pendingQuery === undefined) {
-                    console.log('Querying /feeds');
-                    pendingQuery = $http.get('/feeds', {cache: true});
-                    pendingQuery.success(function (data) {
-                        feeds = data;
-                        angular.forEach(data, function (feed) {
-                            feed.url = '/feeds/' + feed.id;
-                        });
-                        pendingQuery = undefined;
-                        callback(feeds);
-                    });
-                } else {
-                    pendingQuery.then(function () {
-                        callback(feeds);
-                    });
-                }
+                Category.query(function (data) {
+                    root = data;
+                    callback(data);
+                });
             },
             get: function (id, callback) {
-                var feed = findFeed(id);
-                if (undefined !== feed) {
-                    return callback(feed);
+                if (root === undefined) {
+                    Category.query(function(data) {
+                        root = data;
+                        callback(findFeed(id));
+                    })
+                } else {
+                    callback(findFeed(id));
                 }
-
-                var request = findRequestForFeed(id);
-                if (undefined !== request) {
-                    request.then(function () {
-                        var feed = findFeed(id);
-                        callback(feed);
-                    });
-                    return;
-                }
-
-                console.log('Querying /feeds/' + id);
-                request = $http.get('/feeds/' + id, {cache: true});
-                feedRequests.push({id: id, request: request});
-                request.success(function (data) {
-                    feeds.push(data);
-                    data.url = '/feeds/' + data.id;
-                    callback(data);
-                }).error(function() {
-                    callback(undefined);
-                });
             },
             subscribe: function (feed) {
                 if (undefined === feed.id) {
@@ -109,12 +84,12 @@
                     });
                 }
             },
-            unsubscribe: function(feed) {
+            unsubscribe: function (feed) {
                 if (undefined !== feed.id) {
                     $http.delete('/feeds/' + feed.id);
                 }
             },
-            rename: function(feed) {
+            rename: function (feed) {
                 if (undefined !== feed.id) {
                     $http.patch('/feeds/' + feed.id, {name: feed.name});
                 }

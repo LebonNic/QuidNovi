@@ -28,10 +28,12 @@
 namespace QuidNovi\Finder;
 
 use QuidNovi\DataSource\DataSource;
+use QuidNovi\DTO\CategoryDTO;
 use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\ResearchFaillure;
 use QuidNovi\Model\Category;
 use PDO;
+use QuidNovi\Model\Feed;
 
 class CategoryFinder
 {
@@ -82,6 +84,34 @@ SQL;
     {
         $category = new Category($componentRow['name']);
         $category->id = $componentRow['id'];
+        $containerId = $componentRow['containerId'];
+        $categoryFinder = $this;
+        $category->setContainerClosure(function() use ($categoryFinder, $containerId) {
+            return $categoryFinder->find($containerId);
+        });
+        $feedFinder = new FeedFinder($this->DataSource);
+        $category->setComponentsClosure(function() use ($category, $categoryFinder, $feedFinder) {
+            $categories = $categoryFinder->findAll();
+            $feeds = $feedFinder->findAll();
+
+            $components = [];
+
+            foreach($categories as $childCategory) {
+                /* @var $childCategory Category */
+                if ($childCategory->getContainer() !== null &&
+                    $childCategory->getContainer()->id === $category->id) {
+                    array_push($components, $childCategory);
+                }
+            }
+            foreach($feeds as $childFeed) {
+                /* @var $childFeed Feed */
+                if ($childFeed->getContainer() !== null &&
+                    $childFeed->getContainer()->id === $category->id) {
+                    array_push($components, $childFeed);
+                }
+            }
+            return $components;
+        });
         //TODO add a lazy initialisation system for the collection "$components" in a Category object
         return $category;
     }
