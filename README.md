@@ -50,7 +50,7 @@ Le chargement des entrées de chaque catégorie est fait en une seule fois, une 
 Étant donné que l'application client est développée entièrement avec Angular, la récupération de contenu et les actions se font via l'API REST du serveur voici les routes et les fonctionnalités de celle-ci :
 
 ### Categories
-* POST   /categories     : crée une nouvelle catégorie {name: <name>, containerId: <containerId>}.
+* POST   /categories     : crée une nouvelle catégorie {name: `name`, containerId: `containerId`}.
 * GET    /categories     : obtient une représentation hiérarchique des catégories.
 * GET    /categories/:id : obtient la catégorie spécifiée.
 * PATCH  /categories/:id : renomme {name: `name`} ou déplace {containerId: `containerId`} la catégorie spécifiée.
