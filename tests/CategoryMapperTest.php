@@ -31,6 +31,7 @@ use PDO;
 use QuidNovi\DataSource\DataSource;
 use QuidNovi\Mapper\CategoryMapper;
 use QuidNovi\Model\Category;
+use QuidNovi\Model\Feed;
 
 class CategoryMapperTest extends \PHPUnit_Framework_TestCase
 {
@@ -38,6 +39,26 @@ class CategoryMapperTest extends \PHPUnit_Framework_TestCase
     {
         parent::setUpBeforeClass();
         date_default_timezone_set('Zulu');
+    }
+
+    private function getComponentRowsWithContainerId(DataSource $dataSource, $containerId)
+    {
+        $selectComponentQuery = <<<SQL
+SELECT * FROM Component
+WHERE containerId = :containerId
+SQL;
+        $componentRow = $dataSource->executeQuery($selectComponentQuery, ['containerId' => $containerId]);
+        return $componentRow->fetchAll();
+    }
+
+    private function getFeedRow(DataSource $dataSource, $id)
+    {
+        $selectComponentQuery = <<<SQL
+SELECT * FROM Feed
+WHERE id = :id
+SQL;
+        $componentRow = $dataSource->executeQuery($selectComponentQuery, ['id' => $id]);
+        return $componentRow->fetch(PDO::FETCH_ASSOC);
     }
 
     private function getComponentRow(DataSource $dataSource, $id)
@@ -121,5 +142,38 @@ SQL;
         $categoryRow = $this->getCategoryRow($dataSource, $id);
         $this->assertEquals(null, $componentRow);
         $this->assertEquals(null, $categoryRow);
+    }
+
+    public function testContainedComponentsSaveInCategory()
+    {
+        // Given
+        $category = new Category('Foo');
+        $anOtherCategory = new Category('Bar');
+        $feed = new Feed('FooFeed', 'www.foofeed.com', new \DateTime());
+        $dataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new CategoryMapper($dataSource);
+
+        // When
+        $category->addComponent($anOtherCategory);
+        $category->addComponent($feed);
+        $mapper->persist($category);
+
+        // Then
+        $componentRows = $this->getComponentRowsWithContainerId($dataSource, $category->id);
+        $componentRow = array_shift($componentRows);
+        $categoryRow = $this->getCategoryRow($dataSource, $componentRow['id']);
+        $this->assertNotNull($componentRow);
+        $this->assertNotNull($categoryRow);
+        $this->assertEquals($anOtherCategory->name, $componentRow['name']);
+        $this->assertEquals($category->id, $componentRow['containerId']);
+
+        $componentRow = array_shift($componentRows);
+        $feedRow = $this->getFeedRow($dataSource, $componentRow['id']);
+        $this->assertNotNull($componentRow);
+        $this->assertNotNull($feedRow);
+        $this->assertEquals($feed->name, $componentRow['name']);
+        $this->assertEquals($category->id, $componentRow['containerId']);
+        $this->assertEquals($feed->getSource(), $feedRow['source']);
+        $this->assertEquals($feed->lastUpdate->format('Y-m-d H:i:s'), $feedRow['lastUpdate']);
     }
 }
