@@ -4,6 +4,9 @@
             <label>Category Name</label>
             <input name="name" ng-model="category.name" placeholder="Name">
         </md-input-container>
+        <md-select placeholder="Category" ng-model="containerId" ng-change="moveTo(category, containerId)">
+            <md-option ng-repeat="cat in categoryList()" value="{{cat.id}}">{{cat.name}}</md-option>
+        </md-select>
     </md-content>
     <div class="md-actions" layout="row">
         <md-button ng-click="remove()">

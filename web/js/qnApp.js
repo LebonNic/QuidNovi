@@ -50,7 +50,7 @@
     });
 
     qnApp.controller('ListBottomSheetController', function ($scope, $mdBottomSheet, $mdDialog) {
-        $scope.showFeedSubscribeDialog = function($event) {
+        $scope.showFeedSubscribeDialog = function ($event) {
             $mdBottomSheet.hide();
             $mdDialog.show({
                 controller: 'SubscribeFeedDialogController',
@@ -59,7 +59,7 @@
             });
         };
 
-        $scope.showCategoryAddDialog = function($event) {
+        $scope.showCategoryAddDialog = function ($event) {
             $mdBottomSheet.hide();
             $mdDialog.show({
                 controller: 'AddCategoryDialogController',
@@ -77,7 +77,7 @@
         $scope.cancel = function () {
             $mdDialog.cancel();
         };
-        $scope.confirm = function() {
+        $scope.confirm = function () {
             if ($scope.feed.name && $scope.feed.source) {
                 Feed.subscribe($scope.feed);
                 $mdDialog.hide();
@@ -92,7 +92,7 @@
         $scope.cancel = function () {
             $mdDialog.cancel();
         };
-        $scope.confirm = function() {
+        $scope.confirm = function () {
             if ($scope.category.name) {
                 Category.create($scope.category);
                 $mdDialog.hide();

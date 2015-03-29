@@ -27,7 +27,7 @@
         };
     });
 
-    qnFeed.controller('FeedEditionDialogController', function ($scope, $mdDialog, Feed) {
+    qnFeed.controller('FeedEditionDialogController', function ($scope, $mdDialog) {
         $scope.unsubscribe = function () {
             $mdDialog.hide(false);
         };
@@ -36,7 +36,7 @@
         };
     });
 
-    qnFeed.factory('Feed', function ($http, Category) {
+    qnFeed.factory('Feed', function ($http, Category, $location) {
         var root;
 
         function findFeedInContainer(container, id) {
@@ -116,6 +116,7 @@
                 if (undefined !== feed.id) {
                     $http.delete('/feeds/' + feed.id).success(function () {
                         removeFeed(feed.id);
+                        $location.url('/');
                     });
                 }
             },

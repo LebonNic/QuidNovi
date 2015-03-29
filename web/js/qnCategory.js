@@ -10,6 +10,12 @@
             $scope.category = data;
         });
 
+        $scope.containerId = 0;
+
+        $scope.categoryList = function() {
+            return Category.listWithExclude($scope.category);
+        };
+
         $scope.showEditDialog = function ($event) {
             $mdDialog.show({
                 controller: 'CategoryEditionDialogController',
@@ -28,13 +34,17 @@
         };
     });
 
-    qnCategory.controller('CategoryEditionDialogController', function ($scope, $mdDialog) {
+    qnCategory.controller('CategoryEditionDialogController', function ($scope, $mdDialog, Category) {
         $scope.remove = function () {
             $mdDialog.hide(false);
         };
         $scope.close = function () {
             $mdDialog.hide(true);
         };
+        $scope.moveTo = function(category, containerId) {
+            console.log(containerId);
+            Category.moveToCategory(category, containerId);
+        }
     });
 
     qnCategory.factory('Category', function ($http) {
@@ -59,22 +69,36 @@
             return undefined;
         }
 
-        function removeCategory(id) {
-            removeCategoryInContainer(root, id);
+        function findCategoryContainer(containedId) {
+            return findCategoryContainerInContainer(root, containedId);
         }
 
-        function removeCategoryInContainer(container, id) {
+        function findCategoryContainerInContainer(container, containedId) {
             var categories = container.categories;
             for (var i = 0, length = categories.length; i < length; ++i) {
-                if (categories[i].id === id) {
-                    categories.splice(i, 1);
-                    return true;
+                if (containedId === categories[i].id) {
+                    return container;
                 }
-                if (removeCategoryInContainer(categories[i], id)) {
-                    return true;
+                var result = findCategoryContainerInContainer(categories[i], containedId);
+                if (result) {
+                    return result;
                 }
             }
-            return false;
+            return undefined;
+        }
+
+        function removeCategoryFromContainer(category, container) {
+            var categories = container.categories;
+            for (var i = 0, length = categories.length; i < length; ++i) {
+                if (category.id === categories[i].id) {
+                    container.categories.splice(i, 1);
+                    return;
+                }
+            }
+        }
+
+        function addCategoryToContainer(category, container) {
+            container.categories.push(category);
         }
 
         function assignUrl(container) {
@@ -85,6 +109,16 @@
             angular.forEach(container.feeds, function (feed) {
                 feed.url = '/feeds/' + feed.id;
             });
+        }
+
+        function appendCategories(container, exclude, list) {
+            list.push(container);
+            angular.forEach(container.categories, function(category) {
+                if (category.id !== exclude.id) {
+                    appendCategories(category, exclude, list);
+                }
+            });
+            return list;
         }
 
         return {
@@ -135,8 +169,29 @@
             remove: function (category) {
                 if (undefined !== category.id) {
                     $http.delete('/categories/' + category.id).success(function () {
-                        removeCategory(category.id);
+                        var container = findCategoryContainer(category.id);
+                        removeCategoryFromContainer(category, container);
                     });
+                }
+            },
+            listWithExclude: function(exclude) {
+                if (undefined !== root) {
+                    var list = [];
+                    appendCategories(root, exclude, list);
+                    return list;
+                }
+                return undefined;
+            },
+            moveToCategory: function(category, containerId) {
+                var container = findCategory(containerId);
+                var oldContainer = findCategoryContainer(category.id);
+
+                if (oldContainer.id !== container.id) {
+                    console.log(container);
+                    console.log(oldContainer);
+                    removeCategoryFromContainer(category, oldContainer);
+                    addCategoryToContainer(category, container);
+                    $http.patch('/categories/' + category.id, {containerId: container.id});
                 }
             }
         };

@@ -67,7 +67,7 @@ class CategoryController extends AbstractController
      * - POST   /categories     => create a new category
      * - GET    /categories     => get a hierarchical representation of categories and feeds
      * - GET    /categories/:id => get a hierarchical representation of given category
-     * - PATCH  /categories/:id => rename category
+     * - PATCH  /categories/:id => rename category or move category to container
      * - DELETE /categories/:id => delete category and any sub categories and feeds.
      */
     public function createRoutes()
@@ -93,7 +93,13 @@ class CategoryController extends AbstractController
             $app->patch('/:id', function ($id) {
                 $json = json_decode($this->request->getBody(), true);
                 $name = isset($json['name']) ? $json['name'] : null;
-                $this->rename($id, $name);
+                $containerId = isset($json['containerId']) ? $json['containerId'] : null;
+                if (null !== $containerId) {
+                    $this->move($id, $containerId);
+                }
+                if (null !== $name) {
+                    $this->rename($id, $name);
+                }
             });
 
             $app->delete('/:id', function ($id) {
@@ -169,6 +175,17 @@ class CategoryController extends AbstractController
         }
         $category = $this->getCategory($id);
         $category->name = $name;
+        $this->mapper->persist($category);
+        $this->response->setStatus(204);
+    }
+
+    public function move($id, $containerId) {
+        if (null === $containerId) {
+            $this->app->halt(400, 'Category container id is required.');
+        }
+        $category = $this->getCategory($id);
+        $container = $this->getCategory($containerId);
+        $category->setContainer($container);
         $this->mapper->persist($category);
         $this->response->setStatus(204);
     }
