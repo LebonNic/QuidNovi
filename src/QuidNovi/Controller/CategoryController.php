@@ -179,7 +179,16 @@ class CategoryController extends AbstractController
         $this->response->setStatus(204);
     }
 
-    public function move($id, $containerId) {
+    /**
+     * Move category to given container. If id does not match any category, application halts
+     * and returns a 404 status code. If containerId is not specified, returns 400. If container
+     * id does not match any category, returns 404. Otherwise, returns 204.
+     *
+     * @param $id int category id.
+     * @param $containerId int container id.
+     */
+    public function move($id, $containerId)
+    {
         if (null === $containerId) {
             $this->app->halt(400, 'Category container id is required.');
         }

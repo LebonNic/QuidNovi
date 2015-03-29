@@ -68,10 +68,9 @@ class Category extends Component
     {
         if (!isset($this->components)) {
             $closure = $this->componentsClosure;
-            if(is_callable($closure)){
+            if (is_callable($closure)) {
                 $this->components = $closure();
-            }
-            else{
+            } else {
                 $this->components = array();
             }
         }

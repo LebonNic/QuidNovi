@@ -73,19 +73,17 @@ class Feed extends Component
 
     public function &getEntries()
     {
-        if(!isset($this->entries))
-        {
+        if (!isset($this->entries)) {
             $closure = $this->entriesLazyLoadingClosure;
-            if(is_callable($closure))
-            {
+            if (is_callable($closure)) {
                 $this->entries = $closure();
             }
 
-            if(!isset($this->entries))
-            {
+            if (!isset($this->entries)) {
                 $this->entries = array();
             }
         }
+
         return $this->entries;
     }
 }

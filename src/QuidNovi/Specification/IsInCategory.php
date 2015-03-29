@@ -42,14 +42,8 @@ class IsInCategory extends CompositeSpecification
     {
         /* @var $feed Feed */
         $feed = $entry->feed;
-        if (null === $feed) {
-            return false;
-        }
         $container = $feed->getContainer();
-        if ($this->categoryId === $container->id) {
-            return true;
-        }
 
-        return false;
+        return $this->categoryId === $container->id;
     }
 }

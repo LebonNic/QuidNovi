@@ -38,14 +38,8 @@ class IsInFeed extends CompositeSpecification
 
     public function isSatisfiedBy($entry)
     {
-        $feed = $entry->feed;
-        if (null === $feed) {
-            return false;
-        }
-        if ($this->feedId === $feed->id) {
-            return true;
-        }
+        $feedId = $entry->feed->id;
 
-        return false;
+        return $this->feedId === $feedId;
     }
 }

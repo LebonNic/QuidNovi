@@ -62,10 +62,9 @@ abstract class Component
     {
         if (!isset($this->container)) {
             $closure = $this->containerClosure;
-            if(is_callable($closure)){
+            if (is_callable($closure)) {
                 $this->container = $closure();
-            }
-            else{
+            } else {
                 $this->container = Category::$rootCategory;
             }
         }

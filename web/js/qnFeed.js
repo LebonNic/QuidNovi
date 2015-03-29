@@ -143,25 +143,24 @@
                 });
             },
             get: function (id, callback) {
-                if (root === undefined) {
-                    Category.query(function (data) {
-                        root = data;
-                        callback(findFeed(id));
-                    })
-                } else {
-                    callback(findFeed(id));
-                }
+                Category.query(function (data) {
+                    root = data;
+                    callback(findFeed(parseInt(id)));
+                });
             },
             subscribe: function (feed) {
                 if (undefined === feed.id) {
-                    if (feed.containerId === undefined) {
-                        feed.containerId = root.id;
-                    }
-                    $http.post('/feeds', feed).success(function (data) {
-                        console.log('Feed ' + data.uri + ' subscribed.');
-                        $http.get(data.uri).success(function (feed) {
-                            feed.url = '/feeds/' + feed.id;
-                            root.feeds.push(feed);
+                    Category.query(function(data) {
+                        root = data;
+                        if (feed.containerId === undefined) {
+                            feed.containerId = root.id;
+                        }
+                        $http.post('/feeds', feed).success(function (data) {
+                            console.log('Feed ' + data.uri + ' subscribed.');
+                            $http.get(data.uri).success(function (feed) {
+                                feed.url = '/feeds/' + feed.id;
+                                root.feeds.push(feed);
+                            });
                         });
                     });
                 }

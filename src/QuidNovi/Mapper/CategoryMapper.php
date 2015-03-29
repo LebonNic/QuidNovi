@@ -82,14 +82,10 @@ SQL;
     private function persistContainedComponents(Category $category)
     {
         $feedMapper = new FeedMapper($this->DataSource);
-        foreach($category->getComponents() as $component)
-        {
-            if($component instanceof Category)
-            {
+        foreach ($category->getComponents() as $component) {
+            if ($component instanceof Category) {
                 $this->persist($component);
-            }
-            else if($component instanceof Feed)
-            {
+            } elseif ($component instanceof Feed) {
                 $feedMapper->persist($component);
             }
         }
@@ -98,14 +94,10 @@ SQL;
     private function removeContainedComponents(Category $category)
     {
         $feedMapper = new FeedMapper($this->DataSource);
-        foreach($category->getComponents() as $component)
-        {
-            if($component instanceof Category)
-            {
+        foreach ($category->getComponents() as $component) {
+            if ($component instanceof Category) {
                 $this->remove($component);
-            }
-            else if($component instanceof Feed)
-            {
+            } elseif ($component instanceof Feed) {
                 $feedMapper->remove($component);
             }
         }

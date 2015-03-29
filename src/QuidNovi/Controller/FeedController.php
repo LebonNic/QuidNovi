@@ -67,7 +67,7 @@ class FeedController extends AbstractController
      * - POST   /feeds      => subscribe a new feed
      * - GET    /feeds      => get all feeds
      * - GET    /feeds/:id  => get specified feed
-     * - PATCH  /feeds/:id  => rename feed
+     * - PATCH  /feeds/:id  => rename feed or move feed to container
      * - DELETE /feeds/:id  => unsubscribe a feed.
      */
     public function createRoutes()
@@ -209,7 +209,16 @@ class FeedController extends AbstractController
         $this->response->setStatus(204);
     }
 
-    public function move($id, $containerId) {
+    /**
+     * Move feed to given container. If id does not match any feed, application halts and
+     * returns a 404 status code. If containerId is not specified, returns 400. If container
+     * id does not match any category, returns 404. Otherwise, returns 204.
+     *
+     * @param $id int category id.
+     * @param $containerId int container id.
+     */
+    public function move($id, $containerId)
+    {
         if (null === $containerId) {
             $this->app->halt(400, 'Category container id is required.');
         }

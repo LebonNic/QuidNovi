@@ -190,7 +190,7 @@ class EntryController extends AbstractController
             return new TrueSpecification();
         }
 
-        return new IsInFeed($feedId);
+        return new IsInFeed(intval($feedId));
     }
 
     private function getCategorySpecification($categoryId)
@@ -199,7 +199,7 @@ class EntryController extends AbstractController
             return new TrueSpecification();
         }
 
-        return new IsInCategory($categoryId);
+        return new IsInCategory(intval($categoryId));
     }
 
     /**

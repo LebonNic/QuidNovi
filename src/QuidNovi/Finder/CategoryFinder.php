@@ -80,7 +80,7 @@ SQL;
     private function reconstructCategory($componentRow, $categoryRow)
     {
         $category = new Category($componentRow['name']);
-        $category->id = (int)$componentRow['id'];
+        $category->id = (int) $componentRow['id'];
         $containerId = $componentRow['containerId'];
         $categoryFinder = $this;
         $category->setContainerClosure(function () use ($categoryFinder, $containerId) {
@@ -110,6 +110,7 @@ SQL;
 
             return $components;
         });
+
         return $category;
     }
 
