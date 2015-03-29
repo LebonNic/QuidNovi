@@ -1,5 +1,8 @@
 <?php
+use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\CategoryFinder;
+use QuidNovi\Mapper\CategoryMapper;
+use QuidNovi\Model\Category;
 
 /**
  * The MIT License (MIT).
@@ -28,6 +31,12 @@ use QuidNovi\Finder\CategoryFinder;
 
 class CategoryFinderTest extends \PHPUnit_Framework_TestCase{
 
+    public static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+        date_default_timezone_set('Zulu');
+    }
+
     public function testFindAllMethod()
     {
         // Given
@@ -42,6 +51,26 @@ class CategoryFinderTest extends \PHPUnit_Framework_TestCase{
         // Then
         $this->assertNotNull($categories);
         $this->assertEquals($count, $arraySize);
+    }
+
+    public function testFindMethod()
+    {
+        // Given
+        $category = new Category('Foo');
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new CategoryMapper($DataSource);
+        $finder = new CategoryFinder($DataSource);
+
+        // When
+        $mapper->persist($category);
+
+        // Then
+        $this->assertEquals($category->id, $DataSource->lastInsertId('Component'));
+        $retrievedCategory = $finder->find($category->id);
+        $this->assertEquals($category->getComponents(), $retrievedCategory->getComponents());
+        $this->assertEquals($category->id, $retrievedCategory->id);
+        $this->assertEquals($category->name, $retrievedCategory->name);
+        $this->assertEquals($category->getContainer(), $category->getContainer());
     }
 
 }

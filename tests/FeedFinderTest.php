@@ -1,6 +1,8 @@
 <?php
 use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\FeedFinder;
+use QuidNovi\Mapper\FeedMapper;
+use QuidNovi\Model\Feed;
 
 /**
  * The MIT License (MIT).
@@ -49,6 +51,28 @@ class FeedFinderTest extends \PHPUnit_Framework_TestCase{
         // Then
         $this->assertNotNull($entries);
         $this->assertEquals($count, $arraySize);
+    }
+
+    public function testFindMethod()
+    {
+        // Given
+        $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new FeedMapper($DataSource);
+        $finder = new FeedFinder($DataSource);
+
+        // When
+        $mapper->persist($feed);
+
+        // Then
+        $this->assertEquals($feed->id, $DataSource->lastInsertId('Component'));
+        $retrievedFeed = $finder->find($feed->id);
+        $this->assertEquals($feed->id, $retrievedFeed->id);
+        $this->assertEquals($feed->name, $retrievedFeed->name);
+        $this->assertEquals($feed->getSource(), $retrievedFeed->getSource());
+        $this->assertEquals($feed->lastUpdate, $retrievedFeed->lastUpdate);
+        $this->assertEquals($feed->getEntries(), $retrievedFeed->getEntries());
+        //$this->assertEquals($feed->getContainer(), $retrievedFeed->getContainer());
     }
 
 }

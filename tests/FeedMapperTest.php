@@ -27,6 +27,7 @@
 
 namespace tests;
 
+use PDO;
 use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\FeedFinder;
 use QuidNovi\Mapper\FeedMapper;
@@ -40,35 +41,54 @@ class FeedMapperTest extends \PHPUnit_Framework_TestCase
         date_default_timezone_set('Zulu');
     }
 
-    public function testComponentInsertion()
+    private function getComponentRow(DataSource $dataSource, $id)
+    {
+        $selectComponentQuery = <<<SQL
+SELECT * FROM Component
+WHERE id = :id
+SQL;
+        $componentRow = $dataSource->executeQuery($selectComponentQuery, ['id' => $id]);
+        return $componentRow->fetch(PDO::FETCH_ASSOC);
+    }
+
+    private function getFeedRow(DataSource $dataSource, $id)
+    {
+        $selectComponentQuery = <<<SQL
+SELECT * FROM Feed
+WHERE id = :id
+SQL;
+        $componentRow = $dataSource->executeQuery($selectComponentQuery, ['id' => $id]);
+        return $componentRow->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function testFeedInsertion()
     {
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
-        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new FeedMapper($DataSource);
-        $finder = new FeedFinder($DataSource);
+        $dataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new FeedMapper($dataSource);
 
         // When
         $mapper->persist($feed);
+        $id = $dataSource->lastInsertId('Component');
 
-        // Then
-        $this->assertEquals($feed->id, $DataSource->lastInsertId('Component'));
-        $retrievedFeed = $finder->find($feed->id);
-        $this->assertEquals($feed->id, $retrievedFeed->id);
-        $this->assertEquals($feed->name, $retrievedFeed->name);
-        $this->assertEquals($feed->getSource(), $retrievedFeed->getSource());
-        $this->assertEquals($feed->lastUpdate, $retrievedFeed->lastUpdate);
-        $this->assertEquals($feed->getEntries(), $retrievedFeed->getEntries());
-        //$this->assertEquals($feed->getContainer(), $retrievedFeed->getContainer());
+        $componentRow = $this->getComponentRow($dataSource, $id);
+        $feedRow = $this->getFeedRow($dataSource, $id);
+        $this->assertNotNull($componentRow);
+        $this->assertNotNull($feedRow);
+        $this->assertEquals($feed->id, $id);
+        $this->assertEquals($feed->name, $componentRow['name']);
+        $this->assertEquals($feed->getContainer()->id, $componentRow['containerId']);
+        $this->assertEquals($feed->getSource(), $feedRow['source']);
+        $this->assertEquals($feed->lastUpdate->format('Y-m-d H:i:s'), $feedRow['lastUpdate']);
     }
 
-    public function testComponentUpdate()
+    public function testFeedUpdate()
     {
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
-        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new FeedMapper($DataSource);
-        $finder = new FeedFinder($DataSource);
+        $dataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new FeedMapper($dataSource);
 
         // When
         $mapper->persist($feed);
@@ -78,16 +98,23 @@ class FeedMapperTest extends \PHPUnit_Framework_TestCase
 
         // Then
         $this->assertEquals($id, $feed->id);
-        $this->assertEquals($feed, $finder->find($feed->id));
+        $componentRow = $this->getComponentRow($dataSource, $id);
+        $feedRow = $this->getFeedRow($dataSource, $id);
+        $this->assertNotNull($componentRow);
+        $this->assertNotNull($feedRow);
+        $this->assertEquals($feed->id, $id);
+        $this->assertEquals($feed->name, $componentRow['name']);
+        $this->assertEquals($feed->getContainer()->id, $componentRow['containerId']);
+        $this->assertEquals($feed->getSource(), $feedRow['source']);
+        $this->assertEquals($feed->lastUpdate->format('Y-m-d H:i:s'), $feedRow['lastUpdate']);
     }
 
-    public function testComponentDeletion()
+    public function testFeedDeletion()
     {
         // Given
         $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
-        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new FeedMapper($DataSource);
-        $finder = new FeedFinder($DataSource);
+        $dataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new FeedMapper($dataSource);
 
         // When
         $mapper->persist($feed);
@@ -95,7 +122,9 @@ class FeedMapperTest extends \PHPUnit_Framework_TestCase
         $mapper->remove($feed);
 
         // Then
-        $this->assertEquals(null, $feed->id);
-        $this->assertEquals(null, $finder->find($id));
+        $componentRow = $this->getComponentRow($dataSource, $id);
+        $feedRow = $this->getFeedRow($dataSource, $id);
+        $this->assertEquals(null, $componentRow);
+        $this->assertEquals(null, $feedRow);
     }
 }

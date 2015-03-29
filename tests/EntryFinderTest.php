@@ -1,6 +1,9 @@
 <?php
 use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\EntryFinder;
+use QuidNovi\Mapper\FeedMapper;
+use QuidNovi\Model\Entry;
+use QuidNovi\Model\Feed;
 
 /**
  * The MIT License (MIT).
@@ -49,6 +52,37 @@ class EntryFinderTest extends \PHPUnit_Framework_TestCase{
         // Then
         $this->assertNotNull($entries);
         $this->assertEquals($count, $arraySize);
+    }
+
+    public function testFindMethod()
+    {
+        // Given
+        $feed = new Feed('foo', 'www.foo.bar', new \DateTime());
+        $entry = new Entry('foo', 'bar', 'www.foo.bar/1234', new \DateTime());
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $feed->addEntry($entry);
+        $mapper = new FeedMapper($DataSource);
+        $finder = new EntryFinder($DataSource);
+
+        // When
+        $mapper->persist($feed);
+
+        // Then
+        $retrievedEntry = $finder->find($entry->id);
+        $this->assertEquals($entry->id, $retrievedEntry->id);
+        $this->assertEquals($entry->title, $retrievedEntry->title);
+        $this->assertEquals($entry->summary, $retrievedEntry->summary);
+        $this->assertEquals($entry->getLocation(), $retrievedEntry->getLocation());
+        $this->assertEquals($entry->getPublicationDate(), $retrievedEntry->getPublicationDate());
+
+        $this->assertEquals($entry->feed->id, $retrievedEntry->feed->id);
+        $this->assertEquals($entry->feed->name, $retrievedEntry->feed->name);
+        $this->assertEquals($entry->feed->getSource(), $retrievedEntry->feed->getSource());
+        $this->assertEquals($entry->feed->lastUpdate, $retrievedEntry->feed->lastUpdate);
+        //$this->assertEquals($entry->feed->getEntries(), $retrievedEntry->feed->getEntries());
+
+        $this->assertEquals($entry->isRead(), $retrievedEntry->isRead());
+        $this->assertEquals($entry->isSaved(), $retrievedEntry->isSaved());
     }
 
 }
