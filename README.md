@@ -32,12 +32,13 @@ Il est conseillé d'ajouter une tâche planifiée pour l'exécution de script. P
 ## Client
 Le client a été développé avec AngularJS, il utilise la bibliothèque de composants Material Design[1] pour AngularJS.
 Les routes de l'application sont les suivantes:
-/                       : redirection sur /#/entries.
-/#/entries              : affichage des nouvelles entrées triées par date.
-/#/entries?read=false   : affichage des entrées non-lues.
-/#/entries?saved=true   : affichage des entrées sauvegardées.
-/#/feeds/:id            : affichage des entrées du feed spécifié, possibilité de l'éditer et de se désabonner.
-/#/categories/:id       : affichage des entrées d'une catégorie, possibilité d'éditer et de supprimer la catégorie.
+
+* /                       : redirection sur /#/entries.
+* /#/entries              : affichage des nouvelles entrées triées par date.
+* /#/entries?read=false   : affichage des entrées non-lues.
+* /#/entries?saved=true   : affichage des entrées sauvegardées.
+* /#/feeds/:id            : affichage des entrées du feed spécifié, possibilité de l'éditer et de se désabonner.
+* /#/categories/:id       : affichage des entrées d'une catégorie, possibilité d'éditer et de supprimer la catégorie.
 
 L'application permet de s'abonner à de nouveaux feeds et de créer des catégories. Les catégories et les feeds peuvent être organisés dans des catégories et sous-catégories. Les entrées de la liste peuvent être marquées comme lues/non lues, sauvegardées/non sauvegardées. Les entrées sauvegardées seront placées dans une section spéciale pour être plus facilement retrouvées.
 
@@ -49,21 +50,21 @@ Le chargement des entrées de chaque catégorie est fait en une seule fois, une 
 Étant donné que l'application client est développée entièrement avec Angular, la récupération de contenu et les actions se font via l'API REST du serveur voici les routes et les fonctionnalitées de celle-ci :
 
 ### Categories
-POST   /categories     : crée une nouvelle catégorie {name: <name>, containerId: <containerId>}.
-GET    /categories     : obtient une représentation hiérarchique des catégories.
-GET    /categories/:id : obtient la catégorie spécifiée.
-PATCH  /categories/:id : renomme {name: <name>} ou déplace {containerId: <containerId>} la catégorie spécifiée.
-DELETE /categories/:id : supprime la catégorie, ses sous-catégories et les flux contenus.
+* POST   /categories     : crée une nouvelle catégorie {name: <name>, containerId: <containerId>}.
+* GET    /categories     : obtient une représentation hiérarchique des catégories.
+* GET    /categories/:id : obtient la catégorie spécifiée.
+* PATCH  /categories/:id : renomme {name: <name>} ou déplace {containerId: <containerId>} la catégorie spécifiée.
+* DELETE /categories/:id : supprime la catégorie, ses sous-catégories et les flux contenus.
 
 ### Entries
-GET    /entries?read=<true/false>&saved=<true/false>&feed=<feedId>&category=<categoryId> : récupère les entrées avec les filtres spécifiés.
-GET    /entries/:id    : récupère l'entrée spécifiée.
-PATCH  /entries/:id    : marque une entrée comme lue/non lue {read: <true/false>}, sauvegardée/non sauvegardée {saved: <true/false>}.
+* GET    /entries?read=<true/false>&saved=<true/false>&feed=<feedId>&category=<categoryId> : récupère les entrées avec les filtres spécifiés.
+* GET    /entries/:id    : récupère l'entrée spécifiée.
+* PATCH  /entries/:id    : marque une entrée comme lue/non lue {read: <true/false>}, sauvegardée/non sauvegardée {saved: <true/false>}.
 
 ### Feeds
-POST   /feeds          : abonne au flux spécifié. {name: <name>, containerId: <containerId>, source: <source>}.
-GET    /feeds          : récupère tous les flux.
-GET    /feeds/:id      : récupère le flux spécifié.
-PATCH  /feeds/:id      : renomme {name: <name>} ou déplace {containerId: <containerId>} le flux spécifié.
-DELETE /feeds/:id      : désabonne le flux spécifié.
+* POST   /feeds          : abonne au flux spécifié. {name: <name>, containerId: <containerId>, source: <source>}.
+* GET    /feeds          : récupère tous les flux.
+* GET    /feeds/:id      : récupère le flux spécifié.
+* PATCH  /feeds/:id      : renomme {name: <name>} ou déplace {containerId: <containerId>} le flux spécifié.
+* DELETE /feeds/:id      : désabonne le flux spécifié.
 
