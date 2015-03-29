@@ -68,6 +68,7 @@ class Category extends Component
             $closure = $this->componentsClosure;
             $this->components = $closure();
         }
+
         return $this->components;
     }
 }

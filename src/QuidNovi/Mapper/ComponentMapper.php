@@ -49,10 +49,11 @@ class ComponentMapper
 
     public function persist(Component $component)
     {
-        if ($component->id)
+        if ($component->id) {
             $this->update($component);
-        else
+        } else {
             $this->insert($component);
+        }
     }
 
     private function insert(Component $component)
@@ -65,7 +66,7 @@ SQL;
             $container = $component->getContainer();
             $this->DataSource->executeQuery($insertQuery, [
                 'name' => $component->name,
-                'containerId' => $container->id
+                'containerId' => $container->id,
             ]);
         } catch (QueryExecutionFailure $e) {
             throw new InsertionFailure($component);
@@ -86,7 +87,7 @@ SQL;
             $this->DataSource->executeQuery($updateQuery, [
                 'name' => $component->name,
                 'id' => $component->id,
-                'containerId' => $component->getContainer()->id
+                'containerId' => $component->getContainer()->id,
             ]);
         } catch (QueryExecutionFailure $e) {
             throw new UpdateFailure($component);

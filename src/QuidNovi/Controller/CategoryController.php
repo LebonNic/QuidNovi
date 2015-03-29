@@ -33,6 +33,10 @@ use QuidNovi\Mapper\CategoryMapper;
 use QuidNovi\Model\Category;
 use QuidNovi\QuidNovi;
 
+/**
+ * Class CategoryController retrieves categories as full hierarchical representation.
+ * It also allows to create, rename and delete categories.
+ */
 class CategoryController extends AbstractController
 {
     /**
@@ -45,6 +49,11 @@ class CategoryController extends AbstractController
      */
     private $finder;
 
+    /**
+     * Create a new category controller for given application.
+     *
+     * @param QuidNovi $app
+     */
     public function __construct(QuidNovi $app)
     {
         parent::__construct($app);
@@ -53,6 +62,14 @@ class CategoryController extends AbstractController
         $this->finder = new CategoryFinder($dataSource);
     }
 
+    /**
+     * Create routes for category controller :
+     * - POST   /categories     => create a new category
+     * - GET    /categories     => get a hierarchical representation of categories and feeds
+     * - GET    /categories/:id => get a hierarchical representation of given category
+     * - PATCH  /categories/:id => rename category
+     * - DELETE /categories/:id => delete category and any sub categories and feeds.
+     */
     public function createRoutes()
     {
         $app = $this->app;
@@ -85,6 +102,15 @@ class CategoryController extends AbstractController
         });
     }
 
+    /**
+     * Create a new category with given name contained by specified container.
+     * If containerId does not match any category, application halts and returns
+     * a 404 status code. If name is not specified, halts and returns 400.
+     * Otherwise, returns 201.
+     *
+     * @param $name int category name.
+     * @param $containerId int containing category id.
+     */
     public function create($name, $containerId)
     {
         if (null === $name) {
@@ -105,18 +131,37 @@ class CategoryController extends AbstractController
         ]);
     }
 
-    public function find($id)
-    {
-        $category = $this->getCategory($id);
-        $this->buildResponse(200, new CategoryDTO($category));
-    }
-
+    /**
+     * Get all categories and feeds as a hierarchical representation.
+     * Returns 201.
+     */
     public function findAll()
     {
         $category = $this->finder->find(1);
         $this->buildResponse(200, new CategoryDTO($category));
     }
 
+    /**
+     * Get a subtree of categories and feed structure starting at specified category.
+     * If id does not match any category, application halts and returns a 404 status
+     * code. Otherwise, returns 200.
+     *
+     * @param $id int category id.
+     */
+    public function find($id)
+    {
+        $category = $this->getCategory($id);
+        $this->buildResponse(200, new CategoryDTO($category));
+    }
+
+    /**
+     * Rename category with given id. If id does not match any category, application
+     * halts and returns a 404 status code. If name is not specified, returns 400.
+     * Otherwise, returns 204.
+     *
+     * @param $id int category id.
+     * @param $name string category name.
+     */
     public function rename($id, $name)
     {
         if (null === $name) {
@@ -128,6 +173,12 @@ class CategoryController extends AbstractController
         $this->response->setStatus(204);
     }
 
+    /**
+     * Delete category with given id. If id does not match any category, application
+     * halts and returns a 404 status code. Otherwise, returns 204.
+     *
+     * @param $id int category id.
+     */
     public function delete($id)
     {
         $category = $this->getCategory($id);
@@ -135,6 +186,14 @@ class CategoryController extends AbstractController
         $this->response->setStatus(204);
     }
 
+    /**
+     * Get category with given id. If id does not match any category, application halts
+     * and returns a 404 status code.
+     *
+     * @param $id int category id.
+     *
+     * @return Category category with given id.
+     */
     private function getCategory($id)
     {
         $category = $this->finder->find($id);

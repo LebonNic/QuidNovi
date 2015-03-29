@@ -32,6 +32,7 @@ use QuidNovi\DataSource\DataSource;
 use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\ResearchFaillure;
 use QuidNovi\Model\Entry;
+use QuidNovi\Specification\EntrySpecification;
 
 class EntryFinder
 {
@@ -47,8 +48,9 @@ class EntryFinder
         $entry = null;
         $entryRow = $this->getEntryRow($id);
 
-        if ($entryRow)
+        if ($entryRow) {
             $entry = $this->reconstructEntry($entryRow);
+        }
 
         return $entry;
     }
@@ -59,17 +61,15 @@ class EntryFinder
 SELECT * FROM Entry
 WHERE id=(:id)
 SQL;
-        try
-        {
+        try {
             $result = $this->DataSource->executeQuery($selectQuery, ['id' => $id]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
-            throw new ResearchFaillure("An error occurred during the entry research. More info: "
-                . print_r($this->DataSource->errorInfo()));
+        } catch (QueryExecutionFailure $e) {
+            throw new ResearchFaillure('An error occurred during the entry research. More info: '
+                .print_r($this->DataSource->errorInfo()));
         }
 
         $row = $result->fetch(PDO::FETCH_ASSOC);
+
         return $row;
     }
 
@@ -82,11 +82,13 @@ SQL;
         $isRead = false;
         $isSaved = false;
 
-        if (1 == $entryRow['read'])
+        if (1 == $entryRow['read']) {
             $isRead = true;
+        }
 
-        if (1 == $entryRow['saved'])
+        if (1 == $entryRow['saved']) {
             $isSaved = true;
+        }
 
         $entry = new Entry($entryRow['title'],
             $entryRow['summary'],
@@ -108,14 +110,11 @@ SQL;
         $selectQuery = <<<SQL
 SELECT * FROM Entry
 SQL;
-        try
-        {
+        try {
             $result = $this->DataSource->executeQuery($selectQuery);
-        }
-        catch(QueryExecutionFailure $e)
-        {
-            throw new ResearchFaillure("An error occurred during the entries research. More info: "
-                . print_r($this->DataSource->errorInfo()));
+        } catch (QueryExecutionFailure $e) {
+            throw new ResearchFaillure('An error occurred during the entries research. More info: '
+                .print_r($this->DataSource->errorInfo()));
         }
 
         return $result->fetchAll();
@@ -126,8 +125,7 @@ SQL;
         $entryRows = $this->getAllEntryRows();
         $entries = array();
 
-        foreach($entryRows as $entryRow)
-        {
+        foreach ($entryRows as $entryRow) {
             $entry = $this->reconstructEntry($entryRow);
             array_push($entries, $entry);
         }
@@ -135,19 +133,30 @@ SQL;
         return $entries;
     }
 
+    public function findSatisfying(EntrySpecification $specification)
+    {
+        $entries = $this->findAll();
+        $satisfying = [];
+
+        foreach ($entries as $entry) {
+            if ($specification->isSatisfiedBy($entry)) {
+                array_push($satisfying, $entry);
+            }
+        }
+
+        return $satisfying;
+    }
+
     public function countEntries()
     {
         $selectQuery = <<<SQL
 SELECT COUNT(id) FROM Entry
 SQL;
-        try
-        {
+        try {
             $result = $this->DataSource->executeQuery($selectQuery);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+        } catch (QueryExecutionFailure $e) {
             throw new ResearchFaillure("An error occurred during the entries' count. More info: "
-                . print_r($this->DataSource->errorInfo()));
+                .print_r($this->DataSource->errorInfo()));
         }
 
         $row = $result->fetch(PDO::FETCH_ASSOC);

@@ -62,6 +62,7 @@ abstract class Component
             $closure = $this->containerClosure;
             $this->container = $closure();
         }
+
         return $this->container;
     }
 

@@ -28,10 +28,8 @@
 namespace QuidNovi\Finder;
 
 use QuidNovi\DataSource\DataSource;
-use QuidNovi\DTO\CategoryDTO;
 use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\ResearchFaillure;
-use QuidNovi\Model\Category;
 use QuidNovi\Model\Feed;
 use PDO;
 
@@ -52,8 +50,9 @@ class FeedFinder
 
         if ($componentRow) {
             $feedRow = $this->getFeedRow($id);
-            if ($feedRow)
+            if ($feedRow) {
                 $feed = $this->reconstructFeed($componentRow, $feedRow);
+            }
         }
 
         return $feed;
@@ -68,11 +67,12 @@ SQL;
         try {
             $result = $this->DataSource->executeQuery($selectQuery, ['id' => $id]);
         } catch (QueryExecutionFailure $e) {
-            throw new ResearchFaillure("An error occurred during the feed research. More info: "
-                . print_r($this->DataSource->errorInfo()));
+            throw new ResearchFaillure('An error occurred during the feed research. More info: '
+                .print_r($this->DataSource->errorInfo()));
         }
 
         $row = $result->fetch(PDO::FETCH_ASSOC);
+
         return $row;
     }
 
@@ -116,11 +116,12 @@ SQL;
             $result = $this->DataSource->executeQuery($selectQuery);
         } catch (QueryExecutionFailure $e) {
             throw new ResearchFaillure("An error occurred during the feeds' count. More info: "
-                . print_r($this->DataSource->errorInfo()));
+                .print_r($this->DataSource->errorInfo()));
         }
 
         $row = $result->fetch(PDO::FETCH_ASSOC);
         $count = array_shift($row);
+
         return $count;
     }
 }

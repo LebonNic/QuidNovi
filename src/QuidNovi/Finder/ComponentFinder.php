@@ -51,17 +51,15 @@ class ComponentFinder
 SELECT * FROM Component
 WHERE id=(:id)
 SQL;
-        try
-        {
+        try {
             $result = $this->DataSource->executeQuery($selectQuery, ['id' => $id]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
-            throw new ResearchFaillure("An error occurred during the component research. More info: "
-                . print_r($this->DataSource->errorInfo()));
+        } catch (QueryExecutionFailure $e) {
+            throw new ResearchFaillure('An error occurred during the component research. More info: '
+                .print_r($this->DataSource->errorInfo()));
         }
 
         $row = $result->fetch(PDO::FETCH_ASSOC);
+
         return $row;
     }
 
@@ -71,14 +69,11 @@ SQL;
 SELECT * FROM Component
 SQL;
 
-        try
-        {
+        try {
             $result = $this->DataSource->executeQuery($selectQuery);
-        }
-        catch(QueryExecutionFailure $e)
-        {
-            throw new ResearchFaillure("An error occurred during the components research. More info: "
-                . print_r($this->DataSource->errorInfo()));
+        } catch (QueryExecutionFailure $e) {
+            throw new ResearchFaillure('An error occurred during the components research. More info: '
+                .print_r($this->DataSource->errorInfo()));
         }
 
         return $result->fetchAll();

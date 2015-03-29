@@ -22,6 +22,7 @@ class FeedTypeDetector
         if ('feed' === $feedXML->getName()) {
             return FeedType::ATOM;
         }
+
         return FeedType::UNKNOWN;
     }
 }

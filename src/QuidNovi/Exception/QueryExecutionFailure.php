@@ -27,9 +27,8 @@
 
 namespace QuidNovi\Exception;
 
-
 use Exception;
 
-class QueryExecutionFailure extends Exception{
-
+class QueryExecutionFailure extends Exception
+{
 }

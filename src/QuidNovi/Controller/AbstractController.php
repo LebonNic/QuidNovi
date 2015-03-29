@@ -57,6 +57,13 @@ abstract class AbstractController
 
     abstract public function createRoutes();
 
+    /**
+     * Build a response with given status and responseBody.
+     * Response body is encoded with best matching available content type.
+     *
+     * @param $status int Response status.
+     * @param $responseBody mixed Response body.
+     */
     public function buildResponse($status, $responseBody)
     {
         $this->response->setStatus($status);
@@ -73,6 +80,11 @@ abstract class AbstractController
         $this->response->setBody($encodedBody);
     }
 
+    /**
+     * Parse http Accept header in request and returns best matching content type to return.
+     *
+     * @return string content type.
+     */
     public function getBestMatchingContentType()
     {
         $negotiator = new FormatNegotiator();

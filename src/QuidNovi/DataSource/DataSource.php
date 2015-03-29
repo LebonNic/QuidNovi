@@ -32,7 +32,7 @@ use QuidNovi\Exception\QueryExecutionFailure;
 
 class DataSource extends PDO
 {
-    function __construct($dsn, $username = null, $password = null, array $options = array())
+    public function __construct($dsn, $username = null, $password = null, array $options = array())
     {
         parent::__construct($dsn, $username, $password, $options);
         $this->initializeDatabase();
@@ -108,14 +108,14 @@ SQL;
     public function executeQuery($query, array $parameters = [])
     {
         $stmt = $this->prepare($query);
-        foreach($parameters as $name => $value)
-        {
-            $stmt->bindValue(':' . $name, $value);
+        foreach ($parameters as $name => $value) {
+            $stmt->bindValue(':'.$name, $value);
         }
         $success = $stmt->execute();
 
-        if(!$success)
+        if (!$success) {
             throw new QueryExecutionFailure();
+        }
 
         return $stmt;
     }

@@ -50,16 +50,18 @@ class CategoryMapper
     public function persist(Category $category)
     {
         $needUpdate = false;
-        if ($category->id)
+        if ($category->id) {
             $needUpdate = true;
+        }
 
         $componentMapper = new ComponentMapper($this->DataSource);
         $componentMapper->persist($category);
 
-        if ($needUpdate)
+        if ($needUpdate) {
             $this->update($category);
-        else
+        } else {
             $this->insert($category);
+        }
     }
 
     private function insert(Category $category)
@@ -68,12 +70,9 @@ class CategoryMapper
 INSERT INTO Category (id)
 VALUES (:id)
 SQL;
-        try
-        {
+        try {
             $this->DataSource->executeQuery($insertQuery, ['id' => $category->id]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+        } catch (QueryExecutionFailure $e) {
             throw new InsertionFailure($category);
         }
         $this->categories[$category->id] = $category;
@@ -89,12 +88,9 @@ SQL;
 DELETE FROM Category
 WHERE id = :id
 SQL;
-        try
-        {
+        try {
             $this->DataSource->executeQuery($deleteQuery, ['id' => $category->id]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+        } catch (QueryExecutionFailure $e) {
             throw new DeletionFailure($category);
         }
         $componentMapper = new ComponentMapper($this->DataSource);

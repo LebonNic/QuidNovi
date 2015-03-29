@@ -34,11 +34,26 @@ use QuidNovi\Model\Feed;
 use QuidNovi\QuidNovi;
 use QuidNovi\DTO\FeedDTO;
 
+/**
+ * Class CategoryController retrieves feeds and allows user to subscribe, unsubscribe
+ * and rename feeds.
+ */
 class FeedController extends AbstractController
 {
+    /**
+     * @var FeedMapper
+     */
     private $mapper;
+    /**
+     * @var FeedFinder
+     */
     private $finder;
 
+    /**
+     * Create a new feed controller for given application.
+     *
+     * @param QuidNovi $app
+     */
     public function __construct(QuidNovi $app)
     {
         parent::__construct($app);
@@ -47,6 +62,14 @@ class FeedController extends AbstractController
         $this->finder = new FeedFinder($dataSource);
     }
 
+    /**
+     * Create routes for feed controller :
+     * - POST   /feeds      => subscribe a new feed
+     * - GET    /feeds      => get all feeds
+     * - GET    /feeds/:id  => get specified feed
+     * - PATCH  /feeds/:id  => rename feed
+     * - DELETE /feeds/:id  => unsubscribe a feed.
+     */
     public function createRoutes()
     {
         $app = $this->app;
@@ -82,6 +105,9 @@ class FeedController extends AbstractController
         });
     }
 
+    /**
+     * Get all feeds.
+     */
     public function findAll()
     {
         $feeds = $this->finder->findAll();
@@ -92,12 +118,28 @@ class FeedController extends AbstractController
         $this->buildResponse(200, $feedsDTO);
     }
 
+    /**
+     * Get feed with given id. If id does not match any feed, application
+     * halts and returns a 404 status code.
+     *
+     * @param $id int feed id.
+     */
     public function find($id)
     {
         $feed = $this->getFeed($id);
         $this->buildResponse(200, new FeedDTO($feed));
     }
 
+    /**
+     * Subscribe to a new feed. If containerId does not match any category,
+     * application halts and returns a 404 status code. If name or source are not
+     * specified, returns 400. If source is not a valid url, returns 400.
+     * Otherwise, returns 201.
+     *
+     * @param $name Feed name.
+     * @param $source Feed source url.
+     * @param $containerId Feed containing category id.
+     */
     public function subscribe($name, $source, $containerId)
     {
         if (null === $name) {
@@ -118,7 +160,7 @@ class FeedController extends AbstractController
             $this->app->halt(404, 'Container category does not exist.');
         }
 
-        $this->app->getLog()->info('Subscribing to feed ' . $source);
+        $this->app->getLog()->info('Subscribing to feed '.$source);
 
         $yesterday = new \DateTime();
         $yesterday->sub(new \DateInterval('P1D'));
@@ -127,10 +169,16 @@ class FeedController extends AbstractController
         $container->addComponent($feed);
         $this->mapper->persist($feed);
         $this->buildResponse(201, [
-            'uri' => '/feeds/' . $feed->id,
+            'uri' => '/feeds/'.$feed->id,
         ]);
     }
 
+    /**
+     * Delete feed with given id. If id does not match any feed, application
+     * halts and returns a 404 status code. Otherwise, returns 204.
+     *
+     * @param $id int feed id.
+     */
     public function unsubscribe($id)
     {
         $feed = $this->getFeed($id);
@@ -138,6 +186,14 @@ class FeedController extends AbstractController
         $this->response->setStatus(204);
     }
 
+    /**
+     * Rename feed with given id. If id does not match any feed, application
+     * halts and returns a 404 status code. If name is not specified, returns 400.
+     * Otherwise, returns 204.
+     *
+     * @param $id int feed id.
+     * @param $name string feed name.
+     */
     public function rename($id, $name)
     {
         if (null === $name) {
@@ -149,11 +205,19 @@ class FeedController extends AbstractController
         $this->response->setStatus(204);
     }
 
+    /**
+     * Get feed with given id. If id does not match any feed, application halts
+     * and returns a 404 status code.
+     *
+     * @param $id int feed id.
+     *
+     * @return Feed feed with given id.
+     */
     private function getFeed($id)
     {
         $feed = $this->finder->find($id);
         if (null === $feed) {
-            $this->app->halt(404, 'Feed ' . $id . ' does not exist.');
+            $this->app->halt(404, 'Feed '.$id.' does not exist.');
         }
 
         return $feed;

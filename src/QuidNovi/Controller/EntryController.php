@@ -33,6 +33,10 @@ use QuidNovi\Mapper\EntryMapper;
 use QuidNovi\Model\Entry;
 use QuidNovi\QuidNovi;
 
+/**
+ * Class EntryController retrieves news entries and edits user specific
+ * attributes (read/saved).
+ */
 class EntryController extends AbstractController
 {
     /**
@@ -44,6 +48,11 @@ class EntryController extends AbstractController
      */
     private $finder;
 
+    /**
+     * Create a new entry controller for given application.
+     *
+     * @param QuidNovi $app
+     */
     public function __construct(QuidNovi $app)
     {
         parent::__construct($app);
@@ -52,6 +61,12 @@ class EntryController extends AbstractController
         $this->finder = new EntryFinder($dataSource);
     }
 
+    /**
+     * Create routes for entry controller :
+     * - GET    /entries       => get all entries
+     * - GET    /entries/:id   => get entry with id
+     * - PATCH  /entries/:id   => mark entry as read/unread or saved/unsaved.
+     */
     public function createRoutes()
     {
         $app = $this->app;
@@ -60,7 +75,10 @@ class EntryController extends AbstractController
             $app->get('/', function () {
                 $read = $this->request->params('read');
                 $saved = $this->request->params('saved');
-                $this->findAll($read, $saved);
+                $feed = $this->request->params('feed');
+                $category = $this->request->params('category');
+
+                $this->findAll($read, $saved, $feed, $category);
             });
 
             $app->get('/:id', function ($id) {
@@ -69,8 +87,8 @@ class EntryController extends AbstractController
 
             $app->patch('/:id', function ($id) {
                 $json = json_decode($this->request->getBody(), true);
-                $read = isset($json['read'])?$json['read']:null;
-                $saved = isset($json['saved'])?$json['saved']:null;
+                $read = isset($json['read']) ? $json['read'] : null;
+                $saved = isset($json['saved']) ? $json['saved'] : null;
 
                 if (null !== $read) {
                     $this->markAsRead($id, $read);
@@ -82,28 +100,54 @@ class EntryController extends AbstractController
         });
     }
 
+    /**
+     * Get entry with given id. If id does not match any entry, application
+     * halts and returns a 404 status code. Otherwise returns 200.
+     *
+     * @param $id int entry id.
+     */
     public function find($id)
     {
         $entry = $this->getEntry($id);
         $this->buildResponse(200, new EntryDTO($entry));
     }
 
-    public function findAll($read, $saved)
+    /**
+     * Get all entries. Filter can be defined on result set.
+     * Returns 200.
+     *
+     * @param $read bool filter on entries read attribute.
+     * @param $saved bool filter on entries saved attribute.
+     * @param $feed int filter on entries feed.
+     * @param $category bool filter on entries category.
+     */
+    public function findAll($read, $saved, $feed, $category)
     {
         $entries = $this->finder->findAll();
         $entriesDTO = [];
-        foreach($entries as $entry) {
+        foreach ($entries as $entry) {
             array_push($entriesDTO, new EntryDTO($entry));
         }
-        if (null !== $read) {
 
+        if (null !== $read) {
         }
         if (null !== $saved) {
-
         }
+        if (null !== $feed) {
+        }
+        if (null !== $category) {
+        }
+
         $this->buildResponse(200, $entriesDTO);
     }
 
+    /**
+     * Mark entry with given id as read. If id does not match any entry, application
+     * halts and returns a 404 status code. Otherwise returns 204.
+     *
+     * @param $id int entry id.
+     * @param $read bool indicates id the entry must be marked as read or not.
+     */
     public function markAsRead($id, $read)
     {
         $entry = $this->getEntry($id);
@@ -116,6 +160,13 @@ class EntryController extends AbstractController
         $this->response->setStatus(204);
     }
 
+    /**
+     * Mark entry with given id as saved. If id does not match any entry, application
+     * halts and returns a 404 status code. Otherwise returns 204.
+     *
+     * @param $id int entry id.
+     * @param $saved bool indicates id the entry must be marked as saved or not.
+     */
     public function markAsSaved($id, $saved)
     {
         $entry = $this->getEntry($id);

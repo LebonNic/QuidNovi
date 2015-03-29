@@ -28,7 +28,6 @@
 namespace QuidNovi\Finder;
 
 use QuidNovi\DataSource\DataSource;
-use QuidNovi\DTO\CategoryDTO;
 use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\ResearchFaillure;
 use QuidNovi\Model\Category;
@@ -50,11 +49,11 @@ class CategoryFinder
         $componentFinder = new ComponentFinder($this->DataSource);
         $componentRow = $componentFinder->getComponentRow($id);
 
-        if ($componentRow)
-        {
+        if ($componentRow) {
             $categoryRow = $this->getCategoryRow($id);
-            if ($categoryRow)
+            if ($categoryRow) {
                 $category = $this->reconstructCategory($componentRow, $categoryRow);
+            }
         }
 
         return $category;
@@ -66,17 +65,15 @@ class CategoryFinder
 SELECT * FROM Category
 WHERE id=(:id)
 SQL;
-        try
-        {
+        try {
             $result = $this->DataSource->executeQuery($selectQuery, ['id' => $id]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
-            throw new ResearchFaillure("An error occurred during the category research. More info: "
-                . print_r($this->DataSource->errorInfo()));
+        } catch (QueryExecutionFailure $e) {
+            throw new ResearchFaillure('An error occurred during the category research. More info: '
+                .print_r($this->DataSource->errorInfo()));
         }
 
         $row = $result->fetch(PDO::FETCH_ASSOC);
+
         return $row;
     }
 
@@ -86,30 +83,31 @@ SQL;
         $category->id = $componentRow['id'];
         $containerId = $componentRow['containerId'];
         $categoryFinder = $this;
-        $category->setContainerClosure(function() use ($categoryFinder, $containerId) {
+        $category->setContainerClosure(function () use ($categoryFinder, $containerId) {
             return $categoryFinder->find($containerId);
         });
         $feedFinder = new FeedFinder($this->DataSource);
-        $category->setComponentsClosure(function() use ($category, $categoryFinder, $feedFinder) {
+        $category->setComponentsClosure(function () use ($category, $categoryFinder, $feedFinder) {
             $categories = $categoryFinder->findAll();
             $feeds = $feedFinder->findAll();
 
             $components = [];
 
-            foreach($categories as $childCategory) {
+            foreach ($categories as $childCategory) {
                 /* @var $childCategory Category */
                 if ($childCategory->getContainer() !== null &&
                     $childCategory->getContainer()->id === $category->id) {
                     array_push($components, $childCategory);
                 }
             }
-            foreach($feeds as $childFeed) {
+            foreach ($feeds as $childFeed) {
                 /* @var $childFeed Feed */
                 if ($childFeed->getContainer() !== null &&
                     $childFeed->getContainer()->id === $category->id) {
                     array_push($components, $childFeed);
                 }
             }
+
             return $components;
         });
         //TODO add a lazy initialisation system for the collection "$components" in a Category object
@@ -122,11 +120,9 @@ SQL;
         $componentRows = $componentFinder->getAllComponentRows();
         $categories = array();
 
-        foreach($componentRows as $componentRow)
-        {
+        foreach ($componentRows as $componentRow) {
             $categoryRow = $this->getCategoryRow($componentRow['id']);
-            if($categoryRow)
-            {
+            if ($categoryRow) {
                 $category = $this->reconstructCategory($componentRow, $categoryRow);
                 array_push($categories, $category);
             }
@@ -140,14 +136,11 @@ SQL;
         $selectQuery = <<<SQL
 SELECT COUNT(id) FROM Category
 SQL;
-        try
-        {
+        try {
             $result = $this->DataSource->executeQuery($selectQuery);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+        } catch (QueryExecutionFailure $e) {
             throw new ResearchFaillure("An error occurred during the categories' count. More info: "
-                . print_r($this->DataSource->errorInfo()));
+                .print_r($this->DataSource->errorInfo()));
         }
 
         $row = $result->fetch(PDO::FETCH_ASSOC);

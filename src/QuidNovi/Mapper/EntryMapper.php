@@ -45,10 +45,11 @@ class EntryMapper
 
     public function persist(Entry $entry)
     {
-        if ($entry->id)
+        if ($entry->id) {
             $this->update($entry);
-        else
+        } else {
             $this->insert($entry);
+        }
     }
 
     private function update(Entry $entry)
@@ -64,8 +65,7 @@ SET feedId = :feedId,
     saved = :saved
 WHERE id = :id
 SQL;
-        try
-        {
+        try {
             $this->DataSource->executeQuery($updateQuery,
                                             ['feedId' => $entry->feed->id,
                                             'title' => $entry->title,
@@ -75,9 +75,7 @@ SQL;
                                             'read' => (($entry->isRead()) ? 1 : 0),
                                             'saved' => (($entry->isSaved()) ? 1 : 0),
                                             'id' => $entry->id, ]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+        } catch (QueryExecutionFailure $e) {
             throw new UpdateFailure($entry);
         }
     }
@@ -88,8 +86,7 @@ SQL;
 INSERT INTO Entry (feedId, title, summary, location, publicationDate, read, saved)
 VALUES            (:feedId, :title, :summary, :location, :publicationDate, :read, :saved)
 SQL;
-        try
-        {
+        try {
             $this->DataSource->executeQuery($insertQuery,
                                             ['feedId' => $entry->feed->id,
                                             'title' => $entry->title,
@@ -98,9 +95,7 @@ SQL;
                                             'publicationDate' => $entry->getPublicationDate()->format('Y-m-d H:i:s'),
                                             'read' => ($entry->isRead()) ? 1 : 0,
                                             'saved' => ($entry->isSaved()) ? 1 : 0, ]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+        } catch (QueryExecutionFailure $e) {
             throw new InsertionFailure($entry);
         }
 
@@ -114,12 +109,9 @@ SQL;
 DELETE FROM Entry
 WHERE id = :id
 SQL;
-        try
-        {
+        try {
             $this->DataSource->executeQuery($deleteQuery, ['id' => $entry->id]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+        } catch (QueryExecutionFailure $e) {
             throw new DeletionFailure($entry);
         }
 

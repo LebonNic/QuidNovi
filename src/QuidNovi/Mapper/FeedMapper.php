@@ -46,16 +46,18 @@ class FeedMapper
     public function persist(Feed $feed)
     {
         $needUpdate = false;
-        if ($feed->id)
+        if ($feed->id) {
             $needUpdate = true;
+        }
 
         $componentMapper = new ComponentMapper($this->DataSource);
         $componentMapper->persist($feed);
 
-        if ($needUpdate)
+        if ($needUpdate) {
             $this->update($feed);
-        else
+        } else {
             $this->insert($feed);
+        }
     }
 
     public function remove(Feed $feed)
@@ -85,7 +87,7 @@ SQL;
             $this->DataSource->executeQuery($updateQuery,
                 ['source' => $feed->getSource(),
                     'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s'),
-                    'id' => $feed->id,]);
+                    'id' => $feed->id, ]);
         } catch (QueryExecutionFailure $e) {
             throw new UpdateFailure($feed);
         }
@@ -103,7 +105,7 @@ SQL;
             $this->DataSource->executeQuery($insertQuery, [
                 'id' => $feed->id,
                 'source' => $feed->getSource(),
-                'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s')
+                'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s'),
             ]);
         } catch (QueryExecutionFailure $e) {
             throw new InsertionFailure($feed);
@@ -115,14 +117,16 @@ SQL;
     private function persistAssociatedEntries(Feed $feed)
     {
         $entryMapper = new EntryMapper($this->DataSource);
-        foreach ($feed->getEntries() as $entry)
+        foreach ($feed->getEntries() as $entry) {
             $entryMapper->persist($entry);
+        }
     }
 
     private function removeAssociatedEntries(Feed $feed)
     {
         $entryMapper = new EntryMapper($this->DataSource);
-        foreach ($feed->getEntries() as $entry)
+        foreach ($feed->getEntries() as $entry) {
             $entryMapper->remove($entry);
+        }
     }
 }

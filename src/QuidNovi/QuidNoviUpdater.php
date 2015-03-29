@@ -40,10 +40,10 @@ class QuidNoviUpdater
 {
     private $databasePath;
 
-    function __construct()
+    public function __construct()
     {
         date_default_timezone_set('Zulu');
-        $this->databasePath = __DIR__ . '\..\..\database.sqlite3';
+        $this->databasePath = __DIR__.'\..\..\database.sqlite3';
     }
 
     /**
@@ -80,6 +80,7 @@ class QuidNoviUpdater
     private function getFeedUpdaters()
     {
         $dataSource = $this->getDataSource();
+
         return [
             FeedType::ATOM => new AtomFeedUpdater($dataSource),
             FeedType::RSS => new RSSFeedUpdater($dataSource),
@@ -88,7 +89,8 @@ class QuidNoviUpdater
 
     public function getDataSource()
     {
-        $dataSource = new DataSource('sqlite:' . $this->databasePath);
+        $dataSource = new DataSource('sqlite:'.$this->databasePath);
+
         return $dataSource;
     }
 }

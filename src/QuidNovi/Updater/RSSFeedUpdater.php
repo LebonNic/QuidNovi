@@ -29,7 +29,6 @@ namespace QuidNovi\Updater;
 
 use PDO;
 use QuidNovi\Mapper\EntryMapper;
-use QuidNovi\Mapper\FeedMapper;
 use QuidNovi\Model\Entry;
 use QuidNovi\Model\Feed;
 use SimpleXMLElement;
