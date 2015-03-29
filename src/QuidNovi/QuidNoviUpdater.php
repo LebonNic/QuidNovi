@@ -30,6 +30,7 @@ namespace QuidNovi;
 use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\FeedFinder;
 use QuidNovi\Mapper\FeedMapper;
+use QuidNovi\Model\Feed;
 use QuidNovi\Updater\AtomFeedUpdater;
 use QuidNovi\Updater\FeedUpdater;
 use QuidNovi\Updater\RSSFeedUpdater;
@@ -58,11 +59,13 @@ class QuidNoviUpdater
         $updaters = $this->getFeedUpdaters();
 
         foreach ($feeds as $feed) {
+            /* @var $feed Feed */
             $feedType = FeedTypeDetector::getFeedType($feed);
             /* @var $updater FeedUpdater */
             $updater = $updaters[$feedType];
 
             if (null !== $updater) {
+                error_log('Updating '. $feed->getSource() . '.');
                 $updater->updateFeed($feed);
             } else {
                 error_log('Feed '.$feed.' has unknown type. Could not be updated.');

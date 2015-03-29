@@ -166,9 +166,9 @@ class FeedController extends AbstractController
 
         $this->app->getLog()->info('Subscribing to feed '.$source);
 
-        $yesterday = new \DateTime();
-        $yesterday->sub(new \DateInterval('P1D'));
-        $feed = new Feed($name, $source, $yesterday);
+        $oneMonthAgo = new \DateTime();
+        $oneMonthAgo->sub(new \DateInterval('P1M'));
+        $feed = new Feed($name, $source, $oneMonthAgo);
         $feed->setContainer($container);
         $container->addComponent($feed);
         $this->mapper->persist($feed);
