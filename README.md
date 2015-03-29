@@ -25,7 +25,7 @@ La mise à jour des flux utilise un script séparé : `update_feeds.php`. Celui-
 
     php update_feeds.php
     
-Il est conseillé d'ajouter une tâche planifiée pour l'exécution de script. Pour cron, on ajoutera par example la ligne suivant pour une actualisation toutes les 10 minutes des flux :
+Il est conseillé d'ajouter une tâche planifiée pour l'exécution de script. Pour cron, on ajoutera par exemple la ligne suivante pour une actualisation des flux toutes les 10 minutes :
 
     */10 * * * * /usr/bin/php /path/to/update_feeds.php
 
@@ -40,14 +40,14 @@ Les routes de l'application sont les suivantes:
 * /#/feeds/:id            : affichage des entrées du feed spécifié, possibilité de l'éditer et de se désabonner.
 * /#/categories/:id       : affichage des entrées d'une catégorie, possibilité d'éditer et de supprimer la catégorie.
 
-L'application permet de s'abonner à de nouveaux feeds et de créer des catégories. Les catégories et les feeds peuvent être organisés dans des catégories et sous-catégories. Les entrées de la liste peuvent être marquées comme lues/non lues, sauvegardées/non sauvegardées. Les entrées sauvegardées seront placées dans une section spéciale pour être plus facilement retrouvées.
+L'application permet de s'abonner à de nouveaux flux et de créer des catégories. Les catégories et les flux peuvent être organisés dans des catégories et sous-catégories. Les entrées de la liste peuvent être marquées comme lues ou non lues, sauvegardées ou non sauvegardées. Les entrées sauvegardées seront placées dans une section spéciale pour être plus facilement retrouvées.
 
 Le chargement des entrées de chaque catégorie est fait en une seule fois, une amélioration possible serait de faire un chargement progressif des données lors du défilement de la page afin d'améliorer les performances.
 
 [1]: https://material.angularjs.org/#/      "Material Design"
 
 ## API REST
-Étant donné que l'application client est développée entièrement avec Angular, la récupération de contenu et les actions se font via l'API REST du serveur voici les routes et les fonctionnalitées de celle-ci :
+Étant donné que l'application client est développée entièrement avec Angular, la récupération de contenu et les actions se font via l'API REST du serveur voici les routes et les fonctionnalités de celle-ci :
 
 ### Categories
 * POST   /categories     : crée une nouvelle catégorie {name: <name>, containerId: <containerId>}.
@@ -59,7 +59,7 @@ Le chargement des entrées de chaque catégorie est fait en une seule fois, une 
 ### Entries
 * GET    /entries?read=<true/false>&saved=<true/false>&feed=<feedId>&category=<categoryId> : récupère les entrées avec les filtres spécifiés.
 * GET    /entries/:id    : récupère l'entrée spécifiée.
-* PATCH  /entries/:id    : marque une entrée comme lue/non lue {read: <true/false>}, sauvegardée/non sauvegardée {saved: <true/false>}.
+* PATCH  /entries/:id    : marque une entrée comme lue ou non lue {read: <true/false>}, sauvegardée ou non sauvegardée {saved: <true/false>}.
 
 ### Feeds
 * POST   /feeds          : abonne au flux spécifié. {name: <name>, containerId: <containerId>, source: <source>}.
@@ -72,9 +72,9 @@ Le chargement des entrées de chaque catégorie est fait en une seule fois, une 
 L'application serveur est entièrement codée en PHP et se base sur le framework Slim. Ce dernier permet de facilement gérer la mise en place de routes dans le but de consulter les ressources délivrables par le serveur. Ces ressources sont accessibles via l'API REST présentées ci-dessus.
 
 ### Classes métiers
-Dans le but de gérer les flux auxquels s'est abonné l'utilisateur, ainsi que les entrées de ces flux, plusieurs classes métiers ont été modéliées puis implémentées.
+Dans le but de gérer les flux auxquels s'est abonné l'utilisateur, ainsi que les entrées de ces flux, plusieurs classes métiers ont été modélisées puis implémentées.
 
-### Gestion de la persistence
-L'application serveur offre une solution pour gérer la transformation des classes métiers qu'elle utilise vers une base de données. Pour celà, elle utilise un patron de conception appelé Data Mapper. Ce dernier consiste à implémenter, pour chaque classe métier, une classe duale chargée uniquement de contenir les traitements permettant la sauvegarde de la classe métier en base. Ces mappers font appels à l'API PDO pour accéder à la base de donées.
+### Gestion de la persistance
+L'application serveur offre une solution pour gérer la transformation des classes métiers qu'elle utilise vers une base de données. Pour cela, elle utilise un patron de conception appelé Data Mapper. Ce dernier consiste à implémenter, pour chaque classe métier, une classe duale chargée uniquement de contenir les traitements permettant la sauvegarde de la classe métier en base. Ces mappers font appels à l'API PDO pour accéder à la base de données.
 
 De manière symétrique aux mappers, les finders, se présentent sous la forme de classes dont l'interface permet de transformer les données d'une base en objets métiers. En d'autres termes ils permettent de recharger les objets stockés par les mappers. A ce moment, il est fait usage d'une technique particulière appelée lazy loading. Effectivement, certains objets métiers contiennent parfois des collections d'autres objets en attribut. Au moment du chargement depuis la base, il n'est pas forcément nécessaire que celles-ci soient tout de suite récupérées. De ce fait, derrière les accesseurs qui permettent d'accéder à ces collections se cachent des closures. Celles-ci sont mises en place par les finders au moment de la création des objets métiers et se déclenchent lors des appels aux accesseurs.
