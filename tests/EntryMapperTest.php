@@ -58,9 +58,20 @@ class EntryMapperTest extends \PHPUnit_Framework_TestCase
         // Then
         $this->assertEquals($entry->id, $DataSource->lastInsertId('Entry'));
         $retrievedEntry = $finder->find($entry->id);
-        //$retrievedEntry->feed->getContainer();
-        //$retrievedEntry->feed->getEntries();
-        $this->assertEquals($entry, $retrievedEntry);
+        $this->assertEquals($entry->id, $retrievedEntry->id);
+        $this->assertEquals($entry->title, $retrievedEntry->title);
+        $this->assertEquals($entry->summary, $retrievedEntry->summary);
+        $this->assertEquals($entry->getLocation(), $retrievedEntry->getLocation());
+        $this->assertEquals($entry->getPublicationDate(), $retrievedEntry->getPublicationDate());
+
+        $this->assertEquals($entry->feed->id, $retrievedEntry->feed->id);
+        $this->assertEquals($entry->feed->name, $retrievedEntry->feed->name);
+        $this->assertEquals($entry->feed->getSource(), $retrievedEntry->feed->getSource());
+        $this->assertEquals($entry->feed->lastUpdate, $retrievedEntry->feed->lastUpdate);
+        //$this->assertEquals($entry->feed->getEntries(), $retrievedEntry->feed->getEntries());
+
+        $this->assertEquals($entry->isRead(), $retrievedEntry->isRead());
+        $this->assertEquals($entry->isSaved(), $retrievedEntry->isSaved());
     }
 
     public function testComponentUpdate()
@@ -85,7 +96,22 @@ class EntryMapperTest extends \PHPUnit_Framework_TestCase
 
         // Then
         $this->assertEquals($id, $DataSource->lastInsertId('Entry'));
-        $this->assertEquals($entry, $finder->find($entry->id));
+        $retrievedEntry = $finder->find($entry->id);
+        $this->assertEquals($entry->id, $retrievedEntry->id);
+        $this->assertEquals($entry->title, $retrievedEntry->title);
+        $this->assertEquals($entry->summary, $retrievedEntry->summary);
+        $this->assertEquals($entry->getLocation(), $retrievedEntry->getLocation());
+        $this->assertEquals($entry->getPublicationDate(), $retrievedEntry->getPublicationDate());
+
+        $this->assertEquals($entry->feed->id, $retrievedEntry->feed->id);
+        $this->assertEquals($entry->feed->name, $retrievedEntry->feed->name);
+        $this->assertEquals($entry->feed->getSource(), $retrievedEntry->feed->getSource());
+        $this->assertEquals($entry->feed->lastUpdate, $retrievedEntry->feed->lastUpdate);
+        //$this->assertEquals($entry->feed->getContainer(), $retrievedEntry->feed->getContainer());
+        //$this->assertEquals($entry->feed->getEntries(), $retrievedEntry->feed->getEntries());
+
+        $this->assertEquals($entry->isRead(), $retrievedEntry->isRead());
+        $this->assertEquals($entry->isSaved(), $retrievedEntry->isSaved());
     }
 
     public function testComponentDeletion()

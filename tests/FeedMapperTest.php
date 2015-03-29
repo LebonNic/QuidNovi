@@ -53,7 +53,13 @@ class FeedMapperTest extends \PHPUnit_Framework_TestCase
 
         // Then
         $this->assertEquals($feed->id, $DataSource->lastInsertId('Component'));
-        $this->assertEquals($feed, $finder->find($feed->id));
+        $retrievedFeed = $finder->find($feed->id);
+        $this->assertEquals($feed->id, $retrievedFeed->id);
+        $this->assertEquals($feed->name, $retrievedFeed->name);
+        $this->assertEquals($feed->getSource(), $retrievedFeed->getSource());
+        $this->assertEquals($feed->lastUpdate, $retrievedFeed->lastUpdate);
+        $this->assertEquals($feed->getEntries(), $retrievedFeed->getEntries());
+        //$this->assertEquals($feed->getContainer(), $retrievedFeed->getContainer());
     }
 
     public function testComponentUpdate()

@@ -109,11 +109,12 @@ class CategoryMapperTest extends \PHPUnit_Framework_TestCase
         $subCategory = new Category('Bar');
         $anOtherSubCategory = new Category('Baz');
         $feed = new Feed('FooFeed', "www.foofeed.com", new \DateTime());
+        $anOtherFeed = new Feed('BarFeed', 'www.barfeed.com', new \DateTime());
 
         $category->addComponent($subCategory);
         $category->addComponent($anOtherSubCategory);
         $category->addComponent($feed);
-        $anOtherSubCategory->addComponent($feed);
+        $anOtherSubCategory->addComponent($anOtherFeed);
 
         $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
         $mapper = new CategoryMapper($DataSource);
