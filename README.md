@@ -68,3 +68,10 @@ Le chargement des entrées de chaque catégorie est fait en une seule fois, une 
 * PATCH  /feeds/:id      : renomme {name: <name>} ou déplace {containerId: <containerId>} le flux spécifié.
 * DELETE /feeds/:id      : désabonne le flux spécifié.
 
+##Serveur
+L'application serveur est entièrement codée en PHP et se base sur le framework Slim. Ce dernier permet de facilement gérer la mise en place de routes dans le but de consulter les ressources délivrables par le serveur. Ces ressources sont accessibles via l'API REST présentées ci-dessus.
+
+### Classes métiers
+Dans le but de sauvegarder les flux auxquels s'est abonné l'utilisateur, ainsi que les entrées de ces flux, plusieurs classes métiers ont été modéliées puis implémentées.
+
+
