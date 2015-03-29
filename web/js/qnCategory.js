@@ -42,7 +42,6 @@
             $mdDialog.hide(true);
         };
         $scope.moveTo = function(category, containerId) {
-            console.log(containerId);
             Category.moveToCategory(category, containerId);
         }
     });
@@ -61,9 +60,12 @@
             }
             var categories = container.categories;
             for (var i = 0, length = categories.length; i < length; ++i) {
-                var result = findCategoryInContainer(categories[i], id);
-                if (undefined !== result) {
-                    return result;
+                if (categories[i].id === id) {
+                    return categories[i];
+                }
+                var category = findCategoryInContainer(categories[i], id);
+                if (undefined !== category) {
+                    return category;
                 }
             }
             return undefined;
@@ -144,7 +146,7 @@
             },
             get: function (id, callback) {
                 // All categories are loaded on application startup. We don't make any other network calls.
-                var category = findCategory(id);
+                var category = findCategory(parseInt(id));
                 callback(category);
             },
             create: function (category) {
@@ -183,12 +185,10 @@
                 return undefined;
             },
             moveToCategory: function(category, containerId) {
-                var container = findCategory(containerId);
+                var container = findCategory(parseInt(containerId));
                 var oldContainer = findCategoryContainer(category.id);
 
                 if (oldContainer.id !== container.id) {
-                    console.log(container);
-                    console.log(oldContainer);
                     removeCategoryFromContainer(category, oldContainer);
                     addCategoryToContainer(category, container);
                     $http.patch('/categories/' + category.id, {containerId: container.id});

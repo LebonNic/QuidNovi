@@ -216,3 +216,11 @@ md-item-content:hover i.fa {
     overflow: hidden;
     padding: 6px;
 }
+
+.progressbar {
+    position: absolute;
+    left:0;
+    right:0;
+    margin-left:auto;
+    margin-right:auto;
+}

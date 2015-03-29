@@ -1,5 +1,5 @@
 (function () {
-    var qnApp = angular.module('QuidNovi', ['ngRoute', 'ngMaterial',
+    var qnApp = angular.module('QuidNovi', ['ngRoute', 'ngMaterial', 'angular-loading-bar',
         'qnEntry', 'qnFeed', 'qnCategory']);
 
     qnApp.controller('AppController', function ($scope, $location, $mdSidenav, $mdBottomSheet, Category) {
@@ -100,7 +100,9 @@
         }
     });
 
-    qnApp.config(function ($routeProvider, $httpProvider) {
+    qnApp.config(function ($routeProvider, $httpProvider,cfpLoadingBarProvider) {
+        cfpLoadingBarProvider.includeSpinner = false;
+
         $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
 
         // Route configuration

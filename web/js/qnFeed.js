@@ -10,6 +10,12 @@
             $scope.feed = data;
         });
 
+        $scope.containerId = 0;
+
+        $scope.categoryList = function() {
+            return Feed.listWithExclude($scope.feed);
+        };
+
         $scope.showEditDialog = function ($event) {
             $mdDialog.show({
                 controller: 'FeedEditionDialogController',
@@ -27,17 +33,24 @@
         };
     });
 
-    qnFeed.controller('FeedEditionDialogController', function ($scope, $mdDialog) {
+    qnFeed.controller('FeedEditionDialogController', function ($scope, $mdDialog, Feed) {
         $scope.unsubscribe = function () {
             $mdDialog.hide(false);
         };
         $scope.close = function () {
             $mdDialog.hide(true);
         };
+        $scope.moveTo = function(feed, containerId) {
+            Feed.moveToCategory(feed, containerId);
+        }
     });
 
     qnFeed.factory('Feed', function ($http, Category, $location) {
         var root;
+
+        function findFeed(id) {
+            return findFeedInContainer(root, id);
+        }
 
         function findFeedInContainer(container, id) {
             var feeds = container.feeds;
@@ -56,29 +69,70 @@
             return undefined;
         }
 
-        function findFeed(id) {
-            return findFeedInContainer(root, id);
+        function findFeedContainer(id) {
+            return findFeedContainerInContainer(root, id);
         }
 
-        function removeFeed(id) {
-            removeFeedInContainer(root, id);
-        }
-
-        function removeFeedInContainer(container, id) {
+        function findFeedContainerInContainer(container, id) {
             var feeds = container.feeds;
             var categories = container.categories;
             for (var i = 0, length = feeds.length; i < length; ++i) {
-                if (feeds[i].id === id) {
-                    feeds.splice(i, 1);
-                    return true;
+                if (feeds[i].id == id) {
+                    return container;
                 }
             }
             for (var i = 0, length = categories.length; i < length; ++i) {
-                if (removeFeedInContainer(categories[i], id)) {
-                    return true;
+                var result = findFeedContainerInContainer(categories[i], id);
+                if (undefined !== result) {
+                    return result;
                 }
             }
-            return false;
+            return undefined;
+        }
+
+        function findCategory(id) {
+            return findCategoryInContainer(root, id);
+        }
+
+        function findCategoryInContainer(container, id) {
+            if (container.id === id) {
+                return container;
+            }
+            var categories = container.categories;
+            for (var i = 0, length = categories.length; i < length; ++i) {
+                if (categories[i].id === id) {
+                    return categories[i];
+                }
+                var category = findCategoryInContainer(categories[i], id);
+                if (undefined !== category) {
+                    return category;
+                }
+            }
+            return undefined;
+        }
+
+        function appendCategories(container, exclude, list) {
+            list.push(container);
+            angular.forEach(container.categories, function(category) {
+                if (category.id !== exclude.id) {
+                    appendCategories(category, exclude, list);
+                }
+            });
+            return list;
+        }
+
+        function removeFeedFromContainer(feed, container) {
+            var feeds = container.feeds;
+            for (var i = 0, length = feeds.length; i < length; ++i) {
+                if (feeds[i].id === feed.id) {
+                    container.feeds.splice(i, 1);
+                    return;
+                }
+            }
+        }
+
+        function addFeedToContainer(feed, container) {
+            container.feeds.push(feed);
         }
 
         return {
@@ -115,7 +169,8 @@
             unsubscribe: function (feed) {
                 if (undefined !== feed.id) {
                     $http.delete('/feeds/' + feed.id).success(function () {
-                        removeFeed(feed.id);
+                        var container = findFeedContainer(feed.id);
+                        removeFeedFromContainer(feed, container);
                         $location.url('/');
                     });
                 }
@@ -123,6 +178,25 @@
             rename: function (feed) {
                 if (undefined !== feed.id) {
                     $http.patch('/feeds/' + feed.id, {name: feed.name});
+                }
+            },
+            listWithExclude: function(exclude) {
+                if (undefined !== root) {
+                    var list = [];
+                    appendCategories(root, exclude, list);
+                    return list;
+                }
+                return undefined;
+            },
+            moveToCategory: function(feed, containerId) {
+                console.log(containerId);
+                var container = findCategory(parseInt(containerId));
+                var oldContainer = findFeedContainer(feed.id);
+
+                if (oldContainer.id !== container.id) {
+                    removeFeedFromContainer(feed, oldContainer);
+                    addFeedToContainer(feed, container);
+                    $http.patch('/feeds/' + feed.id, {containerId: container.id});
                 }
             }
         };

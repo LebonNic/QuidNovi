@@ -94,6 +94,10 @@ class FeedController extends AbstractController
             $app->patch('/:id', function ($id) {
                 $json = json_decode($this->request->getBody(), true);
                 $name = isset($json['name']) ? $json['name'] : null;
+                $containerId = isset($json['containerId']) ? $json['containerId'] : null;
+                if (null !== $containerId) {
+                    $this->move($id, $containerId);
+                }
                 if (null !== $name) {
                     $this->rename($id, $name);
                 }
@@ -201,6 +205,21 @@ class FeedController extends AbstractController
         }
         $feed = $this->getFeed($id);
         $feed->name = $name;
+        $this->mapper->persist($feed);
+        $this->response->setStatus(204);
+    }
+
+    public function move($id, $containerId) {
+        if (null === $containerId) {
+            $this->app->halt(400, 'Category container id is required.');
+        }
+        $feed = $this->getFeed($id);
+        $categoryFinder = new CategoryFinder($this->app->getDataSource());
+        $container = $categoryFinder->find($containerId);
+        if (null === $container) {
+            $this->app->halt(400, 'Category container does not exist.');
+        }
+        $feed->setContainer($container);
         $this->mapper->persist($feed);
         $this->response->setStatus(204);
     }
