@@ -72,6 +72,9 @@ Le chargement des entrées de chaque catégorie est fait en une seule fois, une 
 L'application serveur est entièrement codée en PHP et se base sur le framework Slim. Ce dernier permet de facilement gérer la mise en place de routes dans le but de consulter les ressources délivrables par le serveur. Ces ressources sont accessibles via l'API REST présentées ci-dessus.
 
 ### Classes métiers
-Dans le but de sauvegarder les flux auxquels s'est abonné l'utilisateur, ainsi que les entrées de ces flux, plusieurs classes métiers ont été modéliées puis implémentées.
+Dans le but de gérer les flux auxquels s'est abonné l'utilisateur, ainsi que les entrées de ces flux, plusieurs classes métiers ont été modéliées puis implémentées.
 
+### Gestion de la persistence
+L'application serveur offre une solution pour gérer la transformation des classes métiers qu'elle utilise vers une base de données. Pour celà, elle utilise un patron de conception appelé Data Mapper. Ce dernier consiste à implémenter, pour chaque classe métier, une classe duale chargée uniquement de contenir les traitements permettant la sauvegarde de la classe métier en base. Ces mappers font appels à l'API PDO pour accéder à la base de donées.
 
+De manière symétrique aux mappers, les finders, se présentent sous la forme de classes dont l'interface permet de transformer les données d'une base en objets métiers. En d'autres termes ils permettent de recharger les objets stockés par les mappers. A ce moment, il est fait usage d'une technique particulière appelée lazy loading. Effectivement, certains objets métiers contiennent parfois des collections d'autres objets en attribut. Au moment du chargement depuis la base, il n'est pas forcément nécessaire que celles-ci soient tout de suite récupérées. De ce fait, derrière les accesseurs qui permettent d'accéder à ces collections se cachent des closures. Celles-ci sont mises en place par les finders au moment de la création des objets métiers et se déclenchent lors des appels aux accesseurs.
