@@ -33,10 +33,10 @@ use QuidNovi\Exception\DeletionFailure;
 use QuidNovi\Exception\InsertionFailure;
 use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Model\Category;
+use QuidNovi\Model\Feed;
 
 class CategoryMapper
 {
-    private $categories = array();
     /**
      * @var \PDO
      */
@@ -75,7 +75,24 @@ SQL;
         } catch (QueryExecutionFailure $e) {
             throw new InsertionFailure($category);
         }
-        $this->categories[$category->id] = $category;
+
+        $this->persistContainedComponents($category);
+    }
+
+    private function persistContainedComponents(Category $category)
+    {
+        $feedMapper = new FeedMapper($this->DataSource);
+        foreach($category->getComponents() as $component)
+        {
+            if($component instanceof Category)
+            {
+                $this->persist($component);
+            }
+            else if($component instanceof Feed)
+            {
+                $feedMapper->persist($component);
+            }
+        }
     }
 
     private function update(Category $category)

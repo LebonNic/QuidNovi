@@ -80,11 +80,18 @@ SQL;
     {
         $lastUpdate = new \DateTime($feedRow['lastUpdate']);
         $feed = new Feed($componentRow['name'], $feedRow['source'], $lastUpdate);
-        $feed->id = $componentRow['id'];
+        $feedId = $componentRow['id'];
+        $feed->id = $feedId;
         $containerId = $componentRow['containerId'];
+
         $categoryFinder = new CategoryFinder($this->DataSource);
         $feed->setContainerClosure(function () use ($categoryFinder, $containerId) {
             return $categoryFinder->find($containerId);
+        });
+
+        $entryFinder = new EntryFinder($this->DataSource);
+        $feed->setEntriesLazyLoadingClosure(function () use ($entryFinder, $feedId) {
+            return $entryFinder->findEntriesAssociatedToFeed($feedId);
         });
 
         return $feed;

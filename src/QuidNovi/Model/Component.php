@@ -27,6 +27,8 @@
 
 namespace QuidNovi\Model;
 
+use Closure;
+
 abstract class Component
 {
     /**
@@ -60,13 +62,18 @@ abstract class Component
     {
         if (!isset($this->container)) {
             $closure = $this->containerClosure;
-            $this->container = $closure();
+            if(is_callable($closure)){
+                $this->container = $closure();
+            }
+            else{
+                $this->container = Category::$rootCategory;
+            }
         }
 
         return $this->container;
     }
 
-    public function setContainerClosure($containerClosure)
+    public function setContainerClosure(Closure $containerClosure)
     {
         $this->containerClosure = $containerClosure;
     }

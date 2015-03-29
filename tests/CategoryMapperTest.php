@@ -31,9 +31,16 @@ use QuidNovi\DataSource\DataSource;
 use QuidNovi\Finder\CategoryFinder;
 use QuidNovi\Mapper\CategoryMapper;
 use QuidNovi\Model\Category;
+use QuidNovi\Model\Feed;
 
 class CategoryMapperTest extends \PHPUnit_Framework_TestCase
 {
+    public static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+        date_default_timezone_set('Zulu');
+    }
+
     public function testComponentInsertion()
     {
         // Given
@@ -47,7 +54,11 @@ class CategoryMapperTest extends \PHPUnit_Framework_TestCase
 
         // Then
         $this->assertEquals($category->id, $DataSource->lastInsertId('Component'));
-        $this->assertEquals($category, $finder->find($category->id));
+        $retrievedCategory = $finder->find($category->id);
+        $this->assertEquals($category->getComponents(), $retrievedCategory->getComponents());
+        $this->assertEquals($category->id, $retrievedCategory->id);
+        $this->assertEquals($category->name, $retrievedCategory->name);
+        $this->assertEquals($category->getContainer(), $category->getContainer());
     }
 
     public function testComponentUpdate()
@@ -66,7 +77,11 @@ class CategoryMapperTest extends \PHPUnit_Framework_TestCase
 
         // Then
         $this->assertEquals($id, $category->id);
-        $this->assertEquals($category, $finder->find($category->id));
+        $retrievedCategory = $finder->find($category->id);
+        $this->assertEquals($category->getComponents(), $retrievedCategory->getComponents());
+        $this->assertEquals($category->id, $retrievedCategory->id);
+        $this->assertEquals($category->name, $retrievedCategory->name);
+        $this->assertEquals($category->getContainer(), $category->getContainer());
     }
 
     public function testComponentDeletion()
@@ -85,5 +100,33 @@ class CategoryMapperTest extends \PHPUnit_Framework_TestCase
         // Then
         $this->assertEquals(null, $category->id);
         $this->assertEquals(null, $finder->find($id));
+    }
+
+    public function testComponentsTreeInsertion()
+    {
+        //Given
+        $category = new Category('Foo');
+        $subCategory = new Category('Bar');
+        $anOtherSubCategory = new Category('Baz');
+        $feed = new Feed('FooFeed', "www.foofeed.com", new \DateTime());
+
+        $category->addComponent($subCategory);
+        $category->addComponent($anOtherSubCategory);
+        $category->addComponent($feed);
+        $anOtherSubCategory->addComponent($feed);
+
+        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new CategoryMapper($DataSource);
+        $finder = new CategoryFinder($DataSource);
+
+        //When
+        $mapper->persist($category);
+
+        //Then
+        $retrievedCategory = $finder->find($category->id);
+        $this->assertEquals($category->id, $retrievedCategory->id);
+        $this->assertEquals($category->name, $retrievedCategory->name);
+        $this->assertEquals($category->getContainer(), $category->getContainer());
+        $this->assertEquals($category->getComponents(), $retrievedCategory->getComponents());
     }
 }

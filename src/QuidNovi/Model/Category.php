@@ -36,6 +36,8 @@ class Category extends Component
 
     private $componentsClosure;
 
+    public static $rootCategory = null;
+
     public function __construct($name)
     {
         parent::__construct($name);
@@ -44,8 +46,8 @@ class Category extends Component
 
     public function addComponent(Component $component)
     {
-        $components = $this->getComponents();
-        array_push($components, $component);
+        $component->setContainer($this);
+        array_push($this->getComponents(), $component);
     }
 
     public function removeComponent(Component $component)
@@ -62,11 +64,16 @@ class Category extends Component
         $this->componentsClosure = $componentsClosure;
     }
 
-    public function getComponents()
+    public function &getComponents()
     {
         if (!isset($this->components)) {
             $closure = $this->componentsClosure;
-            $this->components = $closure();
+            if(is_callable($closure)){
+                $this->components = $closure();
+            }
+            else{
+                $this->components = array();
+            }
         }
 
         return $this->components;
