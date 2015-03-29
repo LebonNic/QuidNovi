@@ -27,6 +27,7 @@
 
 namespace QuidNovi\Controller;
 
+use QuidNovi\Finder\CategoryFinder;
 use QuidNovi\Finder\FeedFinder;
 use QuidNovi\Mapper\FeedMapper;
 use QuidNovi\Model\Feed;
@@ -63,7 +64,8 @@ class FeedController extends AbstractController
                 $json = json_decode($this->request->getBody(), true);
                 $name = isset($json['name']) ? $json['name'] : null;
                 $source = isset($json['source']) ? $json['source'] : null;
-                $this->subscribe($name, $source);
+                $containerId = isset($json['containerId']) ? $json['containerId'] : 1;
+                $this->subscribe($name, $source, $containerId);
             });
 
             $app->patch('/:id', function ($id) {
@@ -96,7 +98,7 @@ class FeedController extends AbstractController
         $this->buildResponse(200, new FeedDTO($feed));
     }
 
-    public function subscribe($name, $source)
+    public function subscribe($name, $source, $containerId)
     {
         if (null === $name) {
             $this->app->halt(400, 'Feed name is required.');
@@ -104,17 +106,25 @@ class FeedController extends AbstractController
         if (null === $source) {
             $this->app->halt(400, 'Feed source is required.');
         }
-        // TODO: check that source does not already exist.
         $source = filter_var($source, FILTER_SANITIZE_URL);
         if (!filter_var($source, FILTER_VALIDATE_URL) === true) {
             $this->app->halt(400, 'Feed source is not a valid url.');
+        }
+
+        $categoryFinder = new CategoryFinder($this->app->getDataSource());
+        $container = $categoryFinder->find($containerId);
+
+        if (null === $container) {
+            $this->app->halt(404, 'Container category does not exist.');
         }
 
         $this->app->getLog()->info('Subscribing to feed ' . $source);
 
         $yesterday = new \DateTime();
         $yesterday->sub(new \DateInterval('P1D'));
-        $feed = new Feed($source, $source, $yesterday);
+        $feed = new Feed($name, $source, $yesterday);
+        $feed->setContainer($container);
+        $container->addComponent($feed);
         $this->mapper->persist($feed);
         $this->buildResponse(201, [
             'uri' => '/feeds/' . $feed->id,

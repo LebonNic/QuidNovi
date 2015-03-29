@@ -67,7 +67,6 @@
             var categories = container.categories;
             for (var i = 0, length = categories.length; i < length; ++i) {
                 if (categories[i].id === id) {
-                    console.log(categories[i]);
                     categories.splice(i, 1);
                     return true;
                 }

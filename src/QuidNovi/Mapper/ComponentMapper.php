@@ -61,15 +61,13 @@ class ComponentMapper
 INSERT INTO Component (name, containerId)
 VALUES (:name, :containerId)
 SQL;
-        try
-        {
+        try {
+            $container = $component->getContainer();
             $this->DataSource->executeQuery($insertQuery, [
                 'name' => $component->name,
-                'containerId' => $component->getContainer()->id
+                'containerId' => $container->id
             ]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+        } catch (QueryExecutionFailure $e) {
             throw new InsertionFailure($component);
         }
 
@@ -84,15 +82,13 @@ UPDATE Component
 SET name = :name, containerId = :containerId
 WHERE id = :id
 SQL;
-        try
-        {
+        try {
             $this->DataSource->executeQuery($updateQuery, [
                 'name' => $component->name,
                 'id' => $component->id,
-                'containerId' => $component->getContainer()->id]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+                'containerId' => $component->getContainer()->id
+            ]);
+        } catch (QueryExecutionFailure $e) {
             throw new UpdateFailure($component);
         }
     }
@@ -103,12 +99,9 @@ SQL;
 DELETE FROM Component
 WHERE id = :id
 SQL;
-        try
-        {
+        try {
             $this->DataSource->executeQuery($deleteQuery, ['id' => $component->id]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+        } catch (QueryExecutionFailure $e) {
             throw new DeletionFailure($component);
         }
         $component->id = null;

@@ -60,6 +60,27 @@
             return findFeedInContainer(root, id);
         }
 
+        function removeFeed(id) {
+            removeFeedInContainer(root, id);
+        }
+
+        function removeFeedInContainer(container, id) {
+            var feeds = container.feeds;
+            var categories = container.categories;
+            for (var i = 0, length = feeds.length; i < length; ++i) {
+                if (feeds[i].id === id) {
+                    feeds.splice(i, 1);
+                    return true;
+                }
+            }
+            for (var i = 0, length = categories.length; i < length; ++i) {
+                if (removeFeedInContainer(categories[i], id)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         return {
             query: function (callback) {
                 Category.query(function (data) {
@@ -69,7 +90,7 @@
             },
             get: function (id, callback) {
                 if (root === undefined) {
-                    Category.query(function(data) {
+                    Category.query(function (data) {
                         root = data;
                         callback(findFeed(id));
                     })
@@ -79,14 +100,23 @@
             },
             subscribe: function (feed) {
                 if (undefined === feed.id) {
+                    if (feed.containerId === undefined) {
+                        feed.containerId = root.id;
+                    }
                     $http.post('/feeds', feed).success(function (data) {
-                        console.log(data);
+                        console.log('Feed ' + data.uri + ' subscribed.');
+                        $http.get(data.uri).success(function (feed) {
+                            feed.url = '/feeds/' + feed.id;
+                            root.feeds.push(feed);
+                        });
                     });
                 }
             },
             unsubscribe: function (feed) {
                 if (undefined !== feed.id) {
-                    $http.delete('/feeds/' + feed.id);
+                    $http.delete('/feeds/' + feed.id).success(function () {
+                        removeFeed(feed.id);
+                    });
                 }
             },
             rename: function (feed) {

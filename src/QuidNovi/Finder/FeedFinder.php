@@ -50,8 +50,7 @@ class FeedFinder
         $componentFinder = new ComponentFinder($this->DataSource);
         $componentRow = $componentFinder->getComponentRow($id);
 
-        if ($componentRow)
-        {
+        if ($componentRow) {
             $feedRow = $this->getFeedRow($id);
             if ($feedRow)
                 $feed = $this->reconstructFeed($componentRow, $feedRow);
@@ -66,12 +65,9 @@ class FeedFinder
 SELECT * FROM Feed
 WHERE id=(:id)
 SQL;
-        try
-        {
+        try {
             $result = $this->DataSource->executeQuery($selectQuery, ['id' => $id]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+        } catch (QueryExecutionFailure $e) {
             throw new ResearchFaillure("An error occurred during the feed research. More info: "
                 . print_r($this->DataSource->errorInfo()));
         }
@@ -86,9 +82,9 @@ SQL;
         $feed = new Feed($componentRow['name'], $feedRow['source'], $lastUpdate);
         $feed->id = $componentRow['id'];
         $containerId = $componentRow['containerId'];
-        $finder = new CategoryFinder($this->DataSource);
-        $feed->setContainerClosure(function() use($finder, $containerId) {
-            return $finder->find($containerId);
+        $categoryFinder = new CategoryFinder($this->DataSource);
+        $feed->setContainerClosure(function () use ($categoryFinder, $containerId) {
+            return $categoryFinder->find($containerId);
         });
 
         return $feed;
@@ -100,11 +96,9 @@ SQL;
         $componentRows = $componentFinder->getAllComponentRows();
         $feeds = array();
 
-        foreach($componentRows as $componentRow)
-        {
+        foreach ($componentRows as $componentRow) {
             $feedRow = $this->getFeedRow($componentRow['id']);
-            if($feedRow)
-            {
+            if ($feedRow) {
                 $feed = $this->reconstructFeed($componentRow, $feedRow);
                 array_push($feeds, $feed);
             }
@@ -118,12 +112,9 @@ SQL;
         $selectQuery = <<<SQL
 SELECT COUNT(id) FROM Feed
 SQL;
-        try
-        {
+        try {
             $result = $this->DataSource->executeQuery($selectQuery);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+        } catch (QueryExecutionFailure $e) {
             throw new ResearchFaillure("An error occurred during the feeds' count. More info: "
                 . print_r($this->DataSource->errorInfo()));
         }

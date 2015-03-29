@@ -28,6 +28,7 @@
 namespace QuidNovi\Mapper;
 
 use QuidNovi\DataSource\DataSource;
+use QuidNovi\Exception\DeletionFailure;
 use QuidNovi\Exception\InsertionFailure;
 use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\UpdateFailure;
@@ -64,12 +65,9 @@ class FeedMapper
 DELETE FROM Feed
 WHERE id = :id
 SQL;
-        try
-        {
+        try {
             $this->DataSource->executeQuery($deleteQuery, ['id' => $feed->id]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+        } catch (QueryExecutionFailure $e) {
             throw new DeletionFailure($feed);
         }
         $componentMapper = new ComponentMapper($this->DataSource);
@@ -83,15 +81,12 @@ UPDATE Feed
 SET source = :source, lastUpdate = :lastUpdate
 WHERE id = :id
 SQL;
-        try
-        {
+        try {
             $this->DataSource->executeQuery($updateQuery,
-                                            ['source' => $feed->getSource(),
-                                            'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s'),
-                                            'id' => $feed->id, ]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+                ['source' => $feed->getSource(),
+                    'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s'),
+                    'id' => $feed->id,]);
+        } catch (QueryExecutionFailure $e) {
             throw new UpdateFailure($feed);
         }
 
@@ -104,15 +99,13 @@ SQL;
 INSERT INTO Feed (id, source, lastUpdate)
 VALUES (:id, :source, :lastUpdate)
 SQL;
-        try
-        {
-            $this->DataSource->executeQuery($insertQuery,
-                                            ['id' => $feed->id,
-                                            'source' => $feed->getSource(),
-                                            'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s')]);
-        }
-        catch(QueryExecutionFailure $e)
-        {
+        try {
+            $this->DataSource->executeQuery($insertQuery, [
+                'id' => $feed->id,
+                'source' => $feed->getSource(),
+                'lastUpdate' => $feed->lastUpdate->format('Y-m-d H:i:s')
+            ]);
+        } catch (QueryExecutionFailure $e) {
             throw new InsertionFailure($feed);
         }
 
