@@ -1,22 +1,45 @@
 <?php
 
+/**
+ * The MIT License (MIT).
+ *
+ * Copyright (c) 2015 Antoine Colmard
+ *               2015 Nicolas Prugne
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 namespace QuidNovi\Specification;
 
-use QuidNovi\Entry;
-
-class AndSpecification implements EntrySpecification
+class AndSpecification extends CompositeSpecification
 {
     private $aSpecification;
     private $anotherSpecification;
 
-    public function __construct(EntrySpecification $aSpecification, EntrySpecification $anotherSpecification)
+    public function __construct(Specification $aSpecification, Specification $anotherSpecification)
     {
         $this->aSpecification = $aSpecification;
         $this->anotherSpecification = $anotherSpecification;
     }
 
-    public function isSatisfiedBy(Entry $entry)
+    public function isSatisfiedBy($object)
     {
-        return $this->aSpecification->isSatisfiedBy($entry) && $this->anotherSpecification->isSatisfiedBy($entry);
+        return $this->aSpecification->isSatisfiedBy($object) && $this->anotherSpecification->isSatisfiedBy($object);
     }
 }

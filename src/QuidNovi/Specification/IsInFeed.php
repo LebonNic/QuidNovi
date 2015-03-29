@@ -27,19 +27,25 @@
 
 namespace QuidNovi\Specification;
 
-class OrSpecification extends CompositeSpecification
+class IsInFeed extends CompositeSpecification
 {
-    private $oneSpecification;
-    private $anotherSpecification;
+    private $feedId;
 
-    public function __construct(Specification $oneSpecification, Specification $anotherSpecification)
+    public function __construct($feedId)
     {
-        $this->oneSpecification = $oneSpecification;
-        $this->anotherSpecification = $anotherSpecification;
+        $this->feedId = $feedId;
     }
 
-    public function isSatisfiedBy($object)
+    public function isSatisfiedBy($entry)
     {
-        return $this->oneSpecification->isSatisfiedBy($object) || $this->anotherSpecification->isSatisfiedBy($object);
+        $feed = $entry->feed;
+        if (null === $feed) {
+            return false;
+        }
+        if ($this->feedId === $feed->id) {
+            return true;
+        }
+
+        return false;
     }
 }

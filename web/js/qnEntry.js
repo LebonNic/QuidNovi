@@ -77,12 +77,35 @@
         };
     });
 
-    qnEntry.factory('Entry', function ($http, Feed) {
+    qnEntry.factory('Entry', function ($http, $routeParams, Feed) {
         var entries = [];
+
+        function getQueryParams() {
+            var read = $routeParams.read;
+            var saved = $routeParams.saved;
+            var feed = $routeParams.feed;
+            var category = $routeParams.category;
+            var queryParams = {};
+            if (undefined !== read) {
+                queryParams.read = read;
+            }
+            if (undefined !== saved) {
+                queryParams.saved = saved;
+            }
+            if (undefined !== feed) {
+                queryParams.feed = feed;
+            }
+            if (undefined !== category) {
+                queryParams.category = category;
+            }
+
+            return queryParams;
+        }
 
         return {
             query: function(callback) {
-                $http.get('/entries').success(function(data) {
+                var queryParams = getQueryParams();
+                $http.get('/entries', {params: queryParams}).success(function(data) {
                     entries = data;
                     angular.forEach(entries, function(entry) {
                         entry.publicationDate = new Date(entry.publicationDate);

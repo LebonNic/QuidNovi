@@ -32,6 +32,11 @@ use QuidNovi\Finder\EntryFinder;
 use QuidNovi\Mapper\EntryMapper;
 use QuidNovi\Model\Entry;
 use QuidNovi\QuidNovi;
+use QuidNovi\Specification\IsInCategory;
+use QuidNovi\Specification\IsInFeed;
+use QuidNovi\Specification\IsRead;
+use QuidNovi\Specification\IsSaved;
+use QuidNovi\Specification\TrueSpecification;
 
 /**
  * Class EntryController retrieves news entries and edits user specific
@@ -123,22 +128,78 @@ class EntryController extends AbstractController
      */
     public function findAll($read, $saved, $feed, $category)
     {
-        $entries = $this->finder->findAll();
+        $specification = $this->getEntrySpecification($read, $saved, $feed, $category);
+        $entries = $this->finder->findSatisfying($specification);
+
         $entriesDTO = [];
         foreach ($entries as $entry) {
             array_push($entriesDTO, new EntryDTO($entry));
         }
 
-        if (null !== $read) {
+        $this->buildResponse(200, $entriesDTO);
+    }
+
+    private function getEntrySpecification($read, $saved, $feed, $category)
+    {
+        $specification = new TrueSpecification();
+        $readSpecification = $this->getReadSpecification($read);
+        $savedSpecification = $this->getSavedSpecification($saved);
+        $feedSpecification = $this->getFeedSpecification($feed);
+        $categorySpecification = $this->getCategorySpecification($category);
+
+        return $specification
+            ->intersect($readSpecification)
+            ->intersect($savedSpecification)
+            ->intersect($feedSpecification)
+            ->intersect($categorySpecification);
+    }
+
+    private function getReadSpecification($read)
+    {
+        if (null === $read) {
+            return new TrueSpecification();
         }
-        if (null !== $saved) {
+        if ('true' === $read) {
+            return new IsRead();
         }
-        if (null !== $feed) {
-        }
-        if (null !== $category) {
+        if ('false' === $read) {
+            return (new IsRead())->invert();
         }
 
-        $this->buildResponse(200, $entriesDTO);
+        return new TrueSpecification();
+    }
+
+    private function getSavedSpecification($saved)
+    {
+        if (null === $saved) {
+            return new TrueSpecification();
+        }
+        if ('true' === $saved) {
+            return new IsSaved();
+        }
+        if ('false' === $saved) {
+            return (new IsSaved())->invert();
+        }
+
+        return new TrueSpecification();
+    }
+
+    private function getFeedSpecification($feedId)
+    {
+        if (null === $feedId) {
+            return new TrueSpecification();
+        }
+
+        return new IsInFeed($feedId);
+    }
+
+    private function getCategorySpecification($categoryId)
+    {
+        if (null === $categoryId) {
+            return new TrueSpecification();
+        }
+
+        return new IsInCategory($categoryId);
     }
 
     /**

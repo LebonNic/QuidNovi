@@ -27,19 +27,13 @@
 
 namespace QuidNovi\Specification;
 
-class OrSpecification extends CompositeSpecification
+interface Specification
 {
-    private $oneSpecification;
-    private $anotherSpecification;
+    public function isSatisfiedBy($object);
 
-    public function __construct(Specification $oneSpecification, Specification $anotherSpecification)
-    {
-        $this->oneSpecification = $oneSpecification;
-        $this->anotherSpecification = $anotherSpecification;
-    }
+    public function intersect(Specification $specification);
 
-    public function isSatisfiedBy($object)
-    {
-        return $this->oneSpecification->isSatisfiedBy($object) || $this->anotherSpecification->isSatisfiedBy($object);
-    }
+    public function union(Specification $specification);
+
+    public function invert();
 }

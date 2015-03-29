@@ -32,7 +32,7 @@ use QuidNovi\DataSource\DataSource;
 use QuidNovi\Exception\QueryExecutionFailure;
 use QuidNovi\Exception\ResearchFaillure;
 use QuidNovi\Model\Entry;
-use QuidNovi\Specification\EntrySpecification;
+use QuidNovi\Specification\Specification;
 
 class EntryFinder
 {
@@ -133,7 +133,7 @@ SQL;
         return $entries;
     }
 
-    public function findSatisfying(EntrySpecification $specification)
+    public function findSatisfying(Specification $specification)
     {
         $entries = $this->findAll();
         $satisfying = [];

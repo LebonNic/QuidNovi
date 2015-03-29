@@ -27,19 +27,10 @@
 
 namespace QuidNovi\Specification;
 
-class OrSpecification extends CompositeSpecification
+class IsSaved extends CompositeSpecification
 {
-    private $oneSpecification;
-    private $anotherSpecification;
-
-    public function __construct(Specification $oneSpecification, Specification $anotherSpecification)
-    {
-        $this->oneSpecification = $oneSpecification;
-        $this->anotherSpecification = $anotherSpecification;
-    }
-
     public function isSatisfiedBy($object)
     {
-        return $this->oneSpecification->isSatisfiedBy($object) || $this->anotherSpecification->isSatisfiedBy($object);
+        return $object->isSaved();
     }
 }
