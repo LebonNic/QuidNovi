@@ -27,11 +27,10 @@
 
 namespace tests;
 
+use PDO;
 use QuidNovi\DataSource\DataSource;
-use QuidNovi\Finder\CategoryFinder;
 use QuidNovi\Mapper\CategoryMapper;
 use QuidNovi\Model\Category;
-use QuidNovi\Model\Feed;
 
 class CategoryMapperTest extends \PHPUnit_Framework_TestCase
 {
@@ -41,33 +40,53 @@ class CategoryMapperTest extends \PHPUnit_Framework_TestCase
         date_default_timezone_set('Zulu');
     }
 
-    public function testComponentInsertion()
+    private function getComponentRow(DataSource $dataSource, $id)
+    {
+        $selectComponentQuery = <<<SQL
+SELECT * FROM Component
+WHERE id = :id
+SQL;
+        $componentRow = $dataSource->executeQuery($selectComponentQuery, ['id' => $id]);
+        return $componentRow->fetch(PDO::FETCH_ASSOC);
+    }
+
+    private function getCategoryRow(DataSource $dataSource, $id)
+    {
+        $selectComponentQuery = <<<SQL
+SELECT * FROM Category
+WHERE id = :id
+SQL;
+        $componentRow = $dataSource->executeQuery($selectComponentQuery, ['id' => $id]);
+        return $componentRow->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function testCategoryInsertion()
     {
         // Given
         $category = new Category('Foo');
-        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new CategoryMapper($DataSource);
-        $finder = new CategoryFinder($DataSource);
+        $dataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new CategoryMapper($dataSource);
 
         // When
         $mapper->persist($category);
+        $id = $dataSource->lastInsertId('Component');
 
         // Then
-        $this->assertEquals($category->id, $DataSource->lastInsertId('Component'));
-        $retrievedCategory = $finder->find($category->id);
-        $this->assertEquals($category->getComponents(), $retrievedCategory->getComponents());
-        $this->assertEquals($category->id, $retrievedCategory->id);
-        $this->assertEquals($category->name, $retrievedCategory->name);
-        $this->assertEquals($category->getContainer(), $category->getContainer());
+        $componentRow = $this->getComponentRow($dataSource, $id);
+        $categoryRow = $this->getCategoryRow($dataSource, $id);
+        $this->assertNotNull($componentRow);
+        $this->assertNotNull($categoryRow);
+        $this->assertEquals($category->id, $id);
+        $this->assertEquals($category->name, $componentRow['name']);
+        $this->assertEquals($category->getContainer()->id, $componentRow['containerId']);
     }
 
-    public function testComponentUpdate()
+    public function testCategoryUpdate()
     {
         // Given
         $category = new Category('Foo');
-        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new CategoryMapper($DataSource);
-        $finder = new CategoryFinder($DataSource);
+        $dataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new CategoryMapper($dataSource);
 
         // When
         $mapper->persist($category);
@@ -76,21 +95,21 @@ class CategoryMapperTest extends \PHPUnit_Framework_TestCase
         $mapper->persist($category);
 
         // Then
+        $componentRow = $this->getComponentRow($dataSource, $id);
+        $categoryRow = $this->getCategoryRow($dataSource, $id);
         $this->assertEquals($id, $category->id);
-        $retrievedCategory = $finder->find($category->id);
-        $this->assertEquals($category->getComponents(), $retrievedCategory->getComponents());
-        $this->assertEquals($category->id, $retrievedCategory->id);
-        $this->assertEquals($category->name, $retrievedCategory->name);
-        $this->assertEquals($category->getContainer(), $category->getContainer());
+        $this->assertNotNull($componentRow);
+        $this->assertNotNull($categoryRow);
+        $this->assertEquals($category->name, $componentRow['name']);
+        $this->assertEquals($category->getContainer()->id, $componentRow['containerId']);
     }
 
-    public function testComponentDeletion()
+    public function testCategoryDeletion()
     {
         // Given
         $category = new Category('Foo');
-        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new CategoryMapper($DataSource);
-        $finder = new CategoryFinder($DataSource);
+        $dataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
+        $mapper = new CategoryMapper($dataSource);
 
         // When
         $mapper->persist($category);
@@ -98,36 +117,9 @@ class CategoryMapperTest extends \PHPUnit_Framework_TestCase
         $mapper->remove($category);
 
         // Then
-        $this->assertEquals(null, $category->id);
-        $this->assertEquals(null, $finder->find($id));
-    }
-
-    public function testComponentsTreeInsertion()
-    {
-        //Given
-        $category = new Category('Foo');
-        $subCategory = new Category('Bar');
-        $anOtherSubCategory = new Category('Baz');
-        $feed = new Feed('FooFeed', "www.foofeed.com", new \DateTime());
-        $anOtherFeed = new Feed('BarFeed', 'www.barfeed.com', new \DateTime());
-
-        $category->addComponent($subCategory);
-        $category->addComponent($anOtherSubCategory);
-        $category->addComponent($feed);
-        $anOtherSubCategory->addComponent($anOtherFeed);
-
-        $DataSource = new DataSource('sqlite:'.__DIR__.'/../database.sqlite3');
-        $mapper = new CategoryMapper($DataSource);
-        $finder = new CategoryFinder($DataSource);
-
-        //When
-        $mapper->persist($category);
-
-        //Then
-        $retrievedCategory = $finder->find($category->id);
-        $this->assertEquals($category->id, $retrievedCategory->id);
-        $this->assertEquals($category->name, $retrievedCategory->name);
-        $this->assertEquals($category->getContainer(), $category->getContainer());
-        $this->assertEquals($category->getComponents(), $retrievedCategory->getComponents());
+        $componentRow = $this->getComponentRow($dataSource, $id);
+        $categoryRow = $this->getCategoryRow($dataSource, $id);
+        $this->assertEquals(null, $componentRow);
+        $this->assertEquals(null, $categoryRow);
     }
 }
